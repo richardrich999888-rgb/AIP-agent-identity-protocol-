@@ -1,0 +1,10 @@
+note: cloud side not configured by the operator; pointed at https://cloud.example.invalid/v1/chat/completions (a placeholder)
+serving model: granite-3.3-2b-q4
+PULL THE PLUG   [LIVE]   measured on: 4 vCPU, 15 GB RAM, no GPU
+network: {"offline": true, "non_loopback_routes": [], "non_loopback_interfaces": [], "tx_bytes_non_loopback": 0}
+vibration          local=answered out=0 cloud=failed/dns_unavailable
+generator          local=answered out=0 cloud=failed/dns_unavailable
+transformer        local=answered out=0 cloud=failed/dns_unavailable
+restricted-secret  local=withheld out=0 cloud=failed/dns_unavailable
+other-tenant       local=answered out=0 cloud=failed/dns_unavailable
+ACCEPTANCE: PASS

@@ -10,7 +10,7 @@ distribution (`research/bittorrent-p2p`) is optional and never required.
 | CPU | x86-64, ≥ 2 cores, AVX2 (AVX-512 used if present) | `cpu` |
 | Memory | ≈ 320 MiB + 2.1 × model file size, available at start (estimate from the measured 1.5B Q8_0 peak of 3690 MiB) | `memory:<model>` |
 | OS | Linux, glibc; `libstdc++.so.6`, `libgomp.so.1` | bundle `MANIFEST.json` |
-| Python | ≥ 3.10 with numpy (interpretation/retrieval sidecar) | install step 3 |
+| Python | **3.11 x86-64**, with the exact set in `requirements.lock` (numpy, scikit-learn, pytest + transitives). `scikit-learn` is a **lazy** import inside `methods/extractors.py`, so its absence shows up only when the sidecar starts. | `deploy/syntriass/setup_env.sh` |
 | Network | none; host must have **no default route** | `offline` (reads routing tables, sends nothing) |
 | GPU | not used, not supported | — |
 
@@ -41,6 +41,39 @@ runs `syntriass health` and exits with its verdict. Then edit `config.json`:
 `policy_version`, `security_domain`, approver and expert **public** keys;
 create `principals.json` (OS uid → tenant/clearance); ingest documents with
 `syntriass ingest`.
+
+## 3a. Python environment and datasets
+
+```sh
+deploy/syntriass/setup_env.sh                  # wheels from the bundle, else PyPI
+deploy/syntriass/setup_env.sh --wheels DIR     # explicit wheel directory
+deploy/syntriass/setup_env.sh --skip-data      # packages only
+```
+
+Installs with `pip install --require-hashes` against
+`deploy/syntriass/requirements.lock`, so a file that does not match its pinned
+SHA-256 is refused rather than installed. It prefers a wheel directory inside
+the bundle (`$SYNTRIASS_WHEELS`, default `deploy/syntriass/wheels`) and only
+falls back to PyPI when none is present — an air-gapped install must carry the
+wheels.
+
+The lock pins **cp311 manylinux x86-64** wheels for the three compiled
+packages. On another interpreter or architecture the hash check fails by
+design; regenerate the lock there rather than relaxing it.
+
+It then runs the dataset step:
+
+```sh
+python3 -I deploy/syntriass/verify_datasets.py --check      # verify only
+python3 -I deploy/syntriass/verify_datasets.py --generate   # regenerate, then verify
+```
+
+`.gitignore` carries a blanket `*.jsonl`, so the interpretation sidecar's
+seeded training data is not in the repository even though its `MANIFEST.json`
+is. The datasets are seeded, so they are regenerated and every split is
+checked against the SHA-256 pinned in that tracked manifest. A split that does
+not match is a **different** dataset: it is reported and the step exits
+non-zero, never accepted with a warning.
 
 ## 4. Profiles
 

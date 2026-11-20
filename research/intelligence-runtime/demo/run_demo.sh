@@ -62,9 +62,15 @@ ask "$ALPHA" "Cooling water pump P-7, drive end, 7.9 mm/s overall vibration."
 
 say "Scene 3 — learning: draft -> corrections -> signed expert suite -> validation -> approval -> active"
 if [[ "${1:-}" == "--propose" ]]; then
-  "$OFF" python3 -I "$CL/harness/propose.py" "$OUT/propose" --model /home/claude/vanian-build/models/qwen2.5-1.5b-instruct-q8_0.gguf \
-    --model-sha d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8 \
-    --server /home/claude/vanian-build/build-llama-native/bin/llama-server --bin "$BIN" | tail -1
+  # Resolved from the staged bundle, verified against models.manifest.json.
+  # --verify hashes the file: this branch records a measurement, so the cost
+  # is the point. Any resolution failure stops the scene with its own message.
+  MODEL=$(python3 -I "$ROOT/deploy/syntriass/resolve_model.py" path qwen2.5-1.5b-q8 --verify) || exit $?
+  MODEL_SHA=$(python3 -I "$ROOT/deploy/syntriass/resolve_model.py" sha qwen2.5-1.5b-q8) || exit $?
+  SERVER=$(python3 -I "$ROOT/deploy/syntriass/resolve_model.py" server) || exit $?
+  "$OFF" python3 -I "$CL/harness/propose.py" "$OUT/propose" --model "$MODEL" \
+    --model-sha "$MODEL_SHA" \
+    --server "$SERVER" --bin "$BIN" | tail -1
   DRAFT="$OUT/propose/round_1.json"
 else
   DRAFT="$CL/results/propose_qwen1.5b-q8/round_1.json"; echo "using recorded model draft: $DRAFT"

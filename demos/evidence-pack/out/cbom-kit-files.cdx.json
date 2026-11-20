@@ -1,0 +1,144 @@
+{
+  "bomFormat": "CycloneDX",
+  "components": [],
+  "metadata": {
+    "component": {
+      "bom-ref": "syntriass:host",
+      "name": "Ubuntu 24.04.5 LTS",
+      "properties": [
+        {
+          "name": "syntriass:host:hostname",
+          "value": "vm"
+        },
+        {
+          "name": "syntriass:host:os",
+          "value": "Ubuntu 24.04.5 LTS"
+        },
+        {
+          "name": "syntriass:host:osVersion",
+          "value": "24.04"
+        },
+        {
+          "name": "syntriass:host:osId",
+          "value": "ubuntu"
+        },
+        {
+          "name": "syntriass:host:kernel",
+          "value": "6.18.44-fc-v310"
+        },
+        {
+          "name": "syntriass:host:arch",
+          "value": "x86_64"
+        },
+        {
+          "name": "syntriass:host:cpus",
+          "value": "4"
+        },
+        {
+          "name": "syntriass:host:ipAddresses",
+          "value": "192.0.2.2"
+        }
+      ],
+      "type": "operating-system",
+      "version": "24.04"
+    },
+    "properties": [
+      {
+        "name": "syntriass:bomType",
+        "value": "CBOM"
+      },
+      {
+        "name": "syntriass:node",
+        "value": "vm"
+      },
+      {
+        "name": "syntriass:host:hostname",
+        "value": "vm"
+      },
+      {
+        "name": "syntriass:host:os",
+        "value": "Ubuntu 24.04.5 LTS"
+      },
+      {
+        "name": "syntriass:host:osVersion",
+        "value": "24.04"
+      },
+      {
+        "name": "syntriass:host:osId",
+        "value": "ubuntu"
+      },
+      {
+        "name": "syntriass:host:kernel",
+        "value": "6.18.44-fc-v310"
+      },
+      {
+        "name": "syntriass:host:arch",
+        "value": "x86_64"
+      },
+      {
+        "name": "syntriass:host:cpus",
+        "value": "4"
+      },
+      {
+        "name": "syntriass:host:ipAddresses",
+        "value": "192.0.2.2"
+      },
+      {
+        "name": "syntriass:scan:scope",
+        "value": "custom"
+      },
+      {
+        "name": "syntriass:scan:roots",
+        "value": "kit"
+      },
+      {
+        "name": "syntriass:scan:excluded",
+        "value": ""
+      },
+      {
+        "name": "syntriass:scan:sameFilesystem",
+        "value": "false"
+      },
+      {
+        "name": "syntriass:scan:maxFiles",
+        "value": "unbounded"
+      },
+      {
+        "name": "syntriass:scan:effectiveUid",
+        "value": "0"
+      },
+      {
+        "name": "syntriass:scan:filesScanned",
+        "value": "178"
+      },
+      {
+        "name": "syntriass:scan:bytesRead",
+        "value": "421270"
+      },
+      {
+        "name": "syntriass:scan:pathsSkipped",
+        "value": "0"
+      },
+      {
+        "name": "syntriass:scan:coverageComplete",
+        "value": "true"
+      },
+      {
+        "name": "syntriass:scan:truncated",
+        "value": "false"
+      }
+    ],
+    "tools": {
+      "components": [
+        {
+          "name": "syntriass-cbom",
+          "type": "application",
+          "version": "0.1.0"
+        }
+      ]
+    }
+  },
+  "serialNumber": "urn:uuid:cf7be895-edf7-43b3-a7a5-63902bb3ee76",
+  "specVersion": "1.6",
+  "version": 1
+}

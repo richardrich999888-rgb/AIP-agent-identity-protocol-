@@ -1,0 +1,66 @@
+{
+  "schema": "syntriass.demo.result/v1",
+  "demo": "launch-pq",
+  "started_utc": "2026-11-07T15:03:05.692+00:00",
+  "finished_utc": "2026-11-07T15:03:40.970+00:00",
+  "provenance": [
+    {
+      "repo": "AIP-agent-identity-protocol-",
+      "commit": "80e8135f5c74f14a44bf37dde182e84afdb66942",
+      "dirty": false
+    },
+    {
+      "repo": "overlay",
+      "commit": "3d63f959f28c1c8fd2e55e4a7a240d72f76631fe",
+      "dirty": false
+    }
+  ],
+  "hardware": {
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "vcpu": 4,
+    "mem_gb": 15,
+    "gpu": null,
+    "kernel": "6.18.44-fc-v310",
+    "label": "4 vCPU, 15 GB RAM, no GPU"
+  },
+  "offline": {
+    "offline": false,
+    "non_loopback_routes": [
+      {
+        "family": "ipv4",
+        "iface": "eth0"
+      },
+      {
+        "family": "ipv4",
+        "iface": "docker0"
+      },
+      {
+        "family": "ipv4",
+        "iface": "eth0"
+      }
+    ],
+    "non_loopback_interfaces": [
+      "docker0",
+      "eth0",
+      "ifb0",
+      "ifb1"
+    ],
+    "tx_bytes_non_loopback": 3615609
+  },
+  "steps": [
+    {
+      "kind": "live",
+      "text": "Post-quantum in one switch (proof of concept)",
+      "source": null,
+      "banner": "[LIVE] Post-quantum in one switch (proof of concept)"
+    }
+  ],
+  "measurements": {
+    "mode": "pq",
+    "exit_code": 0,
+    "passed": true,
+    "wall_s": 35.3,
+    "output_dir": "/home/user/AIP-agent-identity-protocol-/demos/recording/out/pq/run/run",
+    "console": "/home/user/AIP-agent-identity-protocol-/demos/recording/out/pq/run/console.txt"
+  }
+}

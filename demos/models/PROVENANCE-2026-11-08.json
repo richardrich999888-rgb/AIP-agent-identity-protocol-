@@ -1,0 +1,56 @@
+{
+ "models": {
+  "qwen2.5-1.5b-q4": {
+   "logical_name": "qwen2.5-1.5b-q4",
+   "file": "qwen2.5-1.5b-instruct-q4_k_m.gguf",
+   "repo": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+   "url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q4_k_m.gguf",
+   "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+   "size_bytes": 1117320736,
+   "pinned_in": "deploy/syntriass/models.manifest.json",
+   "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+   "card_licence": "apache-2.0",
+   "licence_file": {
+    "sha256": "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e",
+    "first_line": "Apache License"
+   },
+   "gated": false,
+   "read_utc": "2026-11-08T04:00:48+00:00"
+  },
+  "qwen2.5-1.5b-q8": {
+   "logical_name": "qwen2.5-1.5b-q8",
+   "file": "qwen2.5-1.5b-instruct-q8_0.gguf",
+   "repo": "Qwen/Qwen2.5-1.5B-Instruct-GGUF",
+   "url": "https://huggingface.co/Qwen/Qwen2.5-1.5B-Instruct-GGUF/resolve/91cad51170dc346986eccefdc2dd33a9da36ead9/qwen2.5-1.5b-instruct-q8_0.gguf",
+   "sha256": "d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8",
+   "size_bytes": 1894532128,
+   "pinned_in": "deploy/syntriass/models.manifest.json",
+   "revision": "91cad51170dc346986eccefdc2dd33a9da36ead9",
+   "card_licence": "apache-2.0",
+   "licence_file": {
+    "sha256": "832dd9e00a68dd83b3c3fb9f5588dad7dcf337a0db50f7d9483f310cd292e92e",
+    "first_line": "Apache License"
+   },
+   "gated": false,
+   "read_utc": "2026-11-08T04:01:42+00:00"
+  },
+  "granite-3.3-2b-q4": {
+   "logical_name": "granite-3.3-2b-q4",
+   "file": "granite-3.3-2b-instruct-Q4_K_M.gguf",
+   "repo": "ibm-granite/granite-3.3-2b-instruct-GGUF",
+   "url": "https://huggingface.co/ibm-granite/granite-3.3-2b-instruct-GGUF/resolve/7cdf86ccd1f1bb3491c9b7017b033f2e51367397/granite-3.3-2b-instruct-Q4_K_M.gguf",
+   "sha256": "ac71e9e32c0bea919b409c5918f69ca74339854b0319c5065e4e9fb6d95c4852",
+   "size_bytes": 1545303328,
+   "pinned_in": "demos/models/extra-models.json",
+   "revision": "7cdf86ccd1f1bb3491c9b7017b033f2e51367397",
+   "card_licence": "apache-2.0",
+   "licence_file": null,
+   "gated": false,
+   "read_utc": "2026-11-08T04:03:21+00:00"
+  }
+ },
+ "llama_server": {
+  "sha256": "a60eda07ba586296cb5b774b0e59a924d9712bbc5bb14fea00a2c80d8c19f444",
+  "source": "llama.cpp vendored in llama-cpp-python 0.3.16 sdist (sha256 34ed0f9b\u2026), cmake -DCMAKE_BUILD_TYPE=Release -DGGML_NATIVE=ON -DLLAMA_CURL=OFF"
+ }
+}

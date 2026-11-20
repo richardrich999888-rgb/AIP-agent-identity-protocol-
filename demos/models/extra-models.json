@@ -1,0 +1,13 @@
+{
+ "note": "Models the demos use that deploy/syntriass/models.manifest.json does not pin yet. That manifest belongs to the teaching-demo session and is not edited from here; each entry below is the record to add to it. Read from the Hugging Face API on 2026-11-08.",
+ "models": [
+  {
+   "logical_name": "granite-3.3-2b-q4",
+   "file": "granite-3.3-2b-instruct-Q4_K_M.gguf",
+   "repo": "ibm-granite/granite-3.3-2b-instruct-GGUF",
+   "revision": "7cdf86ccd1f1bb3491c9b7017b033f2e51367397",
+   "sha256": "ac71e9e32c0bea919b409c5918f69ca74339854b0319c5065e4e9fb6d95c4852",
+   "why": "the non-Chinese open model option (rule 7); IBM, Apache-2.0 per its model card"
+  }
+ ]
+}

@@ -1,0 +1,706 @@
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:04.657:13) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SYSCALL msg=audit(11/06/26 11:10:04.657:13) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7ffec8fd7230 a2=0x42c a3=0x0 items=0 ppid=1032 pid=1043 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:10:04.657:13) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:04.657:14) : proctitle=auditctl -w /tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22a/run/outsi 
+type=PATH msg=audit(11/06/26 11:10:04.657:14) : item=0 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22a/run/outside-scope inode=1074097 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:04.657:14) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:04.657:14) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:10:04.657:14) : arch=x86_64 syscall=sendto success=yes exit=1192 a0=0x4 a1=0x7ffdc23fe740 a2=0x4a8 a3=0x0 items=1 ppid=1032 pid=1045 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:10:04.657:14) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:06.669:15) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:10:06.669:15) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:06.669:15) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:06.669:15) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:10:06.669:15) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffc8fe05250 a2=0x6e a3=0x7f63ece19bd0 items=1 ppid=1032 pid=1052 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:06.669:16) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:10:06.669:16) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:06.669:16) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:06.669:16) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:10:06.669:16) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffc8fe05440 a2=0x6e a3=0x7f63ece19bd0 items=1 ppid=1032 pid=1052 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:06.693:17) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=SOCKADDR msg=audit(11/06/26 11:10:06.693:17) : saddr={ saddr_fam=inet laddr=127.0.0.1 lport=41697 } 
+type=SYSCALL msg=audit(11/06/26 11:10:06.693:17) : arch=x86_64 syscall=connect success=no exit=EINPROGRESS(Operation now in progress) a0=0x3 a1=0x7ffc8fe06070 a2=0x10 a3=0x7f63ece18eb0 items=0 ppid=1032 pid=1052 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:06.693:18) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:10:06.693:18) : item=1 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22a/run/outside-scope/copied-25a62fac472a7db4.txt inode=1074327 dev=fe:00 mode=file,644 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=CREATE cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=PATH msg=audit(11/06/26 11:10:06.693:18) : item=0 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22a/run/outside-scope/ inode=1074097 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=PARENT cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:06.693:18) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SYSCALL msg=audit(11/06/26 11:10:06.693:18) : arch=x86_64 syscall=openat success=yes exit=3 a0=AT_FDCWD a1=0x7f63ecb45790 a2=O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC a3=0x1b6 items=2 ppid=1032 pid=1052 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:12.309:19) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:10:12.309:19) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:12.309:19) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:12.309:19) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:10:12.309:19) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7fff0325afe0 a2=0x6e a3=0x1 items=1 ppid=1032 pid=1054 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:12.309:20) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:10:12.309:20) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:12.309:20) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:12.309:20) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:10:12.309:20) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7fff0325b1d0 a2=0x6e a3=0x1 items=1 ppid=1032 pid=1054 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:12.309:21) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:10:12.309:21) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:10:12.309:21) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x3 a1=0x7fff9e7e5910 a2=0x42c a3=0x0 items=0 ppid=1032 pid=1055 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:10:12.309:21) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:12.333:22) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:10:12.333:22) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:10:12.333:22) : arch=x86_64 syscall=sendto success=yes exit=1192 a0=0x3 a1=0x7fff9e7e5910 a2=0x4a8 a3=0x0 items=0 ppid=1032 pid=1055 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:10:12.333:22) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:26.925:23) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SYSCALL msg=audit(11/06/26 11:10:26.925:23) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7ffcd5f8f680 a2=0x42c a3=0x0 items=0 ppid=1078 pid=1088 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:10:26.925:23) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:26.929:24) : proctitle=auditctl -w /tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22h/run/outsi 
+type=PATH msg=audit(11/06/26 11:10:26.929:24) : item=0 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22h/run/outside-scope inode=1074073 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:26.929:24) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:26.929:24) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:10:26.929:24) : arch=x86_64 syscall=sendto success=yes exit=1192 a0=0x4 a1=0x7ffd1440fdf0 a2=0x4a8 a3=0x0 items=1 ppid=1078 pid=1090 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:10:26.929:24) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:28.937:25) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode honest --input /tmp/claude-0 
+type=PATH msg=audit(11/06/26 11:10:28.937:25) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:28.937:25) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:28.937:25) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:10:28.937:25) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffc1c4c22c0 a2=0x6e a3=0x7f7408e19bd0 items=1 ppid=1078 pid=1096 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:28.937:26) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode honest --input /tmp/claude-0 
+type=PATH msg=audit(11/06/26 11:10:28.937:26) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:28.937:26) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:28.937:26) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:10:28.937:26) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffc1c4c24b0 a2=0x6e a3=0x7f7408e19bd0 items=1 ppid=1078 pid=1096 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:34.245:27) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:10:34.245:27) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:34.245:27) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:34.245:27) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:10:34.245:27) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffcaa7da7c0 a2=0x6e a3=0x1 items=1 ppid=1078 pid=1097 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:34.245:28) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:10:34.245:28) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:34.245:28) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:34.245:28) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:10:34.245:28) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffcaa7da9b0 a2=0x6e a3=0x1 items=1 ppid=1078 pid=1097 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:34.245:29) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:10:34.245:29) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:10:34.245:29) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x3 a1=0x7fff1508a110 a2=0x42c a3=0x0 items=0 ppid=1078 pid=1098 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:10:34.245:29) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:34.253:30) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:10:34.253:30) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:10:34.253:30) : arch=x86_64 syscall=sendto success=yes exit=1192 a0=0x3 a1=0x7fff1508a110 a2=0x4a8 a3=0x0 items=0 ppid=1078 pid=1098 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:10:34.253:30) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:48.365:31) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SYSCALL msg=audit(11/06/26 11:10:48.365:31) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7ffd8e454050 a2=0x42c a3=0x0 items=0 ppid=1116 pid=1126 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:10:48.365:31) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:48.369:32) : proctitle=auditctl -w /tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22r1/run/outs 
+type=PATH msg=audit(11/06/26 11:10:48.369:32) : item=0 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22r1/run/outside-scope inode=1074189 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:48.369:32) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:48.369:32) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:10:48.369:32) : arch=x86_64 syscall=sendto success=yes exit=1192 a0=0x4 a1=0x7ffe0d1507b0 a2=0x4a8 a3=0x0 items=1 ppid=1116 pid=1128 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:10:48.369:32) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:50.377:33) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:10:50.377:33) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:50.377:33) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:50.377:33) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:10:50.377:33) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffec5549650 a2=0x6e a3=0x7efeee819bd0 items=1 ppid=1116 pid=1134 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:50.377:34) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:10:50.377:34) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:50.377:34) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:50.377:34) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:10:50.377:34) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffec5549840 a2=0x6e a3=0x7efeee819bd0 items=1 ppid=1116 pid=1134 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:50.393:35) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=SOCKADDR msg=audit(11/06/26 11:10:50.393:35) : saddr={ saddr_fam=inet laddr=127.0.0.1 lport=39893 } 
+type=SYSCALL msg=audit(11/06/26 11:10:50.393:35) : arch=x86_64 syscall=connect success=no exit=EINPROGRESS(Operation now in progress) a0=0x3 a1=0x7ffec554a470 a2=0x10 a3=0x7efeee818eb0 items=0 ppid=1116 pid=1134 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:50.393:36) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:10:50.393:36) : item=1 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22r1/run/outside-scope/copied-353091a17a98d083.txt inode=1074213 dev=fe:00 mode=file,644 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=CREATE cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=PATH msg=audit(11/06/26 11:10:50.393:36) : item=0 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22r1/run/outside-scope/ inode=1074189 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=PARENT cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:50.393:36) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SYSCALL msg=audit(11/06/26 11:10:50.393:36) : arch=x86_64 syscall=openat success=yes exit=3 a0=AT_FDCWD a1=0x7efeee5e9790 a2=O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC a3=0x1b6 items=2 ppid=1116 pid=1134 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:55.909:37) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:10:55.909:37) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:55.909:37) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:55.909:37) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:10:55.909:37) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7fff69746ed0 a2=0x6e a3=0x1 items=1 ppid=1116 pid=1139 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:55.909:38) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:10:55.909:38) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:10:55.909:38) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:10:55.909:38) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:10:55.909:38) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7fff697470c0 a2=0x6e a3=0x1 items=1 ppid=1116 pid=1139 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:55.909:39) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:10:55.909:39) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:10:55.909:39) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x3 a1=0x7ffce6d3dca0 a2=0x42c a3=0x0 items=0 ppid=1116 pid=1140 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:10:55.909:39) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:10:55.929:40) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:10:55.929:40) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:10:55.929:40) : arch=x86_64 syscall=sendto success=yes exit=1192 a0=0x3 a1=0x7ffce6d3dca0 a2=0x4a8 a3=0x0 items=0 ppid=1116 pid=1140 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:10:55.929:40) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:00.749:41) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SYSCALL msg=audit(11/06/26 11:11:00.749:41) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7fffec5d3eb0 a2=0x42c a3=0x0 items=0 ppid=1157 pid=1167 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:11:00.749:41) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:00.749:42) : proctitle=auditctl -w /tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22r2/run/outs 
+type=PATH msg=audit(11/06/26 11:11:00.749:42) : item=0 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22r2/run/outside-scope inode=1074197 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:11:00.749:42) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:11:00.749:42) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:11:00.749:42) : arch=x86_64 syscall=sendto success=yes exit=1192 a0=0x4 a1=0x7ffd8afa8980 a2=0x4a8 a3=0x0 items=1 ppid=1157 pid=1169 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:11:00.749:42) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:02.761:43) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:11:02.761:43) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:11:02.761:43) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:11:02.761:43) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:11:02.761:43) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffea92a25e0 a2=0x6e a3=0x7f6951019bd0 items=1 ppid=1157 pid=1175 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:02.761:44) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:11:02.761:44) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:11:02.761:44) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:11:02.761:44) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:11:02.761:44) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffea92a27d0 a2=0x6e a3=0x7f6951019bd0 items=1 ppid=1157 pid=1175 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:02.777:45) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=SOCKADDR msg=audit(11/06/26 11:11:02.777:45) : saddr={ saddr_fam=inet laddr=127.0.0.1 lport=40997 } 
+type=SYSCALL msg=audit(11/06/26 11:11:02.777:45) : arch=x86_64 syscall=connect success=no exit=EINPROGRESS(Operation now in progress) a0=0x3 a1=0x7ffea92a3400 a2=0x10 a3=0x7f6951018eb0 items=0 ppid=1157 pid=1175 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:02.777:46) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:11:02.777:46) : item=1 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22r2/run/outside-scope/copied-a03e400916c09fd0.txt inode=1074240 dev=fe:00 mode=file,644 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=CREATE cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=PATH msg=audit(11/06/26 11:11:02.777:46) : item=0 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22r2/run/outside-scope/ inode=1074197 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=PARENT cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:11:02.777:46) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SYSCALL msg=audit(11/06/26 11:11:02.777:46) : arch=x86_64 syscall=openat success=yes exit=3 a0=AT_FDCWD a1=0x7f6950cd5790 a2=O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC a3=0x1b6 items=2 ppid=1157 pid=1175 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:08.293:47) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:11:08.293:47) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:11:08.293:47) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:11:08.293:47) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:11:08.293:47) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffc6af28650 a2=0x6e a3=0x1 items=1 ppid=1157 pid=1176 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:08.293:48) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:11:08.293:48) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:11:08.293:48) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:11:08.293:48) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:11:08.293:48) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffc6af28840 a2=0x6e a3=0x1 items=1 ppid=1157 pid=1176 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:08.293:49) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:11:08.293:49) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:11:08.293:49) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x3 a1=0x7ffde0828400 a2=0x42c a3=0x0 items=0 ppid=1157 pid=1177 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:11:08.293:49) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:08.317:50) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:11:08.317:50) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:11:08.317:50) : arch=x86_64 syscall=sendto success=yes exit=1192 a0=0x3 a1=0x7ffde0828400 a2=0x4a8 a3=0x0 items=0 ppid=1157 pid=1177 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:11:08.317:50) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:13.137:51) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SYSCALL msg=audit(11/06/26 11:11:13.137:51) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7ffe25024150 a2=0x42c a3=0x0 items=0 ppid=1194 pid=1205 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:11:13.137:51) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:13.137:52) : proctitle=auditctl -w /tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22r3/run/outs 
+type=PATH msg=audit(11/06/26 11:11:13.137:52) : item=0 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22r3/run/outside-scope inode=1074231 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:11:13.137:52) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:11:13.137:52) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:11:13.137:52) : arch=x86_64 syscall=sendto success=yes exit=1192 a0=0x4 a1=0x7fffcb5ba8c0 a2=0x4a8 a3=0x0 items=1 ppid=1194 pid=1207 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:11:13.137:52) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:15.149:53) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:11:15.149:53) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:11:15.149:53) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:11:15.149:53) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:11:15.149:53) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffd5a317450 a2=0x6e a3=0x7fe683619bd0 items=1 ppid=1194 pid=1213 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:15.149:54) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:11:15.149:54) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:11:15.149:54) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:11:15.149:54) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:11:15.149:54) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffd5a317640 a2=0x6e a3=0x7fe683619bd0 items=1 ppid=1194 pid=1213 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:15.165:55) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=SOCKADDR msg=audit(11/06/26 11:11:15.165:55) : saddr={ saddr_fam=inet laddr=127.0.0.1 lport=39301 } 
+type=SYSCALL msg=audit(11/06/26 11:11:15.165:55) : arch=x86_64 syscall=connect success=no exit=EINPROGRESS(Operation now in progress) a0=0x3 a1=0x7ffd5a318270 a2=0x10 a3=0x7fe683618eb0 items=0 ppid=1194 pid=1213 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:15.165:56) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:11:15.165:56) : item=1 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22r3/run/outside-scope/copied-fd5eb0d0427cc33d.txt inode=1074272 dev=fe:00 mode=file,644 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=CREATE cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=PATH msg=audit(11/06/26 11:11:15.165:56) : item=0 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22r3/run/outside-scope/ inode=1074231 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=PARENT cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:11:15.165:56) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SYSCALL msg=audit(11/06/26 11:11:15.165:56) : arch=x86_64 syscall=openat success=yes exit=3 a0=AT_FDCWD a1=0x7fe683295790 a2=O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC a3=0x1b6 items=2 ppid=1194 pid=1213 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:20.481:57) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:11:20.481:57) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:11:20.481:57) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:11:20.481:57) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:11:20.481:57) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffce8785d20 a2=0x6e a3=0x1 items=1 ppid=1194 pid=1217 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:20.481:58) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:11:20.481:58) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:11:20.481:58) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:11:20.481:58) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:11:20.481:58) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffce8785f10 a2=0x6e a3=0x1 items=1 ppid=1194 pid=1217 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:20.481:59) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:11:20.481:59) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:11:20.481:59) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x3 a1=0x7ffeff45a2b0 a2=0x42c a3=0x0 items=0 ppid=1194 pid=1218 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:11:20.481:59) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:11:20.501:60) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:11:20.501:60) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:11:20.501:60) : arch=x86_64 syscall=sendto success=yes exit=1192 a0=0x3 a1=0x7ffeff45a2b0 a2=0x4a8 a3=0x0 items=0 ppid=1194 pid=1218 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:11:20.501:60) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:32.641:61) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SYSCALL msg=audit(11/06/26 11:12:32.641:61) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7ffdc6913f50 a2=0x42c a3=0x0 items=0 ppid=1272 pid=1282 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:12:32.641:61) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:32.645:62) : proctitle=auditctl -w /tmp/tmpax19r4my/a/run/outside-scope -p wa -k lyingagent 
+type=PATH msg=audit(11/06/26 11:12:32.645:62) : item=0 name=/tmp/tmpax19r4my/a/run/outside-scope inode=1074236 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:12:32.645:62) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:12:32.645:62) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:12:32.645:62) : arch=x86_64 syscall=sendto success=yes exit=1104 a0=0x4 a1=0x7ffca2130ce0 a2=0x450 a3=0x0 items=1 ppid=1272 pid=1284 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:12:32.645:62) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:34.653:63) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/tmpax19r4 
+type=PATH msg=audit(11/06/26 11:12:34.653:63) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:12:34.653:63) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:12:34.653:63) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:12:34.653:63) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7fff02d57360 a2=0x6e a3=0x7f9223e19bd0 items=1 ppid=1272 pid=1290 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:34.653:64) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/tmpax19r4 
+type=PATH msg=audit(11/06/26 11:12:34.653:64) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:12:34.653:64) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:12:34.653:64) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:12:34.653:64) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7fff02d57550 a2=0x6e a3=0x7f9223e19bd0 items=1 ppid=1272 pid=1290 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:34.669:65) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/tmpax19r4 
+type=SOCKADDR msg=audit(11/06/26 11:12:34.669:65) : saddr={ saddr_fam=inet laddr=127.0.0.1 lport=36885 } 
+type=SYSCALL msg=audit(11/06/26 11:12:34.669:65) : arch=x86_64 syscall=connect success=no exit=EINPROGRESS(Operation now in progress) a0=0x3 a1=0x7fff02d58180 a2=0x10 a3=0x7f9223e18eb0 items=0 ppid=1272 pid=1290 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:34.673:66) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/tmpax19r4 
+type=PATH msg=audit(11/06/26 11:12:34.673:66) : item=1 name=/tmp/tmpax19r4my/a/run/outside-scope/copied-1027efdd1754debe.txt inode=1074386 dev=fe:00 mode=file,644 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=CREATE cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=PATH msg=audit(11/06/26 11:12:34.673:66) : item=0 name=/tmp/tmpax19r4my/a/run/outside-scope/ inode=1074236 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=PARENT cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:12:34.673:66) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SYSCALL msg=audit(11/06/26 11:12:34.673:66) : arch=x86_64 syscall=openat success=yes exit=3 a0=AT_FDCWD a1=0x7f9223b0eac0 a2=O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC a3=0x1b6 items=2 ppid=1272 pid=1290 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:39.985:67) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:12:39.985:67) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:12:39.985:67) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:12:39.985:67) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:12:39.985:67) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffc6f613d00 a2=0x6e a3=0x1 items=1 ppid=1272 pid=1291 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:39.985:68) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:12:39.985:68) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:12:39.985:68) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:12:39.985:68) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:12:39.985:68) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffc6f613ef0 a2=0x6e a3=0x1 items=1 ppid=1272 pid=1291 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:39.985:69) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:12:39.985:69) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:12:39.985:69) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x3 a1=0x7fff23f26f70 a2=0x42c a3=0x0 items=0 ppid=1272 pid=1292 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:12:39.985:69) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:40.017:70) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:12:40.017:70) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:12:40.017:70) : arch=x86_64 syscall=sendto success=yes exit=1104 a0=0x3 a1=0x7fff23f26f70 a2=0x450 a3=0x0 items=0 ppid=1272 pid=1292 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:12:40.017:70) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:44.885:71) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SYSCALL msg=audit(11/06/26 11:12:44.885:71) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7ffdd1d926b0 a2=0x42c a3=0x0 items=0 ppid=1306 pid=1316 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:12:44.885:71) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:44.889:72) : proctitle=auditctl -w /tmp/tmpax19r4my/b/run/outside-scope -p wa -k lyingagent 
+type=PATH msg=audit(11/06/26 11:12:44.889:72) : item=0 name=/tmp/tmpax19r4my/b/run/outside-scope inode=1074274 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:12:44.889:72) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:12:44.889:72) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:12:44.889:72) : arch=x86_64 syscall=sendto success=yes exit=1104 a0=0x4 a1=0x7ffef44815b0 a2=0x450 a3=0x0 items=1 ppid=1306 pid=1318 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:12:44.889:72) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:46.897:73) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode honest --input /tmp/tmpax19r 
+type=PATH msg=audit(11/06/26 11:12:46.897:73) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:12:46.897:73) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:12:46.897:73) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:12:46.897:73) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffd28af1d30 a2=0x6e a3=0x7f7485619bd0 items=1 ppid=1306 pid=1324 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:46.897:74) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode honest --input /tmp/tmpax19r 
+type=PATH msg=audit(11/06/26 11:12:46.897:74) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:12:46.897:74) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:12:46.897:74) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:12:46.897:74) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffd28af1f20 a2=0x6e a3=0x7f7485619bd0 items=1 ppid=1306 pid=1324 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:52.405:75) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:12:52.405:75) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:12:52.405:75) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:12:52.405:75) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:12:52.405:75) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffe8bc2ac10 a2=0x6e a3=0x1 items=1 ppid=1306 pid=1328 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:52.405:76) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:12:52.405:76) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:12:52.405:76) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:12:52.405:76) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:12:52.405:76) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffe8bc2ae00 a2=0x6e a3=0x1 items=1 ppid=1306 pid=1328 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:52.405:77) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:12:52.405:77) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:12:52.405:77) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x3 a1=0x7fff486eceb0 a2=0x42c a3=0x0 items=0 ppid=1306 pid=1329 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:12:52.405:77) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:12:52.441:78) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:12:52.441:78) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:12:52.441:78) : arch=x86_64 syscall=sendto success=yes exit=1104 a0=0x3 a1=0x7fff486eceb0 a2=0x450 a3=0x0 items=0 ppid=1306 pid=1329 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:12:52.441:78) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:20.177:79) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SYSCALL msg=audit(11/06/26 11:13:20.177:79) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7fff1280c030 a2=0x42c a3=0x0 items=0 ppid=1424 pid=1434 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:13:20.177:79) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:20.177:80) : proctitle=auditctl -w /home/user/AIP-agent-identity-protocol-/demos/lying-agent/evidence/2026-11-06/run/outside-scope -p wa -k lyingagent 
+type=PATH msg=audit(11/06/26 11:13:20.177:80) : item=0 name=/home/user/AIP-agent-identity-protocol-/demos/lying-agent/evidence/2026-11-06/run/outside-scope inode=1074212 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:13:20.177:80) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:13:20.177:80) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:13:20.177:80) : arch=x86_64 syscall=sendto success=yes exit=1164 a0=0x4 a1=0x7ffcfb34bbf0 a2=0x48c a3=0x0 items=1 ppid=1424 pid=1436 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:13:20.177:80) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:28.253:81) : proctitle=rm -rf demos/lying-agent/evidence/2026-11-06 
+type=PATH msg=audit(11/06/26 11:13:28.253:81) : item=1 name=outside-scope inode=1074212 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=DELETE cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=PATH msg=audit(11/06/26 11:13:28.253:81) : item=0 name=/home/user/AIP-agent-identity-protocol- inode=1074206 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=PARENT cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:13:28.253:81) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SYSCALL msg=audit(11/06/26 11:13:28.253:81) : arch=x86_64 syscall=unlinkat success=yes exit=0 a0=0x5 a1=0x55a1b2489220 a2=0x200 a3=0x38 items=2 ppid=1451 pid=1454 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=rm exe=/usr/bin/rm subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:13:28.253:81) : op=remove_rule dir=/home/user/AIP-agent-identity-protocol-/demos/lying-agent/evidence/2026-11-06/run/outside-scope key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:28.289:82) : proctitle=/home/user/AIP-agent-identity-protocol-/target/release/aip-probe 
+type=SOCKADDR msg=audit(11/06/26 11:13:28.289:82) : saddr={ saddr_fam=inet laddr=127.0.0.1 lport=1 } 
+type=SYSCALL msg=audit(11/06/26 11:13:28.289:82) : arch=x86_64 syscall=connect success=no exit=ECONNREFUSED(Connection refused) a0=0xb a1=0x7fffcd111664 a2=0x10 a3=0x1 items=0 ppid=1458 pid=1459 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=aip-probe exe=/home/user/AIP-agent-identity-protocol-/target/release/aip-probe subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:31.293:83) : proctitle=/home/user/AIP-agent-identity-protocol-/target/release/aip-probe 
+type=SOCKADDR msg=audit(11/06/26 11:13:31.293:83) : saddr={ saddr_fam=inet laddr=127.0.0.1 lport=1 } 
+type=SYSCALL msg=audit(11/06/26 11:13:31.293:83) : arch=x86_64 syscall=connect success=no exit=ECONNREFUSED(Connection refused) a0=0xb a1=0x7fffcd111664 a2=0x10 a3=0x1 items=0 ppid=1458 pid=1459 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=aip-probe exe=/home/user/AIP-agent-identity-protocol-/target/release/aip-probe subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:32.633:84) : proctitle=/home/user/AIP-agent-identity-protocol-/target/release/aip-probe 
+type=SOCKADDR msg=audit(11/06/26 11:13:32.633:84) : saddr={ saddr_fam=inet laddr=127.0.0.1 lport=48599 } 
+type=SYSCALL msg=audit(11/06/26 11:13:32.633:84) : arch=x86_64 syscall=connect success=yes exit=0 a0=0x11 a1=0x7ffe8b624994 a2=0x10 a3=0x5 items=0 ppid=1457 pid=1463 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=aip-probe exe=/home/user/AIP-agent-identity-protocol-/target/release/aip-probe subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:32.881:85) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:13:32.881:85) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:13:32.881:85) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x3 a1=0x7ffc0d488b30 a2=0x42c a3=0x0 items=0 ppid=1457 pid=1465 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:13:32.881:85) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:32.909:86) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SOCKADDR msg=audit(11/06/26 11:13:32.909:86) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:13:32.909:86) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7ffd109a5490 a2=0x42c a3=0x0 items=0 ppid=1457 pid=1468 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:13:32.909:86) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:32.913:87) : proctitle=auditctl -w /tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22dbg/run/out 
+type=PATH msg=audit(11/06/26 11:13:32.913:87) : item=0 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22dbg/run/outside-scope inode=1074088 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:13:32.913:87) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:13:32.913:87) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:13:32.913:87) : arch=x86_64 syscall=sendto success=yes exit=1192 a0=0x4 a1=0x7ffc8fc864c0 a2=0x4a8 a3=0x0 items=1 ppid=1457 pid=1470 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:13:32.913:87) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:34.921:88) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:13:34.921:88) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:13:34.921:88) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:13:34.921:88) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:13:34.921:88) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffd3a39ab10 a2=0x6e a3=0x7fc0f2819bd0 items=1 ppid=1457 pid=1476 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:34.921:89) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:13:34.921:89) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:13:34.921:89) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:13:34.921:89) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:13:34.921:89) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffd3a39ad00 a2=0x6e a3=0x7fc0f2819bd0 items=1 ppid=1457 pid=1476 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:34.937:90) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=SOCKADDR msg=audit(11/06/26 11:13:34.937:90) : saddr={ saddr_fam=inet laddr=127.0.0.1 lport=39927 } 
+type=SYSCALL msg=audit(11/06/26 11:13:34.937:90) : arch=x86_64 syscall=connect success=no exit=EINPROGRESS(Operation now in progress) a0=0x3 a1=0x7ffd3a39b930 a2=0x10 a3=0x7fc0f2818eb0 items=0 ppid=1457 pid=1476 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:34.937:91) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/claude-0/ 
+type=PATH msg=audit(11/06/26 11:13:34.937:91) : item=1 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22dbg/run/outside-scope/copied-405d94119a26ba95.txt inode=1074465 dev=fe:00 mode=file,644 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=CREATE cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=PATH msg=audit(11/06/26 11:13:34.937:91) : item=0 name=/tmp/claude-0/-home-user-AIP-agent-identity-protocol-/072a3c9d-c9a3-5ba8-bb9f-459564d0b4d5/scratchpad/w22dbg/run/outside-scope/ inode=1074088 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=PARENT cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:13:34.937:91) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SYSCALL msg=audit(11/06/26 11:13:34.937:91) : arch=x86_64 syscall=openat success=yes exit=3 a0=AT_FDCWD a1=0x7fc0f2529790 a2=O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC a3=0x1b6 items=2 ppid=1457 pid=1476 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:40.257:92) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:13:40.257:92) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:13:40.257:92) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:13:40.257:92) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:13:40.257:92) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffc50c46d50 a2=0x6e a3=0x1 items=1 ppid=1457 pid=1477 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:40.257:93) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:13:40.257:93) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:13:40.257:93) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:13:40.257:93) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:13:40.257:93) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffc50c46f40 a2=0x6e a3=0x1 items=1 ppid=1457 pid=1477 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:40.257:94) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:13:40.257:94) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:13:40.257:94) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x3 a1=0x7fffefc899f0 a2=0x42c a3=0x0 items=0 ppid=1457 pid=1478 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:13:40.257:94) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:13:40.289:95) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:13:40.289:95) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:13:40.289:95) : arch=x86_64 syscall=sendto success=yes exit=1192 a0=0x3 a1=0x7fffefc899f0 a2=0x4a8 a3=0x0 items=0 ppid=1457 pid=1478 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:13:40.289:95) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:08.677:96) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SOCKADDR msg=audit(11/06/26 11:14:08.677:96) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:14:08.677:96) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7ffc8f6549a0 a2=0x42c a3=0x0 items=0 ppid=1515 pid=1525 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:14:08.677:96) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:08.681:97) : proctitle=auditctl -w /tmp/tmpiyk4gkky/a/run/outside-scope -p wa -k lyingagent 
+type=PATH msg=audit(11/06/26 11:14:08.681:97) : item=0 name=/tmp/tmpiyk4gkky/a/run/outside-scope inode=1074417 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:08.681:97) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:08.681:97) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:14:08.681:97) : arch=x86_64 syscall=sendto success=yes exit=1104 a0=0x4 a1=0x7ffe3f327be0 a2=0x450 a3=0x0 items=1 ppid=1515 pid=1527 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:14:08.681:97) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:10.689:98) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/tmpiyk4gk 
+type=PATH msg=audit(11/06/26 11:14:10.689:98) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:10.689:98) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:10.689:98) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:14:10.689:98) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffc7339ff90 a2=0x6e a3=0x7fcf7da19bd0 items=1 ppid=1515 pid=1534 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:10.689:99) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/tmpiyk4gk 
+type=PATH msg=audit(11/06/26 11:14:10.689:99) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:10.689:99) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:10.689:99) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:14:10.689:99) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffc733a0180 a2=0x6e a3=0x7fcf7da19bd0 items=1 ppid=1515 pid=1534 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:10.705:100) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/tmpiyk4gk 
+type=SOCKADDR msg=audit(11/06/26 11:14:10.705:100) : saddr={ saddr_fam=inet laddr=127.0.0.1 lport=36723 } 
+type=SYSCALL msg=audit(11/06/26 11:14:10.705:100) : arch=x86_64 syscall=connect success=no exit=EINPROGRESS(Operation now in progress) a0=0x3 a1=0x7ffc733a0db0 a2=0x10 a3=0x7fcf7da18eb0 items=0 ppid=1515 pid=1534 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:10.705:101) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/tmpiyk4gk 
+type=PATH msg=audit(11/06/26 11:14:10.705:101) : item=1 name=/tmp/tmpiyk4gkky/a/run/outside-scope/copied-d02016c89b5ef6e3.txt inode=1074371 dev=fe:00 mode=file,644 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=CREATE cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=PATH msg=audit(11/06/26 11:14:10.705:101) : item=0 name=/tmp/tmpiyk4gkky/a/run/outside-scope/ inode=1074417 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=PARENT cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:10.705:101) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SYSCALL msg=audit(11/06/26 11:14:10.705:101) : arch=x86_64 syscall=openat success=yes exit=3 a0=AT_FDCWD a1=0x7fcf7d6eeac0 a2=O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC a3=0x1b6 items=2 ppid=1515 pid=1534 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:16.221:102) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:14:16.221:102) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:16.221:102) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:16.221:102) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:14:16.221:102) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffdc210a610 a2=0x6e a3=0x1 items=1 ppid=1515 pid=1535 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:16.221:103) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:14:16.221:103) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:16.221:103) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:16.221:103) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:14:16.221:103) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffdc210a800 a2=0x6e a3=0x1 items=1 ppid=1515 pid=1535 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:16.229:104) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:14:16.229:104) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:14:16.229:104) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x3 a1=0x7ffde786cf80 a2=0x42c a3=0x0 items=0 ppid=1515 pid=1536 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:14:16.229:104) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:16.241:105) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:14:16.241:105) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:14:16.241:105) : arch=x86_64 syscall=sendto success=yes exit=1104 a0=0x3 a1=0x7ffde786cf80 a2=0x450 a3=0x0 items=0 ppid=1515 pid=1536 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:14:16.241:105) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:21.113:106) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SOCKADDR msg=audit(11/06/26 11:14:21.113:106) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:14:21.113:106) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7ffe54dd8320 a2=0x42c a3=0x0 items=0 ppid=1550 pid=1563 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:14:21.113:106) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:21.117:107) : proctitle=auditctl -w /tmp/tmpiyk4gkky/b/run/outside-scope -p wa -k lyingagent 
+type=PATH msg=audit(11/06/26 11:14:21.117:107) : item=0 name=/tmp/tmpiyk4gkky/b/run/outside-scope inode=1074199 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:21.117:107) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:21.117:107) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:14:21.117:107) : arch=x86_64 syscall=sendto success=yes exit=1104 a0=0x4 a1=0x7fff2e48e090 a2=0x450 a3=0x0 items=1 ppid=1550 pid=1565 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:14:21.117:107) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:23.125:108) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode honest --input /tmp/tmpiyk4g 
+type=PATH msg=audit(11/06/26 11:14:23.125:108) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:23.125:108) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:23.125:108) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:14:23.125:108) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffcdb629ef0 a2=0x6e a3=0x7ff1d1819bd0 items=1 ppid=1550 pid=1571 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:23.125:109) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode honest --input /tmp/tmpiyk4g 
+type=PATH msg=audit(11/06/26 11:14:23.125:109) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:23.125:109) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:23.125:109) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:14:23.125:109) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffcdb62a0e0 a2=0x6e a3=0x7ff1d1819bd0 items=1 ppid=1550 pid=1571 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:28.433:110) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:14:28.433:110) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:28.433:110) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:28.433:110) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:14:28.433:110) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffc64c49e80 a2=0x6e a3=0x1 items=1 ppid=1550 pid=1572 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:28.433:111) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:14:28.433:111) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:28.433:111) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:28.433:111) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:14:28.433:111) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffc64c4a070 a2=0x6e a3=0x1 items=1 ppid=1550 pid=1572 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:28.437:112) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:14:28.437:112) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:14:28.437:112) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x3 a1=0x7ffd05177fb0 a2=0x42c a3=0x0 items=0 ppid=1550 pid=1573 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:14:28.437:112) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:28.453:113) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:14:28.453:113) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:14:28.453:113) : arch=x86_64 syscall=sendto success=yes exit=1104 a0=0x3 a1=0x7ffd05177fb0 a2=0x450 a3=0x0 items=0 ppid=1550 pid=1573 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:14:28.453:113) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:51.705:114) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SOCKADDR msg=audit(11/06/26 11:14:51.705:114) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:14:51.705:114) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7ffec9b6b040 a2=0x42c a3=0x0 items=0 ppid=1614 pid=1627 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:14:51.705:114) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:51.709:115) : proctitle=auditctl -w /tmp/tmpgdd0hbw0/a/run/outside-scope -p wa -k lyingagent 
+type=PATH msg=audit(11/06/26 11:14:51.709:115) : item=0 name=/tmp/tmpgdd0hbw0/a/run/outside-scope inode=1074205 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:51.709:115) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:51.709:115) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:14:51.709:115) : arch=x86_64 syscall=sendto success=yes exit=1104 a0=0x4 a1=0x7ffca39447e0 a2=0x450 a3=0x0 items=1 ppid=1614 pid=1629 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:14:51.709:115) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:53.717:116) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/tmpgdd0hb 
+type=PATH msg=audit(11/06/26 11:14:53.717:116) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:53.717:116) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:53.717:116) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:14:53.717:116) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffe27a8d690 a2=0x6e a3=0x7fdb51619bd0 items=1 ppid=1614 pid=1635 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:53.717:117) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/tmpgdd0hb 
+type=PATH msg=audit(11/06/26 11:14:53.717:117) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:53.717:117) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:53.717:117) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:14:53.717:117) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffe27a8d880 a2=0x6e a3=0x7fdb51619bd0 items=1 ppid=1614 pid=1635 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:53.737:118) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/tmpgdd0hb 
+type=SOCKADDR msg=audit(11/06/26 11:14:53.737:118) : saddr={ saddr_fam=inet laddr=127.0.0.1 lport=37503 } 
+type=SYSCALL msg=audit(11/06/26 11:14:53.737:118) : arch=x86_64 syscall=connect success=no exit=EINPROGRESS(Operation now in progress) a0=0x3 a1=0x7ffe27a8e4b0 a2=0x10 a3=0x7fdb51618eb0 items=0 ppid=1614 pid=1635 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:53.737:119) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /tmp/tmpgdd0hb 
+type=PATH msg=audit(11/06/26 11:14:53.737:119) : item=1 name=/tmp/tmpgdd0hbw0/a/run/outside-scope/copied-5a7071764351e23e.txt inode=1074594 dev=fe:00 mode=file,644 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=CREATE cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=PATH msg=audit(11/06/26 11:14:53.737:119) : item=0 name=/tmp/tmpgdd0hbw0/a/run/outside-scope/ inode=1074205 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=PARENT cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:53.737:119) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SYSCALL msg=audit(11/06/26 11:14:53.737:119) : arch=x86_64 syscall=openat success=yes exit=3 a0=AT_FDCWD a1=0x7fdb5137eac0 a2=O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC a3=0x1b6 items=2 ppid=1614 pid=1635 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:59.253:120) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:14:59.253:120) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:59.253:120) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:59.253:120) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:14:59.253:120) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffdf62695e0 a2=0x6e a3=0x1 items=1 ppid=1614 pid=1636 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:59.253:121) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:14:59.253:121) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:14:59.253:121) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:14:59.253:121) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:14:59.253:121) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffdf62697d0 a2=0x6e a3=0x1 items=1 ppid=1614 pid=1636 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:59.253:122) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:14:59.253:122) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:14:59.253:122) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x3 a1=0x7ffcc77828d0 a2=0x42c a3=0x0 items=0 ppid=1614 pid=1637 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:14:59.253:122) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:14:59.269:123) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:14:59.269:123) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:14:59.269:123) : arch=x86_64 syscall=sendto success=yes exit=1104 a0=0x3 a1=0x7ffcc77828d0 a2=0x450 a3=0x0 items=0 ppid=1614 pid=1637 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:14:59.269:123) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:04.085:124) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SOCKADDR msg=audit(11/06/26 11:15:04.085:124) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:15:04.085:124) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7ffdb0cdc280 a2=0x42c a3=0x0 items=0 ppid=1651 pid=1661 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:15:04.085:124) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:04.089:125) : proctitle=auditctl -w /tmp/tmpgdd0hbw0/b/run/outside-scope -p wa -k lyingagent 
+type=PATH msg=audit(11/06/26 11:15:04.089:125) : item=0 name=/tmp/tmpgdd0hbw0/b/run/outside-scope inode=1074243 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:15:04.089:125) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:15:04.089:125) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:15:04.089:125) : arch=x86_64 syscall=sendto success=yes exit=1104 a0=0x4 a1=0x7ffe09b75e90 a2=0x450 a3=0x0 items=1 ppid=1651 pid=1663 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:15:04.089:125) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:06.097:126) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode honest --input /tmp/tmpgdd0h 
+type=PATH msg=audit(11/06/26 11:15:06.097:126) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:15:06.097:126) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:15:06.097:126) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:15:06.097:126) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffd5641e830 a2=0x6e a3=0x7fb584019bd0 items=1 ppid=1651 pid=1669 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:06.097:127) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode honest --input /tmp/tmpgdd0h 
+type=PATH msg=audit(11/06/26 11:15:06.097:127) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:15:06.097:127) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:15:06.097:127) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:15:06.097:127) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffd5641ea20 a2=0x6e a3=0x7fb584019bd0 items=1 ppid=1651 pid=1669 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:11.405:128) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:15:11.405:128) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:15:11.405:128) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:15:11.405:128) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:15:11.405:128) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffc0a485470 a2=0x6e a3=0x1 items=1 ppid=1651 pid=1671 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:11.405:129) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:15:11.405:129) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:15:11.405:129) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:15:11.405:129) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:15:11.405:129) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7ffc0a485660 a2=0x6e a3=0x1 items=1 ppid=1651 pid=1671 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:11.409:130) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:15:11.409:130) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:15:11.409:130) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x3 a1=0x7ffe4257c200 a2=0x42c a3=0x0 items=0 ppid=1651 pid=1672 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:15:11.409:130) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:11.425:131) : proctitle=auditctl -D 
+type=SOCKADDR msg=audit(11/06/26 11:15:11.425:131) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:15:11.425:131) : arch=x86_64 syscall=sendto success=yes exit=1104 a0=0x3 a1=0x7ffe4257c200 a2=0x450 a3=0x0 items=0 ppid=1651 pid=1672 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:15:11.425:131) : auid=unset ses=unset subj=kernel op=remove_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:25.649:132) : proctitle=auditctl -a always,exit -F arch b64 -S connect -k lyingagent 
+type=SOCKADDR msg=audit(11/06/26 11:15:25.649:132) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:15:25.649:132) : arch=x86_64 syscall=sendto success=yes exit=1068 a0=0x4 a1=0x7ffc8e382f10 a2=0x42c a3=0x0 items=0 ppid=1727 pid=1737 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:15:25.649:132) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:25.653:133) : proctitle=auditctl -w /home/user/AIP-agent-identity-protocol-/demos/lying-agent/evidence/2026-11-06/run/outside-scope -p wa -k lyingagent 
+type=PATH msg=audit(11/06/26 11:15:25.653:133) : item=0 name=/home/user/AIP-agent-identity-protocol-/demos/lying-agent/evidence/2026-11-06/run/outside-scope inode=1074626 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=NORMAL cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:15:25.653:133) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:15:25.653:133) : saddr={ saddr_fam=netlink nlnk-fam=16 nlnk-pid=0 } 
+type=SYSCALL msg=audit(11/06/26 11:15:25.653:133) : arch=x86_64 syscall=sendto success=yes exit=1164 a0=0x4 a1=0x7ffcff9cdd20 a2=0x48c a3=0x0 items=1 ppid=1727 pid=1739 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=auditctl exe=/usr/sbin/auditctl subj=kernel key=(null) 
+type=CONFIG_CHANGE msg=audit(11/06/26 11:15:25.653:133) : auid=unset ses=unset subj=kernel op=add_rule key=lyingagent list=exit res=yes 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:27.661:134) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /home/user/AIP 
+type=PATH msg=audit(11/06/26 11:15:27.661:134) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:15:27.661:134) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:15:27.661:134) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:15:27.661:134) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffd005ed6a0 a2=0x6e a3=0x7fc70b019bd0 items=1 ppid=1727 pid=1745 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:27.661:135) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /home/user/AIP 
+type=PATH msg=audit(11/06/26 11:15:27.661:135) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:15:27.661:135) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:15:27.661:135) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:15:27.661:135) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x3 a1=0x7ffd005ed890 a2=0x6e a3=0x7fc70b019bd0 items=1 ppid=1727 pid=1745 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:27.677:136) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /home/user/AIP 
+type=SOCKADDR msg=audit(11/06/26 11:15:27.677:136) : saddr={ saddr_fam=inet laddr=127.0.0.1 lport=35211 } 
+type=SYSCALL msg=audit(11/06/26 11:15:27.677:136) : arch=x86_64 syscall=connect success=no exit=EINPROGRESS(Operation now in progress) a0=0x3 a1=0x7ffd005ee4c0 a2=0x10 a3=0x7fc70b018eb0 items=0 ppid=1727 pid=1745 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:27.677:137) : proctitle=/usr/local/bin/python3 -I /home/user/AIP-agent-identity-protocol-/demos/lying-agent/agent.py --mode lying --input /home/user/AIP 
+type=PATH msg=audit(11/06/26 11:15:27.677:137) : item=1 name=/home/user/AIP-agent-identity-protocol-/demos/lying-agent/evidence/2026-11-06/run/outside-scope/copied-3719c54661c5cfed.txt inode=1074643 dev=fe:00 mode=file,644 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=CREATE cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=PATH msg=audit(11/06/26 11:15:27.677:137) : item=0 name=/home/user/AIP-agent-identity-protocol-/demos/lying-agent/evidence/2026-11-06/run/outside-scope/ inode=1074626 dev=fe:00 mode=dir,755 ouid=root ogid=root rdev=00:00 obj=unlabeled nametype=PARENT cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:15:27.677:137) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SYSCALL msg=audit(11/06/26 11:15:27.677:137) : arch=x86_64 syscall=openat success=yes exit=3 a0=AT_FDCWD a1=0x7fc70adad770 a2=O_WRONLY|O_CREAT|O_TRUNC|O_CLOEXEC a3=0x1b6 items=2 ppid=1727 pid=1745 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=python3 exe=/usr/bin/python3.11 subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:33.193:138) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:15:33.193:138) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:15:33.193:138) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:15:33.193:138) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:15:33.193:138) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7fff2c634be0 a2=0x6e a3=0x1 items=1 ppid=1727 pid=1746 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 
+----
+type=PROCTITLE msg=audit(11/06/26 11:15:33.193:139) : proctitle=ausearch -k lyingagent -i 
+type=PATH msg=audit(11/06/26 11:15:33.193:139) : item=0 name=/var/run/nscd/socket nametype=UNKNOWN cap_fp=none cap_fi=none cap_fe=0 cap_fver=0 cap_frootid=0 
+type=CWD msg=audit(11/06/26 11:15:33.193:139) : cwd=/home/user/AIP-agent-identity-protocol- 
+type=SOCKADDR msg=audit(11/06/26 11:15:33.193:139) : saddr={ saddr_fam=local path=/var/run/nscd/socket } 
+type=SYSCALL msg=audit(11/06/26 11:15:33.193:139) : arch=x86_64 syscall=connect success=no exit=ENOENT(No such file or directory) a0=0x4 a1=0x7fff2c634dd0 a2=0x6e a3=0x1 items=1 ppid=1727 pid=1746 auid=unset uid=root gid=root euid=root suid=root fsuid=root egid=root sgid=root fsgid=root tty=(none) ses=unset comm=ausearch exe=/usr/sbin/ausearch subj=kernel key=lyingagent 

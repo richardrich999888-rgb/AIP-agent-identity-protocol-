@@ -1,0 +1,61 @@
+{
+  "schema": "syntriass.demo.result/v1",
+  "demo": "launch-security",
+  "started_utc": "2026-11-07T13:36:36.773+00:00",
+  "finished_utc": "2026-11-07T13:37:01.499+00:00",
+  "provenance": [
+    {
+      "repo": "AIP-agent-identity-protocol-",
+      "commit": "7ccbd4dd57f06ce65b4afc6e73d5a0c9a6a2baea",
+      "dirty": false
+    }
+  ],
+  "hardware": {
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "vcpu": 4,
+    "mem_gb": 15,
+    "gpu": null,
+    "kernel": "6.18.44-fc-v310",
+    "label": "4 vCPU, 15 GB RAM, no GPU"
+  },
+  "offline": {
+    "offline": false,
+    "non_loopback_routes": [
+      {
+        "family": "ipv4",
+        "iface": "eth0"
+      },
+      {
+        "family": "ipv4",
+        "iface": "docker0"
+      },
+      {
+        "family": "ipv4",
+        "iface": "eth0"
+      }
+    ],
+    "non_loopback_interfaces": [
+      "docker0",
+      "eth0",
+      "ifb0",
+      "ifb1"
+    ],
+    "tx_bytes_non_loopback": 2023201
+  },
+  "steps": [
+    {
+      "kind": "live",
+      "text": "Catch the lying agent",
+      "source": null,
+      "banner": "[LIVE] Catch the lying agent"
+    }
+  ],
+  "measurements": {
+    "mode": "security",
+    "exit_code": 0,
+    "passed": true,
+    "wall_s": 24.7,
+    "output_dir": "/home/user/AIP-agent-identity-protocol-/demos/results/rehearse-security-20261107T133254Z/10/run",
+    "console": "/home/user/AIP-agent-identity-protocol-/demos/results/rehearse-security-20261107T133254Z/10/console.txt"
+  }
+}

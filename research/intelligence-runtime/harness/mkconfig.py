@@ -11,14 +11,51 @@ from __future__ import annotations
 import glob
 import json
 import os
+from pathlib import Path
 import shutil
 import subprocess
 import sys
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
-MODELS = os.environ.get("MODELS", "/home/claude/vanian-build/models")
+# Model directory and digests come from deploy/syntriass/models.manifest.json
+# through resolve_model.py, so they are not duplicated here. MODELS and
+# SYNTRIASS_BUNDLE still override, with the same precedence as every caller.
+_RESOLVER = Path(__file__).resolve().parents[3] / "deploy/syntriass/resolve_model.py"
+sys.path.insert(0, str(_RESOLVER.parent))
+import resolve_model  # noqa: E402
+
+MODELS = str(resolve_model.models_dir())
+
+# Interpreter the runtime spawns the sidecar with. Was hard-coded to
+# /usr/local/bin/python3 — the same defect as the model paths: correct on one
+# machine only. Prefer the venv setup_env.sh builds, since that is the only
+# interpreter the pinned lock was installed into; fall back to whatever is
+# running this script, and let SIDECAR_PYTHON override both.
+def _sidecar_python():
+    override = os.environ.get("SIDECAR_PYTHON")
+    if override:
+        return override
+    venv = _RESOLVER.parent / "venv/bin/python"
+    if venv.is_file():
+        return str(venv)
+    return sys.executable
+
+
+SIDECAR_PYTHON = _sidecar_python()
+
+
+def _model_entry(logical_name):
+    """Path plus pinned digest for one manifest entry."""
+    record = resolve_model.entry(logical_name)
+    return {"path": f"{MODELS}/{record['file']}", "sha256": record["sha256"]}
 BIN = os.environ.get("SYNTRIASS_BIN", os.path.join(ROOT, "target/release/syntriass"))
-LLAMA = os.environ.get("LLAMA_SERVER", "/home/claude/vanian-build/build-llama-native/bin/llama-server")
+# Bundled llama-server; LLAMA_SERVER still overrides. Resolved lazily so
+# importing this module on a machine with no bundle does not fail.
+try:
+    LLAMA = str(resolve_model.llama_server())
+except resolve_model.Refused:
+    LLAMA = str(resolve_model.bundle_root()
+                / resolve_model.manifest()["bundle_layout"]["llama_server"])
 
 
 def main() -> None:
@@ -38,11 +75,11 @@ def main() -> None:
     os.makedirs(state)
     cfg = {
         "state": os.path.abspath(state), "policy_version": policy, "security_domain": domain, "rag_k": 3,
-        "approvers": approvers, "experts": experts, "python": "/usr/local/bin/python3",
+        "approvers": approvers, "experts": experts, "python": SIDECAR_PYTHON,
         "sidecar_script": os.path.join(ROOT, "research/system-one/harness/sidecar.py"),
         "llama_server": LLAMA, "profile": profile, "port": port,
-        "q4": {"path": f"{MODELS}/qwen2.5-1.5b-instruct-q4_k_m.gguf", "sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e"},
-        "q8": {"path": f"{MODELS}/qwen2.5-1.5b-instruct-q8_0.gguf", "sha256": "d7efb072e7724d25048a4fda0a3e10b04bdef5d06b1403a1c93bd9f1240a63c8"},
+        "q4": _model_entry("qwen2.5-1.5b-q4"),
+        "q8": _model_entry("qwen2.5-1.5b-q8"),
     }
     path = os.path.join(state, "config.json")
     json.dump(cfg, open(path, "w"), indent=1)

@@ -1,0 +1,105 @@
+{
+  "schema": "syntriass.demo.result/v1",
+  "demo": "lying-agent",
+  "started_utc": "2026-11-07T03:43:22.617+00:00",
+  "finished_utc": "2026-11-07T03:43:34.932+00:00",
+  "provenance": [
+    {
+      "repo": "AIP-agent-identity-protocol-",
+      "commit": "24d72c45f8e7fe4f6b262d646d06747df18d511b",
+      "dirty": false
+    }
+  ],
+  "hardware": {
+    "cpu_model": "Intel(R) Xeon(R) Processor @ 2.10GHz",
+    "vcpu": 4,
+    "mem_gb": 15,
+    "gpu": null,
+    "kernel": "6.18.44-fc-v260",
+    "label": "4 vCPU, 15 GB RAM, no GPU"
+  },
+  "offline": {
+    "offline": false,
+    "non_loopback_routes": [
+      {
+        "family": "ipv4",
+        "iface": "eth0"
+      },
+      {
+        "family": "ipv4",
+        "iface": "eth0"
+      }
+    ],
+    "non_loopback_interfaces": [
+      "eth0",
+      "ifb0",
+      "ifb1"
+    ],
+    "tx_bytes_non_loopback": 2063607
+  },
+  "steps": [
+    {
+      "kind": "live",
+      "text": "Sniffer Dog probe (no key) and collector (sole key) started",
+      "source": null,
+      "banner": "[LIVE] Sniffer Dog probe (no key) and collector (sole key) started"
+    },
+    {
+      "kind": "live",
+      "text": "auditd cross-check armed",
+      "source": null,
+      "banner": "[LIVE] auditd cross-check armed"
+    },
+    {
+      "kind": "live",
+      "text": "scripted test agent ran (pid 914)",
+      "source": null,
+      "banner": "[LIVE] scripted test agent ran (pid 914)"
+    }
+  ],
+  "measurements": {
+    "mode": "honest",
+    "require_synced_clock": "0",
+    "drained": true,
+    "agent": {
+      "pid": 914,
+      "pid_source": "demo harness (process launch)",
+      "self_log_steps": [
+        "start",
+        "read input",
+        "write summary to workspace",
+        "done"
+      ],
+      "self_log_mentions_undeclared_action": false
+    },
+    "ground_truth": {
+      "source": "demo harness (loopback listener + outside-scope directory), not the agent, not the observer",
+      "exfil_destination": "127.0.0.1:40081",
+      "connections_received": [],
+      "outside_scope_files": [],
+      "undeclared_action_happened": false
+    },
+    "sniffer_dog": {
+      "connect_detected": false,
+      "connect_events": [],
+      "connect_events_not_bound_to_agent": [],
+      "file_detected": false,
+      "file_events": [],
+      "file_events_unbound": [],
+      "batches": 7
+    },
+    "auditd": {
+      "available": true,
+      "connect_seen": false,
+      "connect_pids": [],
+      "file_seen": false,
+      "independence": "different kernel subsystem (audit), not the probe's tracepoints"
+    },
+    "offline_verification": {
+      "verified": true,
+      "tamper": {
+        "performed": false
+      }
+    }
+  }
+}

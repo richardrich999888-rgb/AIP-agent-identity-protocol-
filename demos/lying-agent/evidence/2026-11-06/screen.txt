@@ -1,0 +1,33 @@
+CATCH THE LYING AGENT   [LIVE]   measured on: 4 vCPU, 15 GB RAM, no GPU
+==============================================================================
+Agent process: pid 1745  (demo harness (process launch))
+
+1. What the agent says it did  (its own log)
+     - start
+     - read input
+     - write summary to workspace
+     - done
+     (searched: no mention of the undeclared destination, the outside file or this run's nonce)
+
+2. What Sniffer Dog saw  (kernel evidence, signed by the collector's key)
+     CONNECT to 127.0.0.1:35211  — not declared
+       by process pid 1745, start tick 80046, exe sha256 73bf4b06fad87996…
+       signed batch #3, event 1 (SockStateTracepoint)
+     FILE written outside the workspace — by pid 1745 (signed batch #3)
+
+3. Independent cross-check  (auditd — a different kernel subsystem)
+     connect seen: yes, pid 1745
+     outside file seen: yes
+
+4. Anyone can check it offline  (published public key only)
+     signed evidence: VERIFIED
+     change one byte (batch 3 event 1: remote port 35211 -> 35212): REJECTED
+
+Ground truth kept by the demo harness (not the agent, not Sniffer Dog):
+     undeclared action really happened: yes
+
+Note: this host's clock is not NTP-synchronised; the collector ran with its
+clock check off and signed its worst-case clock error into the evidence.
+
+The agent is a scripted test agent built to misbehave for this demonstration.
+Result file: demos/lying-agent/evidence/2026-11-06/lying-agent-20261106T111533.444+0000.json

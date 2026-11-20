@@ -1,0 +1,39 @@
+AIBOM evidence-gap assessment
+  agent      unregistered:scripted-test-agent
+  manifest   sha256:1beda8c72d64fce52fc582db7ac6ed7e95c480ad4a34e7b29bf5d0f7d51f2c6b
+  assessed   1794063525901 ms
+  seal       NotSealed
+
+0 of 15 fields are backed by an independent verifier; 14 rest on the author's word; 1 cannot be established by any mechanism here.
+  verified 0  observed 0  discovered 0  self-reported 14  unknowable 1  lapsed 0  contradicted 0  evidence-rejected 0
+  findings: critical 0  high 1  medium 3  info 1
+
+HIGH
+  [C01] $.agent.id  the agent's identifier is not a cryptographic identity
+
+MEDIUM
+  [C05] $.permissions.allowed[0]  declared permission is not granted by any authority offered
+  [C05] $.permissions.allowed[1]  declared permission is not granted by any authority offered
+  [C13] seal  the manifest is not sealed; nobody has put their name to it
+
+INFO
+  [C04] $.tools[0].effects  N-2: That a claimed external effect landed
+
+FIELDS
+  [C01] $.agent.deployment                           SELF-REPORTED      the manifest author's word only
+  [C01] $.agent.id                                   SELF-REPORTED      the manifest author's word only
+  [C01] $.agent.name                                 SELF-REPORTED      the manifest author's word only
+  [C01] $.agent.owner                                SELF-REPORTED      the manifest author's word only
+  [C01] $.agent.version                              SELF-REPORTED      the manifest author's word only
+  [C04] $.tools[0]                                   SELF-REPORTED      the manifest author's word only
+  [C04] $.tools[0].effects                           UNKNOWABLE         N-2: That a claimed external effect landed
+  [C05] $.permissions.allowed[0]                     SELF-REPORTED      the manifest author's word only
+  [C05] $.permissions.allowed[1]                     SELF-REPORTED      the manifest author's word only
+  [C06] $.data_access[0]                             SELF-REPORTED      the manifest author's word only
+  [C06] $.data_access[0].access                      SELF-REPORTED      the manifest author's word only
+  [C07] $.environment.network                        SELF-REPORTED      the manifest author's word only
+  [C07] $.environment.runtime                        SELF-REPORTED      the manifest author's word only
+  [C12] $.governance                                 SELF-REPORTED      the manifest author's word only
+  [C13] $.validity                                   SELF-REPORTED      the manifest author's word only
+
+This assessment states what backs each declared field. It does not establish what the agent did.

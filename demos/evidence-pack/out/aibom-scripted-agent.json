@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "manifest_sha256": "1beda8c72d64fce52fc582db7ac6ed7e95c480ad4a34e7b29bf5d0f7d51f2c6b",
+  "agent_id": "unregistered:scripted-test-agent",
+  "assessed_at_ms": 1794063525901,
+  "seal": {
+    "seal": "not_sealed"
+  },
+  "summary": {
+    "fields": 15,
+    "verified": 0,
+    "observed": 0,
+    "discovered": 0,
+    "self_reported": 14,
+    "unknowable": 1,
+    "lapsed": 0,
+    "contradicted": 0,
+    "evidence_rejected": 0,
+    "critical": 0,
+    "high": 1,
+    "medium": 3,
+    "info": 1
+  },
+  "fields": [
+    {
+      "component": "Identity",
+      "path": "$.agent.deployment",
+      "standing": {
+        "standing": "self_reported"
+      }
+    },
+    {
+      "component": "Identity",
+      "path": "$.agent.id",
+      "standing": {
+        "standing": "self_reported"
+      }
+    },
+    {
+      "component": "Identity",
+      "path": "$.agent.name",
+      "standing": {
+        "standing": "self_reported"
+      }
+    },
+    {
+      "component": "Identity",
+      "path": "$.agent.owner",
+      "standing": {
+        "standing": "self_reported"
+      }
+    },
+    {
+      "component": "Identity",
+      "path": "$.agent.version",
+      "standing": {
+        "standing": "self_reported"
+      }
+    },
+    {
+      "component": "Tools",
+      "path": "$.tools[0]",
+      "standing": {
+        "standing": "self_reported"
+      }
+    },
+    {
+      "component": "Tools",
+      "path": "$.tools[0].effects",
+      "standing": {
+        "standing": "unknowable",
+        "non_establishment": "N-2"
+      }
+    },
+    {
+      "component": "Permissions",
+      "path": "$.permissions.allowed[0]",
+      "standing": {
+        "standing": "self_reported"
+      }
+    },
+    {
+      "component": "Permissions",
+      "path": "$.permissions.allowed[1]",
+      "standing": {
+        "standing": "self_reported"
+      }
+    },
+    {
+      "component": "DataAccess",
+      "path": "$.data_access[0]",
+      "standing": {
+        "standing": "self_reported"
+      }
+    },
+    {
+      "component": "DataAccess",
+      "path": "$.data_access[0].access",
+      "standing": {
+        "standing": "self_reported"
+      }
+    },
+    {
+      "component": "Environment",
+      "path": "$.environment.network",
+      "standing": {
+        "standing": "self_reported"
+      }
+    },
+    {
+      "component": "Environment",
+      "path": "$.environment.runtime",
+      "standing": {
+        "standing": "self_reported"
+      }
+    },
+    {
+      "component": "Governance",
+      "path": "$.governance",
+      "standing": {
+        "standing": "self_reported"
+      }
+    },
+    {
+      "component": "Validity",
+      "path": "$.validity",
+      "standing": {
+        "standing": "self_reported"
+      }
+    }
+  ],
+  "findings": [
+    {
+      "priority": "high",
+      "component": "Identity",
+      "path": "$.agent.id",
+      "kind": {
+        "kind": "not_a_cryptographic_identity"
+      },
+      "message": "the agent's identifier is not a cryptographic identity"
+    },
+    {
+      "priority": "medium",
+      "component": "Permissions",
+      "path": "$.permissions.allowed[0]",
+      "kind": {
+        "kind": "permission_not_backed"
+      },
+      "message": "declared permission is not granted by any authority offered"
+    },
+    {
+      "priority": "medium",
+      "component": "Permissions",
+      "path": "$.permissions.allowed[1]",
+      "kind": {
+        "kind": "permission_not_backed"
+      },
+      "message": "declared permission is not granted by any authority offered"
+    },
+    {
+      "priority": "medium",
+      "component": "Validity",
+      "path": "seal",
+      "kind": {
+        "kind": "not_sealed"
+      },
+      "message": "the manifest is not sealed; nobody has put their name to it"
+    },
+    {
+      "priority": "info",
+      "component": "Tools",
+      "path": "$.tools[0].effects",
+      "kind": {
+        "kind": "unknowable",
+        "non_establishment": "N-2"
+      },
+      "message": "N-2: That a claimed external effect landed"
+    }
+  ]
+}
