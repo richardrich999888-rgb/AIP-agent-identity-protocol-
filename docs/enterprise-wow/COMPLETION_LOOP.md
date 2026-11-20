@@ -244,7 +244,9 @@ The brief's claims about each project are hypotheses. Verify the license file in
 
 ## Phase 7 — recording and handoff
 
-- [ ] **7.1** 10 consecutive `run.sh` + `verify.sh` rehearsals on a **clean tree**. Keep the summary JSON.
+- [ ] **7.1** 10 consecutive `run.sh` + `verify.sh` rehearsals on a **clean tree**. Keep the summary JSON. Split on 21 Nov: 7.1a (harness, dry run) and 7.1b (the 10 qualifying rehearsals).
+  - [x] **7.1a** `demos/vanian-enterprise/rehearse.sh N`: refuses a dirty tree; writes a summary JSON with the head commit, every exit code and the timings. **Done** `a01f3606`, fix `c69b7cbf` (set -e had cut it short), evidence `ee03b7bf`. Dry run, 2 cycles: test 0, run 0, verify 1 each; tree clean afterwards; all_passed false. Labelled DRY RUN, not counted.
+  - [ ] **7.1b** 10 qualifying rehearsals at freeze (after the last feature commit). They pass only when verify exits 0.
 - [ ] **7.2** Record the 5-minute video with the recorder (scenes per brief Phase 6: 0:00 overview, 0:40 shadow/ghost/orphan launched live, 1:20 parent-child, 2:10 lying agent, 3:00 governance + attribution, 3:50 FinOps, 4:25 evidence). Produce 300.000 s, 1920×1080, 30 fps; captions + SRT; no cutting away from failures. Add the full technical demonstration as a second, longer cut.
 - [ ] **7.3** Write `docs/enterprise-wow/FINAL_REPORT.md`:
   - branch and SHA; test counts; the matrices;
@@ -287,6 +289,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Sat 21 Nov 00:36 | 2.3a shadow AI | Done | adversarial #1 and #2 now RUN; 2.3b blocked on 0.1 |
 | Sat 21 Nov 00:40 | 2.5a delegation/identity | Done (findings) | #5 and #6 attacks not refused; ADR-002 |
 | Sat 21 Nov 00:43 | 4.2a FinOps aggregation | Done | 4.2b console blocked on 0.1 |
+| Sat 21 Nov 01:29 | ADR-002 impact, ADR-001 measured, 7.1a | Done | 279 tests depend on non-Delegate delegation; lost-revocation finding measured |
 
 ## Iteration log
 
@@ -311,6 +314,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 17 | 2.3a | Done: heuristic shadow AI live, 0 false positives | `ee497446` | live 7/7 x3; unit 10/0/0 |
 | 18 | 2.5a | Done with 2 findings: Delegate not enforced; no proof of possession | `f2353c6c` | 5/0/0; aip-authorize 108/0/0 |
 | 19 | 4.2a | Done: FinOps aggregation, no-telemetry never 0 | `48ba91cf` | 13/0/0 + live 16 OK |
+| 20 | 7.1a | Done: rehearsal harness; 2-cycle dry run behaves as designed | `ee03b7bf` | dry run: test 0, run 0, verify 1 x2 |
 
 ---
 
