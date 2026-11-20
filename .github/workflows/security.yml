@@ -64,6 +64,24 @@ jobs:
           trivy fs --scanners secret,misconfig \
             --severity CRITICAL,HIGH --exit-code 1 \
             --format sarif --output trivy-results.sarif .
+      - name: Report Trivy rule locations
+        if: always() && hashFiles('trivy-results.sarif') != ''
+        shell: python
+        run: |
+          import json
+          from pathlib import Path
+
+          report = json.loads(Path("trivy-results.sarif").read_text())
+          for run in report.get("runs", []):
+              for result in run.get("results", []):
+                  for location in result.get("locations", []):
+                      physical = location.get("physicalLocation", {})
+                      record = {
+                          "rule": result.get("ruleId"),
+                          "path": physical.get("artifactLocation", {}).get("uri"),
+                          "line": physical.get("region", {}).get("startLine"),
+                      }
+                      print("Trivy finding " + json.dumps(record))
       - uses: actions/upload-artifact@v4
         if: always()
         with:

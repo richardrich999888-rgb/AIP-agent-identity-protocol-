@@ -17,6 +17,12 @@ Run `npm run build`, install Chromium with `npx playwright install chromium`, th
 
 [Phone overview](../docs/preview/mobile-overview.png) · [Run the native AIP verification gate](../bridge/IMPLEMENTATION.md)
 
+## Spatial lineage
+
+Run `npm run design:capture -- --spatial` to capture the Three.js view. This requires WebGL2. For Chromium with SwiftShader installed, set `VANIAN_SOFTWARE_WEBGL=1` to use the local software renderer. The command fails if the 2D fallback is displayed.
+
+Each successful console verification job attaches the desktop, phone, evidence and 3D captures as the **vanian-design-review** artifact for 30 days. All dashboard captures use the synthetic tenant. The evidence screenshot shows verification of the retained lab capture.
+
 ## Design references
 
 - [WitnessAI Observe](https://witness.ai/observe/) and the supplied tour informed the observation-to-investigation workflow.

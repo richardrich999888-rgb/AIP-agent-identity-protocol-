@@ -34,3 +34,16 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run design:build
       - run: npm run verify:aip-console
+      - name: Record the review screens
+        env:
+          VANIAN_SOFTWARE_WEBGL: '1'
+        run: |
+          npm run design:capture -- "$RUNNER_TEMP/vanian-review"
+          npm run design:capture -- "$RUNNER_TEMP/vanian-review" --spatial
+      - name: Upload the product screenshots
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: vanian-design-review
+          path: ${{ runner.temp }}/vanian-review/*.png
+          if-no-files-found: error
+          retention-days: 30
