@@ -81,7 +81,9 @@ Cut order when behind: P2 polish → cost trends and budgets → Activity Explor
 ## Phase 0 — audit and baseline (P0)
 
 - [ ] **0.1** Create `claude/vanian-enterprise-wow` from `origin/feature/wow-demos`. Cherry-pick the three P0-059 commits from the bundle. Build with `cargo build --release --locked -p aip-probe -p aip-collector -p aip-observe-verify -p vanian-command-center`. Run the P0-059 test table (`command-center/README.md`). Record real counts and failures.
-- [ ] **0.2** Inventory the branches, recent Claude commits and PRs (GitHub API needs P1). Output: `docs/enterprise-wow/AUDIT.md`. Re-use `command-center/docs/REPOSITORY_AUDIT.md` and extend it to sentinel, containment and NEXORA.
+- [ ] **0.2** Inventory the branches, recent Claude commits and PRs (GitHub API needs P1). Output: `docs/enterprise-wow/AUDIT.md`. Re-use `command-center/docs/REPOSITORY_AUDIT.md` and extend it to sentinel, containment and NEXORA. Split on 21 Nov: 0.2a (inventory) and 0.2b (P0-059 audit re-use).
+  - [x] **0.2a** `docs/enterprise-wow/AUDIT.md`. **Done** `e8410425`. Covers 44 branches and 23 PRs (21 open, 15 drafts; main has had no merge since 19 Jun). `cargo test --locked -p` for aip-sentinel-feed, aip-containment, aip-nexora, aip-warrant and aip-reconcile: 508 passed / 0 failed / 0 ignored. Limit: test counts show the crates pass their own tests, not that the demo uses them.
+  - [ ] **0.2b** Merge in `command-center/docs/REPOSITORY_AUDIT.md` from P0-059. **Blocked on 0.1.**
 - [ ] **0.3** Write the capability matrix using the brief's five classes (independently tested / integration incomplete / partial / simulated / not implemented) for every module named in Phase 0. Output: `docs/enterprise-wow/CAPABILITY_MATRIX.md`.
 - [x] **0.4** Lab feasibility check. Try `dockerd &` as root and record whether Compose runs. If not, mark `BLOCKED_BY_INFRASTRUCTURE` and run every service as a native process with a `compose.yaml` kept for real hosts. Record kernel sensor availability per sensor.
   - **Done** `24379741`. Compose runs: `dockerd &`, `docker run --rm hello-world` exit 0, two-service `docker compose up` probe exit 0 and host curl exit 0. Not BLOCKED_BY_INFRASTRUCTURE.
@@ -262,6 +264,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Sat 21 Nov 00:12 | 3.4a observer ingestion | Done | 3.4b live kill run next; console part blocked on 0.1 |
 | Sat 21 Nov 00:16 | 3.4b live kill | Done | state lag ~10.5 s measured; 3.4c blocked on 0.1 |
 | Sat 21 Nov 00:21 | 1.4 P2 evaluations | Done | Phase 1 complete before Sat 06:00; Falco blocked here |
+| Sat 21 Nov 00:24 | 0.2a audit | Done | 0.2b blocked on 0.1 |
 
 ## Iteration log
 
@@ -278,6 +281,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 9 | 3.4a | Done: verified archive ingestion; interrupted run shows DEGRADED, healthy COVERED | `ea405018` | test_observer_ingest 22/0/0 |
 | 10 | 3.4b | Done: live collector kill, gap reported in 3/3 runs | `a078c7cf` | live_observer_kill 7/7 checks x3 |
 | 11 | 1.4 | Done: OTel usable; OpenLIT instrumentation only; Falco BLOCKED_BY_INFRASTRUCTURE | `9ac0671c` | chain 3/0 checks |
+| 12 | 0.2a | Done: repository audit; 5 Ghost crates 508/0/0 | `e8410425` | cargo test 508/0/0 |
 
 ---
 
