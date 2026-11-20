@@ -210,7 +210,9 @@ The brief's claims about each project are hypotheses. Verify the license file in
 
 - [ ] **6.2** Write the evidence bundle v2. It covers policy decisions with the OPA bundle hash, approvals, attribution records and FinOps usage.
   - Add `vcc-verify` checks: `POLICY` (decision ↔ bundle hash ↔ receipt), `APPROVAL` (operator signature) and `ATTRIBUTION` (signatures). Each check must have a test that tampers its input and fails.
-- [ ] **6.3** Run all 15 adversarial tests. Output: `docs/enterprise-wow/ADVERSARIAL_RESULTS.md`, with per test: command, result, false positives, coverage, unresolved limitations.
+- [ ] **6.3** Run all 15 adversarial tests. Output: `docs/enterprise-wow/ADVERSARIAL_RESULTS.md`, with per test: command, result, false positives, coverage, unresolved limitations. Split on 21 Nov: 6.3a (what runs on this branch) and 6.3b (the rest).
+  - [x] **6.3a** `docs/enterprise-wow/ADVERSARIAL_RESULTS.md`. **Done** `471ff1f1`. RUN 3 (#10, #14, #15), PARTIAL 5 (#4, #9, #11, #12, #13), NOT RUN 7. Every row cites its command and count.
+  - [ ] **6.3b** Run #1, #2, #3, #5, #6, #7 and #8, and complete the PARTIAL rows. **Blocked on 0.1 and the gateway.**
 
 | # | Test | Item |
 |---|---|---|
@@ -272,6 +274,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Sat 21 Nov 00:24 | 0.2a audit | Done | 0.2b blocked on 0.1 |
 | Sat 21 Nov 00:25 | 0.3a matrix | Done | 5 of 12 capabilities NV until P0-059 lands |
 | Sat 21 Nov 00:30 | 6.1a lab scripts | Done | verify exit 1: 0/12 VERIFIED until P0-059 and the gateway land |
+| Sat 21 Nov 00:31 | 6.3a adversarial results | Done | 7 tests wait on P0-059 and the gateway |
 
 ## Iteration log
 
@@ -291,6 +294,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 12 | 0.2a | Done: repository audit; 5 Ghost crates 508/0/0 | `e8410425` | cargo test 508/0/0 |
 | 13 | 0.3a | Done: capability matrix, no PREVENTION rows | `94337fc6` | doc only; cites prior counts |
 | 14 | 6.1a | Done: lab scripts; verify reports 0/12 VERIFIED honestly | `efc1d5b1` | test.sh 5/5; run 7/7; test_verify 6/6 |
+| 15 | 6.3a | Done: 3 RUN, 5 PARTIAL, 7 NOT RUN (blocked) | `471ff1f1` | doc; cites prior counts |
 
 ---
 
