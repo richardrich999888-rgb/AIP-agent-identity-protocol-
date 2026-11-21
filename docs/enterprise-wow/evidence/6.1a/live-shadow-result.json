@@ -1,12 +1,12 @@
 {
  "label": "live lab run; model is the TEST DATA mock",
- "model_port": 38615,
- "web_port": 52915,
+ "model_port": 39709,
+ "web_port": 48071,
  "pids": {
-  "a": 4260,
-  "web": 4261,
-  "b": 4263,
-  "c": 4265
+  "a": 5923,
+  "web": 5924,
+  "b": 5926,
+  "c": 5928
  },
  "poll": {
   "verified": true,
@@ -17,7 +17,7 @@
  },
  "findings": [
   {
-   "pid": 4260,
+   "pid": 5923,
    "start_ticks": null,
    "names": [
     "/usr/local/bin/python3",
@@ -28,11 +28,11 @@
    "attribution_missing_reason": "no binding",
    "pid_reuse_not_excluded": true,
    "evidence_probe_seqs": [
-    40
+    39
    ]
   },
   {
-   "pid": 4261,
+   "pid": 5924,
    "start_ticks": null,
    "names": [
     "/usr/local/bin/python3",
@@ -45,7 +45,7 @@
    "evidence_probe_seqs": []
   },
   {
-   "pid": 4263,
+   "pid": 5926,
    "start_ticks": null,
    "names": [
     "/usr/local/bin/python3",
@@ -58,7 +58,7 @@
    "evidence_probe_seqs": []
   },
   {
-   "pid": 4265,
+   "pid": 5928,
    "start_ticks": null,
    "names": [
     "/usr/bin/sort",
@@ -72,9 +72,9 @@
   }
  ],
  "heuristic_pids": [
-  4260
+  5923
  ],
- "observed_processes": 14,
+ "observed_processes": 13,
  "checks": {
   "archive verified by aip-observe-verify before classification": true,
   "A got a TEST DATA reply from the mock": true,

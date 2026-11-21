@@ -52,6 +52,10 @@ class Inventory(unittest.TestCase):
         r = rows([gd("payments-agent", "DENY", ["approval retry for a request that is not pending"], stage="auth")])["payments-agent"]
         self.assertEqual((r["policy_denials"], r["decisions"], r["risk"]), (0, 1, "LOW"))
 
+    def test_false_authority_claim_is_high(self):
+        r = rows([gd("recon-reporter", "DENY", ["authority chain does not match registered lineage"], stage="auth")])["recon-reporter"]
+        self.assertEqual((r["false_authority_claims"], r["policy_denials"], r["risk"]), (1, 0, "HIGH"))
+
     def test_engine_outage_and_replay_do_not_raise_risk(self):
         r = rows([gd("recon-reporter", "DENY", ["policy engine unavailable: binary not found"]),
                   gd("recon-reporter", "DENY", ["replayed nonce"], stage="auth")])["recon-reporter"]
@@ -87,12 +91,13 @@ class OverLiveGateRun(unittest.TestCase):
         evs = [e.event for e in s.events(kind="gate.decision", limit=1000)]
         s.close()
         got = {r["agent_id"]: r for r in inv.build(reg, evs)}
-        rr, pa, orch = got["recon-reporter"], got["payments-agent"], got["orchestrator"]
+        rr, pa, orch, ret = got["recon-reporter"], got["payments-agent"], got["orchestrator"], got["retired-agent"]
         self.assertEqual(rr["signature_failures"], 1)       # the forged-identity step
-        self.assertEqual(rr["revoked_authority_uses"], 1)   # the revoked-authority step
-        self.assertEqual(rr["risk"], "HIGH")
-        # Policy denials: the denied tool and the revoked authority (OPA denies revocation at the policy stage).
-        self.assertEqual((rr["policy_denials"], rr["engine_unavailable"], rr["replays"]), (2, 1, 1))
+        self.assertEqual(rr["false_authority_claims"], 1)   # the understated-depth step
+        self.assertEqual((rr["policy_denials"], rr["engine_unavailable"], rr["replays"], rr["risk"]), (1, 1, 1, "HIGH"))
+        # retired-agent: the revoked use is a policy-stage DENY (counted twice, by design); the stripped chain is a false claim.
+        self.assertEqual((ret["revoked_authority_uses"], ret["policy_denials"], ret["false_authority_claims"], ret["risk"]),
+                         (1, 1, 1, "HIGH"))
         self.assertEqual((pa["approvals_used"], pa["held_for_approval"], pa["invalid_approvals"]), (1, 2, 1))
         self.assertEqual(orch["risk"], "UNKNOWN")            # registered, never seen
         self.assertIsNone(orch["last_seen_ms"])

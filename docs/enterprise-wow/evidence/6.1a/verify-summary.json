@@ -17,8 +17,8 @@
   },
   {
    "capability": "4 Orphan AI",
-   "status": "NOT_AVAILABLE",
-   "reason": "P0-059 is BLOCKED_BY_EXTERNAL_APPROVAL (0.1, final); the native replacement is not built yet"
+   "status": "VERIFIED",
+   "reason": "a revoked ancestor orphans its descendants: the orphaned grandchild process keeps running, is observed by Sniffer Dog and refused at the native gate, which derives authority from the registry lineage; UNKNOWN_OWNER is ADVISORY; grants are lab-issued, not AIP tokens; revocation applies at gate restart (native, not P0-059)"
   },
   {
    "capability": "5 Parent-child",
@@ -28,7 +28,7 @@
   {
    "capability": "6 Governance enforcement",
    "status": "VERIFIED",
-   "reason": "PREVENTION for calls through the native gate (signed requests, OPA, OPA-down DENY); a path that bypasses the gate is not covered (native, not P0-059)"
+   "reason": "PREVENTION for calls through the native gate (signed requests, authority derived from the registry lineage, OPA, OPA-down DENY); a path that bypasses the gate is not covered (native, not P0-059)"
   },
   {
    "capability": "7 Human approval",
@@ -66,6 +66,7 @@
   "server-suite": true,
   "gate-suite": true,
   "inventory-suite": true,
+  "orphan-suite": true,
   "litellm-acceptance": true,
   "revocation-gap": true,
   "delegation-findings": true,
@@ -74,8 +75,9 @@
   "live-kill": true,
   "live-shadow": true,
   "live-gate": true,
-  "live-inventory": true
+  "live-inventory": true,
+  "live-orphan": true
  },
- "verified": 3,
+ "verified": 4,
  "failed": 0
 }

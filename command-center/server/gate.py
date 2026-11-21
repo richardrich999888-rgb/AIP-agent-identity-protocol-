@@ -10,6 +10,11 @@ the first failure is a DENY that is recorded and **never forwarded**:
 3. freshness: |now − issued_at_ms| ≤ MAX_SKEW_MS;
 4. replay: (agent_id, nonce) not seen before (seen nonces are persisted in
    the event store, so a restart does not reopen replay);
+4b. lineage (item 2.4): the presented `authority_jtis` and `delegation_depth`
+   must equal the ones the gate derives from the registry's parent links and
+   the operator's grants. Before this check, an orphan could leave a revoked
+   ancestor's grant out of its chain and be forwarded (found live, 21 Nov).
+   OPA receives the derived chain, never the presented one;
 5. policy: OpaGate.decide with the operator-signed revocation list;
    any engine failure is DENY (fail closed, via opa_gate).
 
@@ -45,8 +50,9 @@ import re
 from dataclasses import dataclass
 from typing import Callable
 
+import orphan
 import signing
-from agent_registry import Registry
+from agent_registry import Registry, parse_grants
 from eventstore import EventStore
 from opa_gate import OpaGate
 
@@ -88,9 +94,22 @@ Forward = Callable[[str, str, dict], object]
 
 class Gate:
     def __init__(self, registry: Registry, revoked_jtis: list[str], opa: OpaGate, store: EventStore,
-                 forward: Forward, clock_ms: Callable[[], int]) -> None:
+                 forward: Forward, clock_ms: Callable[[], int], *, grants: dict[str, str]) -> None:
         self._reg, self._revoked, self._opa, self._store = registry, list(revoked_jtis), opa, store
         self._forward, self._clock = forward, clock_ms
+        self._grants = parse_grants(grants, registry)  # required: no grants, no gate
+
+    def _lineage_problem(self, req: dict) -> tuple[str | None, list[str]]:
+        """(reason, derived chain). reason is None only if the request's authority matches the registry."""
+        try:
+            chain = orphan.authority_chain(self._reg.agents, self._grants, req["agent_id"])
+        except (KeyError, orphan.LineageError):
+            return "no grant on record for this agent's lineage", []
+        if req["authority_jtis"] != chain:
+            return "authority chain does not match registered lineage", chain
+        if req["delegation_depth"] != len(chain) - 1:
+            return "delegation depth does not match registered lineage", chain
+        return None, chain
 
     def _seen(self, agent_id: str, nonce: str) -> list[tuple[str, str]]:
         """(outcome, stage) of authenticated records for this (agent, nonce), oldest first."""
@@ -182,10 +201,13 @@ class Gate:
             if problem:
                 self._record(now, req, rsha, APPROVAL_INVALID, (problem,), stage=AUTH)
                 return Result("DENY", (problem,), False, rsha)
+        problem, chain = self._lineage_problem(req)
+        if problem:
+            return self._deny(now, req, rsha, problem, AUTH)
         amount = req["args"].get("amount")
         opa_in = {"agent_id": req["agent_id"], "server": req["server"], "tool": req["tool"],
-                  "authority_jtis": req["authority_jtis"], "revoked_jtis": self._revoked,
-                  "delegation_depth": req["delegation_depth"]}
+                  "authority_jtis": chain, "revoked_jtis": self._revoked,
+                  "delegation_depth": len(chain) - 1}
         if isinstance(amount, (int, float)) and not isinstance(amount, bool):
             opa_in["amount"] = amount
         d = self._opa.decide(opa_in)

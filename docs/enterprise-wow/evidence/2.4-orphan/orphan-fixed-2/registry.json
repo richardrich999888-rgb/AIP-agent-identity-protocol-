@@ -1,0 +1,45 @@
+{
+ "agents": {
+  "orchestrator": {
+   "public_key_hex": "40589c29acc74ddb1142c3551aa522df0abd0e7833f8670c5a79615a22a8e39c",
+   "owner": "alice",
+   "framework": "scripted-test-agent",
+   "host": "lab",
+   "runtime": "python3.11",
+   "parent": null,
+   "responsible_human": "alice"
+  },
+  "recon-reporter": {
+   "public_key_hex": "4a1c973d2cb4dd244cc2ccf57da2b7ae543bd21fce775046bf092b41f8ee2f9b",
+   "owner": "alice",
+   "framework": "scripted-test-agent",
+   "host": "lab",
+   "runtime": "python3.11",
+   "parent": "orchestrator",
+   "responsible_human": "alice"
+  },
+  "recon-worker": {
+   "public_key_hex": "8c42ecea3a5c9fafcdad6ac68a1fe19288df2713c78150389d5e8462cd74b345",
+   "owner": "alice",
+   "framework": "scripted-test-agent",
+   "host": "lab",
+   "runtime": "python3.11",
+   "parent": "recon-reporter",
+   "responsible_human": "alice"
+  },
+  "payments-agent": {
+   "public_key_hex": "ce1aeb4126a24d39b4c5e1c868f30e0a7e4d5f5479f1c07455e15cf39916a575",
+   "owner": "bob",
+   "framework": "scripted-test-agent",
+   "host": "lab",
+   "runtime": "python3.11",
+   "parent": "orchestrator",
+   "responsible_human": "bob"
+  }
+ },
+ "operators": {
+  "ops-1": {
+   "public_key_hex": "18fb59f402821239ce901a751a90f8e42da6aba5b6031ec86e454d795278a4ae"
+  }
+ }
+}

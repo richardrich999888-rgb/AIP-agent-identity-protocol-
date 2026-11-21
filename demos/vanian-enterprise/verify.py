@@ -25,7 +25,7 @@ def passed(runs: Path, name: str) -> bool | None:
     t = log.read_text(errors="replace")
     if name == "policy":
         return "PASS:" in t and "FAIL:" not in t
-    if name in ("server-suite", "gate-suite", "inventory-suite"):
+    if name in ("server-suite", "gate-suite", "inventory-suite", "orphan-suite"):
         return t.rstrip().endswith("OK")
     if name == "litellm-acceptance":
         return "checks: 16 passed, 0 failed" in t
@@ -41,11 +41,12 @@ def live_result(runs: Path, name: str) -> bool | None:
 
 
 def main(runs: Path) -> int:
-    t = {n: passed(runs, n) for n in ("policy", "server-suite", "gate-suite", "inventory-suite", "litellm-acceptance", "revocation-gap", "delegation-findings", "revocation-persistence", "live-sensors")}
+    t = {n: passed(runs, n) for n in ("policy", "server-suite", "gate-suite", "inventory-suite", "orphan-suite", "litellm-acceptance", "revocation-gap", "delegation-findings", "revocation-persistence", "live-sensors")}
     kill = live_result(runs, "live-kill")
     shadow = live_result(runs, "live-shadow")
     gate_live = live_result(runs, "live-gate")
     inv_live = live_result(runs, "live-inventory")
+    orphan_live = live_result(runs, "live-orphan")
 
     def verified(ok, scope):
         if ok is None:
@@ -66,11 +67,15 @@ def main(runs: Path) -> int:
         ("2 Shadow AI", gate(shadow and t["server-suite"],
                              "HEURISTIC class passes live with 0 false positives; CONFIRMED class and registry are P0-059 (2.3b)")),
         ("3 Ghost AI", p0059),
-        ("4 Orphan AI", p0059),
+        ("4 Orphan AI", verified(t["orphan-suite"] and t["gate-suite"] and orphan_live,
+                                "a revoked ancestor orphans its descendants: the orphaned grandchild process keeps running, "
+                                "is observed by Sniffer Dog and refused at the native gate, which derives authority from the "
+                                "registry lineage; UNKNOWN_OWNER is ADVISORY; grants are lab-issued, not AIP tokens; "
+                                "revocation applies at gate restart (native, not P0-059)")),
         ("5 Parent-child", p0059),
         ("6 Governance enforcement", verified(t["policy"] and t["server-suite"] and t["gate-suite"] and gate_live,
-                                              "PREVENTION for calls through the native gate (signed requests, OPA, "
-                                              "OPA-down DENY); a path that bypasses the gate is not covered (native, not P0-059)")),
+                                              "PREVENTION for calls through the native gate (signed requests, authority derived from "
+                                              "the registry lineage, OPA, OPA-down DENY); a path that bypasses the gate is not covered (native, not P0-059)")),
         ("7 Human approval", verified(t["gate-suite"] and gate_live,
                                       "held calls forward only with an operator-signed, request-bound, single-use approval; "
                                       "no console UI yet (native, not P0-059)")),
@@ -93,7 +98,7 @@ def main(runs: Path) -> int:
     print(f"verified {verified}/12, failed {failed}")
     (runs / "verify-summary.json").write_text(json.dumps(
         {"capabilities": [{"capability": n, "status": s, "reason": w} for n, (s, w) in rows],
-         "checks": {**t, "live-kill": kill, "live-shadow": shadow, "live-gate": gate_live, "live-inventory": inv_live}, "verified": verified, "failed": failed}, indent=1) + "\n")
+         "checks": {**t, "live-kill": kill, "live-shadow": shadow, "live-gate": gate_live, "live-inventory": inv_live, "live-orphan": orphan_live}, "verified": verified, "failed": failed}, indent=1) + "\n")
     return 0 if verified == 12 else 1
 
 

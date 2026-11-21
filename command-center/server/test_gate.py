@@ -32,9 +32,15 @@ def revocations(k, jtis, op="ops-1", signer="ops-1"):
     return {"list": lst, "signature_hex": signing.sign(signing.DOMAIN_REVOCATIONS, lst, k[signer][0])}
 
 
-def req(agent="recon-reporter", tool="read_file", server="fs", nonce="00" * 8, at=NOW, jtis=("root-1", "hop-1")):
+GRANTS = {"orchestrator": "root-1", "recon-reporter": "hop-1", "payments-agent": "hop-pay"}
+CHAIN = {"orchestrator": ("root-1",), "recon-reporter": ("root-1", "hop-1"), "payments-agent": ("root-1", "hop-pay")}
+
+
+def req(agent="recon-reporter", tool="read_file", server="fs", nonce="00" * 8, at=NOW, jtis=None, depth=None):
+    chain = list(jtis if jtis is not None else CHAIN.get(agent, ("root-1", "hop-1")))
     return {"agent_id": agent, "server": server, "tool": tool, "args": {"path": "/report.txt"},
-            "authority_jtis": list(jtis), "delegation_depth": 1, "nonce": nonce, "issued_at_ms": at}
+            "authority_jtis": chain, "delegation_depth": len(chain) - 1 if depth is None else depth,
+            "nonce": nonce, "issued_at_ms": at}
 
 
 def env(k, r, signer=None):
@@ -63,9 +69,10 @@ class Base(unittest.TestCase):
         self.store.close()
         shutil.rmtree(self.tmp)
 
-    def gate(self, revoked=(), opa=None, forward=None):
+    def gate(self, revoked=(), opa=None, forward=None, grants=None):
         fwd = forward or (lambda s, t, a: self.forwarded.append((s, t, a)) or {"ok": True})
-        return g.Gate(self.reg, list(revoked), opa or self.opa, self.store, fwd, lambda: NOW)
+        return g.Gate(self.reg, list(revoked), opa or self.opa, self.store, fwd, lambda: NOW,
+                      grants=GRANTS if grants is None else grants)
 
     def decisions(self):
         return [e.event for e in self.store.events(kind=g.DECISION_KIND)]
@@ -105,6 +112,41 @@ class Enforcement(Base):
         r = self.gate(forward=boom).handle(env(self.k, req()))
         self.assertEqual((r.outcome, r.forwarded), ("ALLOW", True))
         self.assertIn("tool server down", self.decisions()[0]["upstream_error"])
+
+
+class Lineage(Base):
+    """Item 2.4: authority is derived from the registry, never taken from the request."""
+
+    def test_stripped_chain_is_denied_before_opa(self):
+        r = self.gate(revoked=["hop-1"]).handle(env(self.k, req(jtis=("root-1",), depth=1)))
+        self.assertEqual((r.outcome, r.reasons, r.forwarded, self.opa.calls), ("DENY", ("authority chain does not match registered lineage",), False, []))
+        self.assertEqual(self.decisions()[0]["stage"], g.AUTH)
+
+    def test_substituted_chain_is_denied(self):
+        r = self.gate().handle(env(self.k, req(jtis=("root-1", "hop-pay"))))
+        self.assertEqual(r.reasons, ("authority chain does not match registered lineage",))
+
+    def test_understated_depth_is_denied(self):
+        r = self.gate().handle(env(self.k, req(depth=0)))
+        self.assertEqual((r.outcome, r.reasons, self.forwarded), ("DENY", ("delegation depth does not match registered lineage",), []))
+
+    def test_missing_grant_is_denied(self):
+        r = self.gate(grants={"orchestrator": "root-1"}).handle(env(self.k, req()))
+        self.assertEqual((r.outcome, r.reasons, self.opa.calls), ("DENY", ("no grant on record for this agent's lineage",), []))
+
+    def test_opa_gets_the_derived_chain_and_depth(self):
+        self.gate().handle(env(self.k, req(agent="payments-agent")))
+        self.assertEqual((self.opa.calls[0]["authority_jtis"], self.opa.calls[0]["delegation_depth"]), (["root-1", "hop-pay"], 1))
+
+    def test_root_agent_depth_zero(self):
+        r = self.gate().handle(env(self.k, req(agent="orchestrator")))
+        self.assertEqual(r.outcome, "ALLOW")
+        self.assertEqual(self.opa.calls[0]["delegation_depth"], 0)
+
+    def test_gate_refuses_to_start_with_bad_grants(self):
+        for bad in ({"ghost": "x"}, {"orchestrator": ""}, ["root-1"]):
+            with self.assertRaises(ar.RegistryError):
+                self.gate(grants=bad)
 
 
 class Identity(Base):

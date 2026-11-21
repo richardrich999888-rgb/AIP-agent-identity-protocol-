@@ -1,0 +1,16 @@
+Mutation record for orphan.py and the gate's lineage check (2.4).
+orphan.py mutations against `python3 -m unittest test_orphan`; gate.py mutations against `test_gate` (GATE_VENV, real OPA).
+Each mutation applied alone to a copy; the suite must fail.
+
+CAUGHT   O1 ancestor revocation ignored
+CAUGHT   O2 own revocation not checked
+CAUGHT   O3 owner check removed
+CAUGHT   O4 missing grant tolerated
+CAUGHT   O5 cycle not detected
+CAUGHT   O6 UNKNOWN_OWNER labelled PREVENTION
+CAUGHT   G-L1 presented chain trusted
+CAUGHT   G-L2 presented depth trusted
+CAUGHT   G-L3 OPA given presented chain
+CAUGHT   G-L4 missing grant allowed
+
+Result: 10/10 caught.

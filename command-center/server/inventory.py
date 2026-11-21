@@ -9,13 +9,16 @@ being registered (UNREGISTERED). Fields:
   and LLM usage. None if never seen, never 0;
 - counts: decisions, allowed, held for approval, approvals used, policy
   denials, signature failures against this id, revoked-authority uses,
-  invalid approvals, replays, policy-engine outages, LLM calls;
+  invalid approvals, replays, policy-engine outages, false authority claims
+  (a signed request whose chain or depth does not match the registered
+  lineage, item 2.4), LLM calls;
 - credential metadata: the key fingerprint only. There is no token expiry
   to report: the native gate uses per-request signatures, not bearer tokens;
 - `risk`, by the declared rule below. A never-seen agent is UNKNOWN, not LOW.
 
 Risk rule (declared, in order):
-  HIGH   — any signature failure against the id, or any use of revoked authority;
+  HIGH   — any signature failure against the id, any use of revoked authority,
+           or any false authority claim;
   MEDIUM — any policy denial, or any invalid approval presented with a
            request signed by this agent;
   LOW    — seen, and none of the above;
@@ -38,6 +41,9 @@ SIG_FAIL = "request signature invalid"
 REVOKED = "authority revoked"
 ENGINE_DOWN = "policy engine unavailable"
 REPLAY = "replayed nonce"
+FALSE_AUTHORITY = ("authority chain does not match registered lineage",
+                   "delegation depth does not match registered lineage",
+                   "no grant on record for this agent's lineage")
 APPROVAL_INVALID = "APPROVAL_INVALID"
 
 
@@ -49,11 +55,11 @@ def fingerprint(public_key_hex: str) -> str:
 def _blank() -> dict:
     return {"last_seen_ms": None, "decisions": 0, "allowed": 0, "policy_denials": 0, "signature_failures": 0,
             "revoked_authority_uses": 0, "held_for_approval": 0, "approvals_used": 0, "invalid_approvals": 0,
-            "replays": 0, "engine_unavailable": 0, "llm_calls": 0}
+            "replays": 0, "engine_unavailable": 0, "false_authority_claims": 0, "llm_calls": 0}
 
 
 def _risk(c: dict) -> str:
-    if c["signature_failures"] or c["revoked_authority_uses"]:
+    if c["signature_failures"] or c["revoked_authority_uses"] or c["false_authority_claims"]:
         return "HIGH"
     if c["policy_denials"] or c["invalid_approvals"]:
         return "MEDIUM"
@@ -97,6 +103,8 @@ def build(agents: dict[str, dict], events: list[dict]) -> list[dict]:
             c["invalid_approvals"] += 1
         elif any(isinstance(r, str) and r.startswith(ENGINE_DOWN) for r in reasons):
             c["engine_unavailable"] += 1
+        elif any(r in FALSE_AUTHORITY for r in reasons):
+            c["false_authority_claims"] += 1
         elif REPLAY in reasons:
             c["replays"] += 1
         elif e.get("outcome") == "DENY" and e.get("stage") == "policy":

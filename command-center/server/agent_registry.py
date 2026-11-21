@@ -9,6 +9,11 @@ Registry JSON:
 Revocations JSON (signed by a registered operator; verified, or the gate refuses to start):
     {"list": {"revoked_jtis": [...], "issued_at_ms": int, "operator_id": "..."}, "signature_hex": "..."}
 
+Grants JSON (item 2.4): {"<agent_id>": "<jti of the grant that agent holds from its parent>"}.
+Lab-issued in this build, not AIP delegation tokens. The gate derives each
+agent's authority chain from these and the parent links; it never trusts
+the chain an agent presents.
+
 Every field is validated; anything unexpected is a RegistryError (fail closed).
 """
 
@@ -85,6 +90,26 @@ def verified_revocations(doc: object, reg: Registry) -> tuple[list[str], dict]:
     if not signing.verify(signing.DOMAIN_REVOCATIONS, lst, doc["signature_hex"], key):
         raise RegistryError("revocation list signature does not verify")
     return sorted(set(jtis)), lst
+
+
+def parse_grants(doc: object, reg: Registry) -> dict[str, str]:
+    """Validate a grants document: registered agent ids to non-empty jti strings."""
+    if not isinstance(doc, dict):
+        raise RegistryError("grants must be an object")
+    for aid, jti in doc.items():
+        if aid not in reg.agents:
+            raise RegistryError(f"grant for unregistered agent {aid!r}")
+        if not isinstance(jti, str) or not jti:
+            raise RegistryError(f"grant for {aid!r} must be a non-empty string")
+    return dict(doc)
+
+
+def load_grants(path: Path, reg: Registry) -> dict[str, str]:
+    """Read and validate a grants file; any problem raises RegistryError."""
+    try:
+        return parse_grants(json.loads(path.read_text()), reg)
+    except (OSError, json.JSONDecodeError) as e:
+        raise RegistryError(f"cannot read grants: {e}") from None
 
 
 def load(registry_path: Path, revocations_path: Path) -> tuple[Registry, list[str]]:

@@ -3,7 +3,9 @@
   "agents": {
    "orchestrator": {},
    "recon-reporter": {},
-   "payments-agent": {}
+   "payments-agent": {},
+   "recon-worker": {},
+   "retired-agent": {}
   },
   "max_delegation_depth": 2,
   "allowlist": [
@@ -30,6 +32,18 @@
     "server": "shell",
     "tool": "exec",
     "delegable": false
+   },
+   {
+    "agent_id": "recon-worker",
+    "server": "fs",
+    "tool": "read_file",
+    "delegable": true
+   },
+   {
+    "agent_id": "retired-agent",
+    "server": "fs",
+    "tool": "read_file",
+    "delegable": true
    }
   ],
   "denied_tools": [

@@ -1,7 +1,7 @@
 {
- "source": "lab/runs/live-gate-20261121T125001Z (scratchpad lab)",
- "gate_decisions": 13,
- "rows": 3,
+ "source": "lab/runs/live-gate-20261121T125938Z",
+ "gate_decisions": 15,
+ "rows": 4,
  "checks": {
   "store chain intact": true,
   "all gate decisions read (fewer than one page)": true,
@@ -10,6 +10,7 @@
   "no public key in the inventory, fingerprint only": true,
   "forged identity counted against the claimed id, not as activity": true,
   "revoked authority use makes the agent HIGH": true,
+  "false authority claims counted (stripped chain, understated depth)": true,
   "OPA outage counted, not a policy denial": true,
   "invalid approval makes payments-agent MEDIUM": true,
   "approval use counted": true,

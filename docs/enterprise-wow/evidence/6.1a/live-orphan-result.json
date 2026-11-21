@@ -1,0 +1,247 @@
+{
+ "label": "live lab run; TEST keys, TEST DATA tool server; grants are lab-issued, not AIP tokens",
+ "pids": {
+  "orchestrator": 6015,
+  "child": 6016,
+  "grandchild": 6017
+ },
+ "grandchild_ppid_after_kill": 1,
+ "gate_ports": [
+  41691,
+  60977
+ ],
+ "revoked_at_ms": 1795266010283,
+ "calls": {
+  "before": {
+   "pid": 6017,
+   "ppid": 6016,
+   "http": 200,
+   "outcome": "ALLOW",
+   "reasons": [],
+   "forwarded": true,
+   "request_sha256": "f81d3374facbfb710a1afb817585d301269b57b8ae24931b9b74574544497def",
+   "upstream": {
+    "label": "TEST DATA",
+    "server": "fs",
+    "tool": "read_file",
+    "args": {
+     "n": 1
+    }
+   },
+   "upstream_error": null
+  },
+  "after": {
+   "pid": 6017,
+   "ppid": 1,
+   "http": 403,
+   "outcome": "DENY",
+   "reasons": [
+    "authority revoked"
+   ],
+   "forwarded": false,
+   "request_sha256": "79209a821029b46af3dbd5f32e21b02a330e45a7f6c83cb58abdf1de5b01ffc9",
+   "upstream": null,
+   "upstream_error": null
+  },
+  "stripped_chain": {
+   "pid": 6017,
+   "ppid": 1,
+   "http": 403,
+   "outcome": "DENY",
+   "reasons": [
+    "authority chain does not match registered lineage"
+   ],
+   "forwarded": false,
+   "request_sha256": "7bb979fac7ab3d5aa0bd2771012099f0a9525bebffd27808d61c49fd2225fa10",
+   "upstream": null,
+   "upstream_error": null
+  },
+  "payments_agent": {
+   "http": 200,
+   "outcome": "ALLOW",
+   "reasons": [],
+   "forwarded": true,
+   "request_sha256": "607f2bd35fcf21ccb6182babe869cd42853270a4bc587c05083af30d19ebc07b",
+   "upstream": {
+    "label": "TEST DATA",
+    "server": "payments",
+    "tool": "settle_batch",
+    "args": {
+     "amount": 500
+    }
+   },
+   "upstream_error": null
+  }
+ },
+ "lineage": {
+  "before": {
+   "orchestrator": {
+    "agent_id": "orchestrator",
+    "status": "ACTIVE",
+    "findings": [],
+    "lineage": [
+     "orchestrator"
+    ],
+    "enforcement": "NONE"
+   },
+   "payments-agent": {
+    "agent_id": "payments-agent",
+    "status": "ACTIVE",
+    "findings": [],
+    "lineage": [
+     "orchestrator",
+     "payments-agent"
+    ],
+    "enforcement": "NONE"
+   },
+   "recon-reporter": {
+    "agent_id": "recon-reporter",
+    "status": "ACTIVE",
+    "findings": [],
+    "lineage": [
+     "orchestrator",
+     "recon-reporter"
+    ],
+    "enforcement": "NONE"
+   },
+   "recon-worker": {
+    "agent_id": "recon-worker",
+    "status": "ACTIVE",
+    "findings": [],
+    "lineage": [
+     "orchestrator",
+     "recon-reporter",
+     "recon-worker"
+    ],
+    "enforcement": "NONE"
+   }
+  },
+  "after_revocation": {
+   "orchestrator": {
+    "agent_id": "orchestrator",
+    "status": "ACTIVE",
+    "findings": [],
+    "lineage": [
+     "orchestrator"
+    ],
+    "enforcement": "NONE"
+   },
+   "payments-agent": {
+    "agent_id": "payments-agent",
+    "status": "ACTIVE",
+    "findings": [],
+    "lineage": [
+     "orchestrator",
+     "payments-agent"
+    ],
+    "enforcement": "NONE"
+   },
+   "recon-reporter": {
+    "agent_id": "recon-reporter",
+    "status": "REVOKED",
+    "findings": [
+     "REVOKED: own grant g-recon revoked"
+    ],
+    "lineage": [
+     "orchestrator",
+     "recon-reporter"
+    ],
+    "enforcement": "PREVENTION"
+   },
+   "recon-worker": {
+    "agent_id": "recon-worker",
+    "status": "ORPHANED",
+    "findings": [
+     "ORPHANED: ancestor recon-reporter revoked"
+    ],
+    "lineage": [
+     "orchestrator",
+     "recon-reporter",
+     "recon-worker"
+    ],
+    "enforcement": "PREVENTION"
+   }
+  },
+  "after_owner_removal": {
+   "orchestrator": {
+    "agent_id": "orchestrator",
+    "status": "ACTIVE",
+    "findings": [],
+    "lineage": [
+     "orchestrator"
+    ],
+    "enforcement": "NONE"
+   },
+   "payments-agent": {
+    "agent_id": "payments-agent",
+    "status": "UNKNOWN_OWNER",
+    "findings": [
+     "UNKNOWN_OWNER: bob not in the principal directory"
+    ],
+    "lineage": [
+     "orchestrator",
+     "payments-agent"
+    ],
+    "enforcement": "ADVISORY"
+   },
+   "recon-reporter": {
+    "agent_id": "recon-reporter",
+    "status": "REVOKED",
+    "findings": [
+     "REVOKED: own grant g-recon revoked"
+    ],
+    "lineage": [
+     "orchestrator",
+     "recon-reporter"
+    ],
+    "enforcement": "PREVENTION"
+   },
+   "recon-worker": {
+    "agent_id": "recon-worker",
+    "status": "ORPHANED",
+    "findings": [
+     "ORPHANED: ancestor recon-reporter revoked"
+    ],
+    "lineage": [
+     "orchestrator",
+     "recon-reporter",
+     "recon-worker"
+    ],
+    "enforcement": "PREVENTION"
+   }
+  }
+ },
+ "observer": {
+  "poll": {
+   "verified": true,
+   "reason": "verified",
+   "lines": 7,
+   "inserted": 7,
+   "findings": 0
+  },
+  "grandchild_loopback_connect_ports": [
+   41691,
+   60977,
+   60977
+  ],
+  "spawn_edges_seen": 34
+ },
+ "checks": {
+  "grandchild call before revocation is ALLOWED and forwarded": true,
+  "child process killed, grandchild still running and reparented": true,
+  "grandchild call after revocation is DENIED: authority revoked": true,
+  "the refused call never reached the tool server": true,
+  "orphan that strips the revoked grant from its chain is DENIED, not forwarded": true,
+  "the only tool-server hits are the allowed calls": true,
+  "the gate records every grandchild decision": true,
+  "same grandchild process made every call": true,
+  "lineage before revocation: all ACTIVE": true,
+  "after revocation: child REVOKED, grandchild ORPHANED, others ACTIVE": true,
+  "owner removed: payments-agent UNKNOWN_OWNER, ADVISORY": true,
+  "ADVISORY is honest: the gate still allowed payments-agent": true,
+  "archive verified by aip-observe-verify": true,
+  "Sniffer Dog saw the fork edges orchestrator\u2192child\u2192grandchild": true,
+  "Sniffer Dog saw the grandchild connect to the gate before and after revocation": true,
+  "gate store chain intact": true
+ }
+}

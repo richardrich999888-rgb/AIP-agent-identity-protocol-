@@ -14,6 +14,7 @@ GOOD = {
     "server-suite": "Ran 70 tests in 4.9s\n\nOK\n",
     "gate-suite": "Ran 30 tests in 0.2s\n\nOK\n",
     "inventory-suite": "Ran 10 tests in 0.0s\n\nOK\n",
+    "orphan-suite": "Ran 11 tests in 0.0s\n\nOK\n",
     "litellm-acceptance": "checks: 16 passed, 0 failed\n",
     "revocation-gap": "test result: ok. 3 passed; 0 failed\n",
     "delegation-findings": "test result: ok. 5 passed; 0 failed\n",
@@ -26,7 +27,7 @@ def lab(tmp: Path, logs: dict, kill: dict | None, shadow: dict | None = None) ->
     for name, text in logs.items():
         (tmp / f"test-{name}.log").write_text(text)
     for run, checks in (("live-kill", kill), ("live-shadow", shadow if shadow is not None else kill),
-                        ("live-gate", kill), ("live-inventory", kill)):
+                        ("live-gate", kill), ("live-inventory", kill), ("live-orphan", kill)):
         if checks is not None:
             (tmp / f"{run}-latest").mkdir()
             (tmp / f"{run}-latest" / "result.json").write_text(json.dumps({"checks": checks}))
@@ -49,6 +50,7 @@ class Verify(unittest.TestCase):
         self.assertEqual(code, 1)
         self.assertEqual((st["2"], st["6"], st["7"], st["8"], st["10"], st["1"], st["9"], st["3"]),
                          ("PARTIAL", "VERIFIED", "VERIFIED", "PARTIAL", "PARTIAL", "VERIFIED", "NOT_IMPLEMENTED", "NOT_AVAILABLE"))
+        self.assertEqual((st["4"], st["5"]), ("VERIFIED", "NOT_AVAILABLE"))
         self.assertEqual(code, 1)  # not all 12 verified
 
     def test_failed_gate_live_is_fail(self):
@@ -72,6 +74,16 @@ class Verify(unittest.TestCase):
         lab(tmp, GOOD, {"a": True})
         (tmp / "live-gate-latest" / "result.json").write_text(json.dumps({"checks": {"x": False}}))
         self.assertEqual(run(tmp)[1]["1"], "FAIL")
+
+    def test_orphan_needs_its_suite_gate_suite_and_live_run(self):
+        _, st = run(lab(self.tmp, {**GOOD, "orphan-suite": "FAILED (failures=1)\n"}, {"a": True}))
+        self.assertEqual(st["4"], "FAIL")
+        tmp = Path(tempfile.mkdtemp())
+        lab(tmp, GOOD, {"a": True})
+        (tmp / "live-orphan-latest" / "result.json").write_text(json.dumps({"checks": {"x": False}}))
+        self.assertEqual(run(tmp)[1]["4"], "FAIL")
+        tmp = Path(tempfile.mkdtemp())
+        self.assertEqual(run(lab(tmp, {**GOOD, "gate-suite": "OK (skipped=2)\n"}, {"a": True}))[1]["4"], "FAIL")
 
     def test_skipped_gate_suite_is_fail(self):
         _, st = run(lab(self.tmp, {**GOOD, "gate-suite": "OK (skipped=2)\n"}, {"a": True}))

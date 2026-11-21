@@ -11,6 +11,7 @@ run server-suite unshare -n sh -c "cd '$SERVER' && python3 netns_lo_up.py && \
   test_eventstore test_opa_gate test_llm_capture test_finops_events test_llm_store_logger test_observer_ingest test_shadow_ai test_finops_report"
 run gate-suite bash -c "cd '$SERVER' && VANIAN_OPA_BIN='$BIN/opa' PYTHONDONTWRITEBYTECODE=1 '$GATE_VENV/bin/python' -m unittest test_gate"
 run inventory-suite bash -c "cd '$SERVER' && PYTHONDONTWRITEBYTECODE=1 python3 -m unittest test_inventory.Inventory"
+run orphan-suite bash -c "cd '$SERVER' && PYTHONDONTWRITEBYTECODE=1 python3 -m unittest test_orphan"
 run litellm-acceptance unshare -n sh -c "cd '$REPO/research/oss/litellm' && python3 '$SERVER/netns_lo_up.py' && \
   env -u DATABASE_URL LITELLM_LOCAL_MODEL_COST_MAP=True '$VENV/bin/python' acceptance.py '$RUNS/litellm-records.jsonl' --isolated"
 run revocation-gap bash -c "cd '$REPO' && cargo test -q --locked -p aip-authorize --test revocation_gap"

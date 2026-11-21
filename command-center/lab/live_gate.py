@@ -34,6 +34,8 @@ import signing  # noqa: E402
 import tool_server  # noqa: E402
 
 POLICY = HERE.parent / "policy"
+# Lab-issued grants (not AIP tokens); the gate derives every chain from these and the parent links.
+GRANTS = {"orchestrator": "root-1", "recon-reporter": "hop-1", "payments-agent": "hop-pay", "retired-agent": "hop-revoked"}
 
 
 def now_ms() -> int:
@@ -46,17 +48,20 @@ def main(out: Path) -> int:
     if not opa_bin or not Path(opa_bin).is_file():
         print("VANIAN_OPA_BIN not set: live gate run SKIPPED")
         return 2
-    k = {n: signing.generate() for n in ("orchestrator", "recon-reporter", "payments-agent", "ops-1", "mallory")}
+    k = {n: signing.generate() for n in ("orchestrator", "recon-reporter", "payments-agent", "retired-agent", "ops-1", "mallory")}
     ag = lambda n, parent=None: {"public_key_hex": k[n][1].hex(), "owner": "alice", "framework": "scripted-test-agent",
                                 "host": "lab", "runtime": "python3.11", "parent": parent, "responsible_human": "alice"}
     reg_doc = {"agents": {"orchestrator": ag("orchestrator"), "recon-reporter": ag("recon-reporter", "orchestrator"),
-                          "payments-agent": ag("payments-agent", "orchestrator")},
+                          "payments-agent": ag("payments-agent", "orchestrator"),
+                          "retired-agent": ag("retired-agent", "orchestrator")},
                "operators": {"ops-1": {"public_key_hex": k["ops-1"][1].hex()}}}
     lst = {"revoked_jtis": ["hop-revoked"], "issued_at_ms": now_ms(), "operator_id": "ops-1"}
     rev_doc = {"list": lst, "signature_hex": signing.sign(signing.DOMAIN_REVOCATIONS, lst, k["ops-1"][0])}
     (out / "registry.json").write_text(json.dumps(reg_doc, indent=1))
     (out / "revocations.json").write_text(json.dumps(rev_doc, indent=1))
+    (out / "grants.json").write_text(json.dumps(GRANTS, indent=1))
     reg, revoked = ar.load(out / "registry.json", out / "revocations.json")
+    grants = ar.load_grants(out / "grants.json", reg)
 
     tport = lab_pair.free_port()
     tsrv, hits = tool_server.serve(tport)
@@ -65,15 +70,17 @@ def main(out: Path) -> int:
     fwd = gate_http.http_forwarder(f"http://127.0.0.1:{tport}")
 
     def start(opa_path):
-        gt = gate_mod.Gate(reg, revoked, opa_gate.OpaGate(opa_path, POLICY), store, fwd, now_ms)
+        gt = gate_mod.Gate(reg, revoked, opa_gate.OpaGate(opa_path, POLICY), store, fwd, now_ms, grants=grants)
         port = lab_pair.free_port()
         srv = gate_http.serve(gt, port)
         threading.Thread(target=srv.serve_forever, daemon=True).start()
         return srv, f"http://127.0.0.1:{port}/call"
 
-    def call(url, agent=None, server=None, tool=None, jtis=("root-1", "hop-1"), signer=None, envelope=None, args=None):
-        r = {"agent_id": agent, "server": server, "tool": tool, "args": args or {"n": 1}, "authority_jtis": list(jtis),
-             "delegation_depth": 1, "nonce": secrets.token_hex(16), "issued_at_ms": now_ms()}
+    def call(url, agent=None, server=None, tool=None, jtis=None, signer=None, envelope=None, args=None, depth=None):
+        chain = list(jtis) if jtis is not None else ["root-1", GRANTS.get(agent, "none")]
+        r = {"agent_id": agent, "server": server, "tool": tool, "args": args or {"n": 1}, "authority_jtis": chain,
+             "delegation_depth": len(chain) - 1 if depth is None else depth, "nonce": secrets.token_hex(16),
+             "issued_at_ms": now_ms()}
         e = envelope or {"request": r, "signature_hex": signing.sign(signing.DOMAIN_REQUEST, r, k[signer or agent][0])}
         req = urllib.request.Request(url, data=json.dumps(e).encode(), headers={"content-type": "application/json"})
         try:
@@ -98,8 +105,11 @@ def main(out: Path) -> int:
     allowed = step("allowed call is forwarded", 200, "ALLOW", 1, agent="recon-reporter", server="fs", tool="read_file")
     step("explicitly denied tool never reaches the tool server", 403, "DENY", 0, agent="recon-reporter", server="shell", tool="exec")
     step("forged identity (#6) refused, not forwarded", 403, "DENY", 0, agent="recon-reporter", server="fs", tool="read_file", signer="mallory")
-    step("revoked authority refused, not forwarded", 403, "DENY", 0, agent="recon-reporter", server="fs", tool="read_file",
-         jtis=("root-1", "hop-revoked"))
+    step("revoked authority refused, not forwarded", 403, "DENY", 0, agent="retired-agent", server="fs", tool="read_file")
+    step("chain that omits the agent's grant refused (2.4)", 403, "DENY", 0, agent="retired-agent", server="fs",
+         tool="read_file", jtis=("root-1",), depth=1)
+    step("understated delegation depth refused (2.4)", 403, "DENY", 0, agent="recon-reporter", server="fs",
+         tool="read_file", depth=0)
     step("sensitive call held for approval, not forwarded", 202, "PENDING_APPROVAL", 0, agent="payments-agent",
          server="payments", tool="settle_batch")
     step("replayed request refused", 403, "DENY", 0, agent="recon-reporter", server="fs", tool="read_file", envelope=allowed)

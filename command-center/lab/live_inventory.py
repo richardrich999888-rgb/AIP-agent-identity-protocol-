@@ -37,7 +37,7 @@ def main(gate_dir: Path, out: Path) -> int:
     by = {r["agent_id"]: r for r in rows}
     keys = [a["public_key_hex"] for a in reg["agents"].values()] + [o["public_key_hex"] for o in reg["operators"].values()]
     text = json.dumps(rows, indent=1)
-    rr, pa, orch = by.get("recon-reporter", {}), by.get("payments-agent", {}), by.get("orchestrator", {})
+    rr, pa, orch, ret = (by.get(a, {}) for a in ("recon-reporter", "payments-agent", "orchestrator", "retired-agent"))
     checks = {
         "store chain intact": chain == [],
         "all gate decisions read (fewer than one page)": len(events) < PAGE,
@@ -48,8 +48,10 @@ def main(gate_dir: Path, out: Path) -> int:
         "no public key in the inventory, fingerprint only": not any(k in text for k in keys)
         and all(len(r["key_fingerprint"]) == 64 for r in rows),
         "forged identity counted against the claimed id, not as activity": rr.get("signature_failures") == 1,
-        "revoked authority use makes the agent HIGH": rr.get("revoked_authority_uses") == 1 and rr.get("risk") == "HIGH",
-        "OPA outage counted, not a policy denial": rr.get("engine_unavailable") == 1 and rr.get("policy_denials") == 2,
+        "revoked authority use makes the agent HIGH": ret.get("revoked_authority_uses") == 1 and ret.get("risk") == "HIGH",
+        "false authority claims counted (stripped chain, understated depth)":
+            ret.get("false_authority_claims") == 1 and rr.get("false_authority_claims") == 1,
+        "OPA outage counted, not a policy denial": rr.get("engine_unavailable") == 1 and rr.get("policy_denials") == 1,
         "invalid approval makes payments-agent MEDIUM": pa.get("invalid_approvals") == 1 and pa.get("risk") == "MEDIUM",
         "approval use counted": pa.get("approvals_used") == 1 and pa.get("held_for_approval") == 2,
         "never-seen agent is UNKNOWN with no last-seen time": orch.get("risk") == "UNKNOWN" and orch.get("last_seen_ms") is None,
