@@ -1,23 +1,23 @@
 {
  "label": "live lab run; model is the TEST DATA mock",
- "model_port": 37755,
- "web_port": 37257,
+ "model_port": 38615,
+ "web_port": 52915,
  "pids": {
-  "a": 3083,
-  "web": 3084,
-  "b": 3086,
-  "c": 3088
+  "a": 4260,
+  "web": 4261,
+  "b": 4263,
+  "c": 4265
  },
  "poll": {
   "verified": true,
   "reason": "verified",
-  "lines": 4,
-  "inserted": 4,
+  "lines": 3,
+  "inserted": 3,
   "findings": 0
  },
  "findings": [
   {
-   "pid": 3083,
+   "pid": 4260,
    "start_ticks": null,
    "names": [
     "/usr/local/bin/python3",
@@ -28,12 +28,12 @@
    "attribution_missing_reason": "no binding",
    "pid_reuse_not_excluded": true,
    "evidence_probe_seqs": [
-    39
+    40
    ]
   },
   {
-   "pid": 3084,
-   "start_ticks": 81170,
+   "pid": 4261,
+   "start_ticks": null,
    "names": [
     "/usr/local/bin/python3",
     "python3"
@@ -41,12 +41,12 @@
    "classification": "UNCLASSIFIED",
    "model_connects": 0,
    "attribution_missing_reason": null,
-   "pid_reuse_not_excluded": false,
+   "pid_reuse_not_excluded": true,
    "evidence_probe_seqs": []
   },
   {
-   "pid": 3086,
-   "start_ticks": 81190,
+   "pid": 4263,
+   "start_ticks": null,
    "names": [
     "/usr/local/bin/python3",
     "python3"
@@ -54,11 +54,11 @@
    "classification": "UNCLASSIFIED",
    "model_connects": 0,
    "attribution_missing_reason": null,
-   "pid_reuse_not_excluded": false,
+   "pid_reuse_not_excluded": true,
    "evidence_probe_seqs": []
   },
   {
-   "pid": 3088,
+   "pid": 4265,
    "start_ticks": null,
    "names": [
     "/usr/bin/sort",
@@ -72,9 +72,9 @@
   }
  ],
  "heuristic_pids": [
-  3083
+  4260
  ],
- "observed_processes": 13,
+ "observed_processes": 14,
  "checks": {
   "archive verified by aip-observe-verify before classification": true,
   "A got a TEST DATA reply from the mock": true,

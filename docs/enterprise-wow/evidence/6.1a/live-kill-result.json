@@ -2,208 +2,208 @@
  "label": "live lab run on the cloud session container",
  "sensors": "sched,sockstate,socksend,connector",
  "tracefs_mounted_by_script": false,
- "task_from_ms": 1795265013498,
- "kill_at_ms": 1795265021533,
- "task_to_ms": 1795265033606,
+ "task_from_ms": 1795265402992,
+ "kill_at_ms": 1795265411066,
+ "task_to_ms": 1795265423137,
  "final": {
   "state": "DEGRADED",
   "spans": [
    [
-    1795265012386,
-    1795265021015
+    1795265401878,
+    1795265410516
    ]
   ],
   "gaps": [
    {
-    "from_ms": 1795265021015,
-    "to_ms": 1795265033606,
+    "from_ms": 1795265410516,
+    "to_ms": 1795265423137,
     "reason": "observer silent: no batch since"
    }
   ],
   "losses": [],
-  "covered_to_ms": 1795265021015
+  "covered_to_ms": 1795265410516
  },
  "batches_ingested": 8,
  "polls": [
   {
-   "at_ms": 1795265013504,
+   "at_ms": 1795265402999,
    "verified": true,
    "reason": "verified",
    "lines": 1,
    "inserted": 1,
    "state": "COVERED",
-   "covered_to_ms": 1795265013336
+   "covered_to_ms": 1795265402828
   },
   {
-   "at_ms": 1795265014541,
-   "verified": true,
-   "reason": "verified",
-   "lines": 1,
-   "inserted": 0,
-   "state": "COVERED",
-   "covered_to_ms": 1795265013336
-  },
-  {
-   "at_ms": 1795265015582,
+   "at_ms": 1795265404046,
    "verified": true,
    "reason": "verified",
    "lines": 2,
    "inserted": 1,
    "state": "COVERED",
-   "covered_to_ms": 1795265014354
+   "covered_to_ms": 1795265403847
   },
   {
-   "at_ms": 1795265016625,
+   "at_ms": 1795265405085,
+   "verified": true,
+   "reason": "verified",
+   "lines": 2,
+   "inserted": 0,
+   "state": "COVERED",
+   "covered_to_ms": 1795265403847
+  },
+  {
+   "at_ms": 1795265406128,
    "verified": true,
    "reason": "verified",
    "lines": 3,
    "inserted": 1,
    "state": "COVERED",
-   "covered_to_ms": 1795265015712
+   "covered_to_ms": 1795265404870
   },
   {
-   "at_ms": 1795265017670,
+   "at_ms": 1795265407180,
    "verified": true,
    "reason": "verified",
    "lines": 4,
    "inserted": 1,
    "state": "COVERED",
-   "covered_to_ms": 1795265016773
+   "covered_to_ms": 1795265406268
   },
   {
-   "at_ms": 1795265018716,
+   "at_ms": 1795265408241,
    "verified": true,
    "reason": "verified",
    "lines": 5,
    "inserted": 1,
    "state": "COVERED",
-   "covered_to_ms": 1795265017837
+   "covered_to_ms": 1795265407332
   },
   {
-   "at_ms": 1795265019763,
+   "at_ms": 1795265409289,
    "verified": true,
    "reason": "verified",
    "lines": 6,
    "inserted": 1,
    "state": "COVERED",
-   "covered_to_ms": 1795265018895
+   "covered_to_ms": 1795265408395
   },
   {
-   "at_ms": 1795265020811,
+   "at_ms": 1795265410345,
    "verified": true,
    "reason": "verified",
    "lines": 7,
    "inserted": 1,
    "state": "COVERED",
-   "covered_to_ms": 1795265019956
+   "covered_to_ms": 1795265409456
   },
   {
-   "at_ms": 1795265021552,
+   "at_ms": 1795265411088,
    "verified": true,
    "reason": "verified",
    "lines": 8,
    "inserted": 1,
    "state": "COVERED",
-   "covered_to_ms": 1795265021015
+   "covered_to_ms": 1795265410516
   },
   {
-   "at_ms": 1795265022602,
+   "at_ms": 1795265412139,
    "verified": true,
    "reason": "verified",
    "lines": 8,
    "inserted": 0,
    "state": "COVERED",
-   "covered_to_ms": 1795265021015
+   "covered_to_ms": 1795265410516
   },
   {
-   "at_ms": 1795265023652,
+   "at_ms": 1795265413190,
    "verified": true,
    "reason": "verified",
    "lines": 8,
    "inserted": 0,
    "state": "COVERED",
-   "covered_to_ms": 1795265021015
+   "covered_to_ms": 1795265410516
   },
   {
-   "at_ms": 1795265024699,
+   "at_ms": 1795265414234,
    "verified": true,
    "reason": "verified",
    "lines": 8,
    "inserted": 0,
    "state": "COVERED",
-   "covered_to_ms": 1795265021015
+   "covered_to_ms": 1795265410516
   },
   {
-   "at_ms": 1795265025748,
+   "at_ms": 1795265415283,
    "verified": true,
    "reason": "verified",
    "lines": 8,
    "inserted": 0,
    "state": "COVERED",
-   "covered_to_ms": 1795265021015
+   "covered_to_ms": 1795265410516
   },
   {
-   "at_ms": 1795265026797,
+   "at_ms": 1795265416335,
    "verified": true,
    "reason": "verified",
    "lines": 8,
    "inserted": 0,
    "state": "COVERED",
-   "covered_to_ms": 1795265021015
+   "covered_to_ms": 1795265410516
   },
   {
-   "at_ms": 1795265027846,
+   "at_ms": 1795265417380,
    "verified": true,
    "reason": "verified",
    "lines": 8,
    "inserted": 0,
    "state": "COVERED",
-   "covered_to_ms": 1795265021015
+   "covered_to_ms": 1795265410516
   },
   {
-   "at_ms": 1795265028892,
+   "at_ms": 1795265418427,
    "verified": true,
    "reason": "verified",
    "lines": 8,
    "inserted": 0,
    "state": "COVERED",
-   "covered_to_ms": 1795265021015
+   "covered_to_ms": 1795265410516
   },
   {
-   "at_ms": 1795265029945,
+   "at_ms": 1795265419472,
    "verified": true,
    "reason": "verified",
    "lines": 8,
    "inserted": 0,
    "state": "COVERED",
-   "covered_to_ms": 1795265021015
+   "covered_to_ms": 1795265410516
   },
   {
-   "at_ms": 1795265030992,
-   "verified": true,
-   "reason": "verified",
-   "lines": 8,
-   "inserted": 0,
-   "state": "COVERED",
-   "covered_to_ms": 1795265021015
-  },
-  {
-   "at_ms": 1795265032040,
+   "at_ms": 1795265420518,
    "verified": true,
    "reason": "verified",
    "lines": 8,
    "inserted": 0,
    "state": "DEGRADED",
-   "covered_to_ms": 1795265021015
+   "covered_to_ms": 1795265410516
   },
   {
-   "at_ms": 1795265033092,
+   "at_ms": 1795265421572,
    "verified": true,
    "reason": "verified",
    "lines": 8,
    "inserted": 0,
    "state": "DEGRADED",
-   "covered_to_ms": 1795265021015
+   "covered_to_ms": 1795265410516
+  },
+  {
+   "at_ms": 1795265422624,
+   "verified": true,
+   "reason": "verified",
+   "lines": 8,
+   "inserted": 0,
+   "state": "DEGRADED",
+   "covered_to_ms": 1795265410516
   }
  ],
  "checks": {

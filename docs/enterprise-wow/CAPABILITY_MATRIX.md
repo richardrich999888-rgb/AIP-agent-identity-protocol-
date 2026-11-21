@@ -47,7 +47,7 @@ here is PREVENTION, because no enforcement point is wired (3.1b is blocked).
 
 | # | Capability | Class | Why |
 |---|---|---|---|
-| 1 | Agent inventory | **NV / NI** | The P0-059 per-run inventory is not here. The store exists (2.1a); the inventory queries are 2.1b and 2.2. |
+| 1 | Agent inventory | **IT / native** | 21 Nov 18:20 IST: `inventory.py` over the registry and the store's gate records (2.2, native, not P0-059). Unit 11/0/0; live 12/12. Kernel-only processes are not joined. |
 | 2 | Shadow AI | **NV** | P0-059 |
 | 3 | Ghost AI | **NV** | P0-059 |
 | 4 | Orphan AI | **NV** | P0-059 |

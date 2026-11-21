@@ -2,8 +2,8 @@
  "capabilities": [
   {
    "capability": "1 Agent inventory",
-   "status": "NOT_AVAILABLE",
-   "reason": "P0-059 is BLOCKED_BY_EXTERNAL_APPROVAL (0.1, final); the native replacement is not built yet"
+   "status": "VERIFIED",
+   "reason": "registered agents and ids that reach the native gate: registry fields, key fingerprint, last seen and declared risk rule from gate records; kernel-only processes are not joined (no agent id in kernel events); no console UI yet (native, not P0-059)"
   },
   {
    "capability": "2 Shadow AI",
@@ -65,6 +65,7 @@
   "policy": true,
   "server-suite": true,
   "gate-suite": true,
+  "inventory-suite": true,
   "litellm-acceptance": true,
   "revocation-gap": true,
   "delegation-findings": true,
@@ -72,8 +73,9 @@
   "live-sensors": true,
   "live-kill": true,
   "live-shadow": true,
-  "live-gate": true
+  "live-gate": true,
+  "live-inventory": true
  },
- "verified": 2,
+ "verified": 3,
  "failed": 0
 }

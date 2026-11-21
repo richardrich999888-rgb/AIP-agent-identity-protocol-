@@ -135,7 +135,7 @@ The brief's claims about each project are hypotheses. Verify the license file in
   - Tests: duplicate ingestion is a no-op (adversarial #14); the BFF restart preserves state (adversarial #13).
   - [x] **2.1a** The store: `command-center/server/eventstore.py`. **Done** `815f5d3a`. `python3 -m unittest -v test_eventstore`: 22 passed / 0 failed / 0 skipped. Covers adversarial #13 (restart, including a second OS process) and #14 (duplicate is a no-op). Five mutations all caught. Limit: deleting the newest rows is detectable only against a held `head()` (pinned by a test).
   - [ ] **2.1b** Ingest each P0-059 run's records. Inventory, last-observed time and risk become store queries. BFF restart test (#13 at the BFF level). **Blocked on 0.1** (the P0-059 commits are not on the remote).
-- [ ] **2.2 Inventory fields.** Add framework (`scripted-test-agent` / `langgraph` if 4.x adds one), host, runtime, credential metadata (key fingerprint and token expiry, never secrets), parent, owner, responsible human, and risk/governance status derived from findings.
+- [x] **2.2 Inventory fields.** Add framework (`scripted-test-agent` / `langgraph` if 4.x adds one), host, runtime, credential metadata (key fingerprint and token expiry, never secrets), parent, owner, responsible human, and risk/governance status derived from findings. **Done (native, not P0-059)** `9d78ae59`. `command-center/server/inventory.py` over the registry and the store's `gate.decision` / `llm.usage` events: framework, host, runtime, owner, responsible human, parent, key fingerprint (never the key), last seen (None if never seen), per-outcome counts, declared risk rule (HIGH signature failure or revoked use; MEDIUM policy denial or invalid approval; LOW seen; UNKNOWN never seen). `python3 -m unittest test_inventory.Inventory`: 11 passed / 0 failed / 0 skipped; 8 mutations, 8 caught after one test added. `live_inventory.py` over the live gate store: 12/12 checks. test.sh 9/9; run.sh 4/4; verify 3/12 VERIFIED. Limits: kernel-only processes are not joined (no agent id in kernel events); no token expiry exists (per-request signatures); no console UI.
 - [ ] **2.3 Shadow and ghost.** Split on 21 Nov: 2.3a (heuristic class, live) and 2.3b (P0-059 classes).
   - Add a `HEURISTIC_AI_WORKLOAD` class: a process that connects to the LLM proxy or model port with no identity. Keep it separate from CONFIRMED.
   - Add a false-positive control: a normal process (e.g. `python3 -m http.server`, `sort`) must stay `UNCLASSIFIED` (adversarial #2).
@@ -298,6 +298,8 @@ The console reads only persisted backend data. The video shows that same run.
 | Sat 21 Nov 18:01 | **P0-059 cut-off reached** | 0.1 final: BLOCKED_BY_EXTERNAL_APPROVAL | Native build begins: 3.1b native gate (signed requests, OPA enforcement, OPA-down DENY), then 3.2 approvals, then 2.2 inventory. The :30 scheduled task is re-enabled. |
 | Sat 21 Nov 18:05 | 3.1b native gate | Done | PREVENTION through the gate, live; next 3.2 approvals |
 | Sat 21 Nov 18:10 | 3.2 native approvals | Done | next: fold the gate into the lab scripts/verify, then 2.2 inventory |
+| Sat 21 Nov 18:14 | Gate folded into the lab (`722e189e`) | Done | test.sh 8/8; run.sh non-fail-fast; verify 2/12 VERIFIED (6, 7) |
+| Sat 21 Nov 18:20 | 2.2 native inventory | Done | verify 3/12 VERIFIED (1, 6, 7), 0 FAIL; next: 4.3 attribution, then ADVERSARIAL_RESULTS update (#6, #11 at the gate) |
 
 ## Iteration log
 
@@ -325,6 +327,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 20 | 7.1a | Done: rehearsal harness; 2-cycle dry run behaves as designed | `ee03b7bf` | dry run: test 0, run 0, verify 1 x2 |
 | 21 | 3.1b native | Done: enforcing gate, signed calls, OPA-down DENY | `01ee5db7` | unit 20/0/0; live 11/11 |
 | 22 | 3.2 native | Done: signed approvals with hold/forward | `6546b589` | unit 30/0/0; live 18/18 |
+| 23 | 2.2 native | Done: inventory over registry + gate records; verify 3/12 | `9d78ae59` | unit 11/0/0; live 12/12; mutations 8/8 |
 
 ---
 

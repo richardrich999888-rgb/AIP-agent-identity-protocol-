@@ -1,0 +1,20 @@
+{
+ "source": "lab/runs/live-gate-20261121T125001Z (scratchpad lab)",
+ "gate_decisions": 13,
+ "rows": 3,
+ "checks": {
+  "store chain intact": true,
+  "all gate decisions read (fewer than one page)": true,
+  "one row per registered agent, none unregistered": true,
+  "registry fields carried (parent, owner, framework)": true,
+  "no public key in the inventory, fingerprint only": true,
+  "forged identity counted against the claimed id, not as activity": true,
+  "revoked authority use makes the agent HIGH": true,
+  "OPA outage counted, not a policy denial": true,
+  "invalid approval makes payments-agent MEDIUM": true,
+  "approval use counted": true,
+  "never-seen agent is UNKNOWN with no last-seen time": true,
+  "seen agents have a last-seen time": true
+ },
+ "label": "TEST DATA: scripted agents in the native gate lab run"
+}
