@@ -82,7 +82,10 @@ impl AgentFilter {
         let anchored = probe
             .measure_anchored(pid)
             .map_err(|e| format!("cannot enroll live process: {e:?}"))?;
-        if !anchored.is_alive() {
+        if !anchored
+            .is_alive()
+            .map_err(|e| format!("cannot confirm enrolled process liveness: {e:?}"))?
+        {
             return Err("process exited during filter enrollment".into());
         }
         let p = &anchored.process;
@@ -518,7 +521,7 @@ mod tests {
         let filter = AgentFilter::enroll("live-self", std::process::id()).unwrap();
         let probe = ProcfsProbe::new("self-enrollment-check");
         let actual = probe.measure_anchored(std::process::id()).unwrap();
-        assert!(actual.is_alive());
+        assert!(actual.is_alive().unwrap());
         assert!(filter.scope().matches(&actual.process));
         assert!(filter.scope().targets[0].container.is_some());
         assert!(AgentFilter::enroll("missing", 0).is_err());
