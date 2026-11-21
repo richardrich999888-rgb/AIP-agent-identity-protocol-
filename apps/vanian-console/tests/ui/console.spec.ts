@@ -359,6 +359,13 @@ test("relationship filters preserve graph positions and export only visible link
       items.map((item) => (item as HTMLElement).style.transform),
     );
   const startingPositions = await positions();
+  await page.getByRole("button", { name: "Command mode", exact: true }).click();
+  const contrast = await new AxeBuilder({ page })
+    .include(".module-tools")
+    .withRules(["color-contrast"])
+    .analyze();
+  expect(contrast.violations.map((v) => v.id)).toEqual([]);
+  await page.getByRole("button", { name: "Light view", exact: true }).click();
   await filter("observed").click();
   await expect(filter("observed")).toHaveAttribute("aria-pressed", "true");
   await expect(diagram.locator(".vgraph-total")).toContainText(" of ");

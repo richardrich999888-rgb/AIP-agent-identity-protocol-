@@ -13,6 +13,8 @@ Run `npm run build`, install Chromium with `npx playwright install chromium`, th
 | Fleet coverage and AI activity | [Security overview](../docs/preview/security-overview.png) |
 | Filter and investigate a detection | [Alert investigation](../docs/preview/alert-investigation.png) |
 | Inspect a node and its relationships | [Agent lineage](../docs/preview/agent-lineage.png) |
+| Orbit the labeled synthetic trace | [3D agent lineage](../docs/preview/spatial-lineage.png) |
+| Review inferred links on a phone | [Mobile lineage records](../docs/preview/mobile-lineage-records.png) |
 | Verify the archived process lifecycle capture | [Evidence verification](../docs/preview/evidence-verification.png) |
 
 [Phone overview](../docs/preview/mobile-overview.png) · [Run the native AIP verification gate](../bridge/IMPLEMENTATION.md)
