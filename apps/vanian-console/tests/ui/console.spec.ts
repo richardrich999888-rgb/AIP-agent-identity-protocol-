@@ -340,24 +340,81 @@ test("exported synthetic evidence verifies independently and rejects edited byte
   expect(JSON.parse(altered.stdout).accepted).toBe(false);
 });
 
-test("graph presentation supports spatial and accessible record inspection", async ({
+test("relationship filters preserve graph positions and export only visible links", async ({
   page,
   instance,
 }) => {
   await page.goto(instance.url + "/agent-lineage");
-  await expect(page.locator(".vgraph-node").first()).toBeVisible();
-  await page.getByRole("button", { name: "3D", exact: true }).click();
-  const canvas = page.locator(".vgraph-three canvas"),
-    fallback = page.getByRole("button", { name: "Open 2D graph" });
+  const diagram = page.locator(".vgraph").first();
+  const filter = (type: string) =>
+    diagram.getByRole("button", {
+      name: "Show " + type + " links",
+      exact: true,
+    });
+  const nodes = diagram.locator(".react-flow__node");
+  await expect(nodes.first()).toBeVisible();
+  const originalCount = await nodes.count();
+  const positions = () =>
+    nodes.evaluateAll((items) =>
+      items.map((item) => (item as HTMLElement).style.transform),
+    );
+  const startingPositions = await positions();
+  await filter("observed").click();
+  await expect(filter("observed")).toHaveAttribute("aria-pressed", "true");
+  await expect(diagram.locator(".vgraph-total")).toContainText(" of ");
+  expect(await positions()).toEqual(startingPositions);
+  const downloadPromise = page.waitForEvent("download");
+  await diagram.getByRole("button", { name: "Export", exact: true }).click();
+  const download = await downloadPromise;
+  const { readFile } = await import("node:fs/promises");
+  const exported = JSON.parse(await readFile((await download.path())!, "utf8"));
+  expect(exported.meta.mode).toBe("demo");
+  expect(exported.relationshipFilter).toBe("observed");
+  expect(exported.graph.nodes).toHaveLength(originalCount);
+  expect(exported.graph.edges.length).toBeGreaterThan(0);
+  expect(
+    exported.graph.edges.every(
+      (edge: { relation: string }) => edge.relation === "observed",
+    ),
+  ).toBe(true);
+  await diagram.getByRole("button", { name: "3D", exact: true }).click();
+  const canvas = diagram.locator(".vgraph-three canvas");
+  const fallback = diagram.getByRole("button", { name: "Open 2D graph" });
   await expect(canvas.or(fallback)).toBeVisible();
   if (await fallback.isVisible()) {
     await fallback.click();
-    await expect(page.locator(".vgraph-node").first()).toBeVisible();
+    await expect(nodes.first()).toBeVisible();
+  } else {
+    const element = await canvas.elementHandle();
+    await filter("declared").click();
+    expect(
+      await canvas.evaluate(
+        (current, previous) => current === previous,
+        element,
+      ),
+    ).toBe(true);
   }
-  await page.getByRole("button", { name: "Records", exact: true }).click();
-  await expect(
-    page.getByRole("button", { name: "Records", exact: true }),
-  ).toHaveAttribute("aria-pressed", "true");
+  await page.setViewportSize({ width: 390, height: 844 });
+  await diagram.getByRole("button", { name: "Records", exact: true }).click();
+  await filter("inferred").click();
+  await expect(filter("inferred")).toHaveAttribute("aria-pressed", "true");
+  await expect(diagram.locator("tbody tr")).toHaveCount(originalCount);
+  await filter("all").click();
+  await expect(diagram.locator(".vgraph-total")).not.toContainText(" of ");
+  await diagram.locator("tbody tr").first().getByRole("button").click();
+  await diagram.locator(".vgraph-selection summary").click();
+  const neighbor = diagram
+    .getByRole("button", { name: /^Follow connection to / })
+    .first();
+  const name = (await neighbor.getAttribute("aria-label"))!.replace(
+    "Follow connection to ",
+    "",
+  );
+  await neighbor.click();
+  await expect(diagram.locator(".vgraph-selection-head")).toContainText(name);
+  expect(
+    await diagram.evaluate((el) => el.scrollWidth <= el.clientWidth + 1),
+  ).toBe(true);
 });
 test("data treatments and cost projections expose their evaluation basis", async ({
   page,

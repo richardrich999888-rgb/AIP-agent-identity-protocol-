@@ -21,7 +21,7 @@ import { analyticsTabs } from "../product";
 import { type Entry, type Column } from "../types";
 import { RuntimeMasthead } from "./visual/RuntimeMasthead";
 import { OrbitalSensors } from "./visual/OrbitalSensors";
-import { Topology } from "./visual/Topology";
+import { Topology, type GraphExport } from "./visual/Topology";
 import { DlpTest, CostProjection } from "./Protection";
 import { NativeResearchPanel } from "./research/NativeResearchPanel";
 export function MiniMetrics({ items }: { items: [string, string, string?][] }) {
@@ -597,10 +597,20 @@ function Accountability() {
   }, [stream, d.mode, d.refresh]);
   const graph = b.graph;
   const activeStep = timeline[Math.min(step, timeline.length - 1)];
-  const graphExport = () =>
+  const graphExport = (visible: GraphExport) =>
     saveFile(
       "vanian-" + d.mode + "-topology.json",
-      JSON.stringify({ meta: b.meta, graph, timeline }, null, 2),
+      JSON.stringify(
+        {
+          meta: b.meta,
+          graph: { ...graph, nodes: visible.nodes, edges: visible.edges },
+          relationshipFilter: visible.relationshipFilter,
+          timelineScope: "selected trace",
+          timeline,
+        },
+        null,
+        2,
+      ),
     );
   return (
     <div className="stack">

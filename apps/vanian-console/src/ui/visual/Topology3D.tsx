@@ -9,12 +9,14 @@ import {
   type GraphCommand,
   type GraphLayout,
   type PlotNode,
+  type Relation,
   type TopologyNode,
 } from "./model";
 import { sculptureLibrary, studioReflections } from "./TopologySculpture";
 
 interface Props {
   layout: GraphLayout;
+  relationship: Relation | "all";
   mode: "light" | "command";
   selected: string;
   onSelect: (node: TopologyNode) => void;
@@ -24,6 +26,7 @@ interface Props {
 type Runtime = {
   command: (c: GraphCommand) => void;
   select: (id: string) => void;
+  showLinks: (relation: Relation | "all") => void;
 };
 const up = new THREE.Vector3(0, 1, 0);
 const position = (n: PlotNode) => new THREE.Vector3(n.x / 72, 0, n.y / 57);
@@ -83,6 +86,7 @@ function contactPatch() {
 
 export default function Topology3D({
   layout,
+  relationship,
   mode,
   onSelect,
   selected,
@@ -92,9 +96,11 @@ export default function Topology3D({
   const target = useRef<HTMLDivElement>(null),
     runtime = useRef<Runtime | null>(null),
     selectRef = useRef(onSelect),
-    selection = useRef(selected);
+    selection = useRef(selected),
+    activeRelation = useRef(relationship);
   selectRef.current = onSelect;
   selection.current = selected;
+  activeRelation.current = relationship;
   const [failure, setFailure] = useState(false);
   useEffect(() => {
     const host = target.current;
@@ -265,6 +271,12 @@ export default function Topology3D({
         ]),
       );
     const edgeGeos: THREE.BufferGeometry[] = [];
+    const links = {
+      observed: new THREE.Group(),
+      declared: new THREE.Group(),
+      inferred: new THREE.Group(),
+    };
+    scene.add(...Object.values(links));
     for (const e of layout.edges) {
       const startPoint = plot.get(e.source)?.position,
         endPoint = plot.get(e.target)?.position;
@@ -301,7 +313,7 @@ export default function Topology3D({
       if (e.relation === "observed") {
         const geo = new THREE.TubeGeometry(curve, 26, 0.028, 7, false);
         edgeGeos.push(geo);
-        scene.add(new THREE.Mesh(geo, wire));
+        links[e.relation].add(new THREE.Mesh(geo, wire));
       } else {
         const geo = new THREE.BufferGeometry().setFromPoints(
           curve.getPoints(28),
@@ -309,12 +321,12 @@ export default function Topology3D({
         edgeGeos.push(geo);
         const line = new THREE.Line(geo, dashed[e.relation]);
         line.computeLineDistances();
-        scene.add(line);
+        links[e.relation].add(line);
       }
       const head = new THREE.Mesh(headGeo, headMaterials[e.relation]);
       head.position.copy(curve.getPoint(0.9));
       head.quaternion.setFromUnitVectors(up, curve.getTangent(0.9).normalize());
-      scene.add(head);
+      links[e.relation].add(head);
     }
     const draw = () => renderer.render(scene, camera);
     const eye = new THREE.Vector3(0.19, 1.02, 1.33).normalize();
@@ -391,7 +403,12 @@ export default function Topology3D({
         draw();
       }
     }
-    runtime.current = { command: execute, select: selectNode };
+    function showLinks(relation: Relation | "all") {
+      for (const [type, group] of Object.entries(links))
+        group.visible = relation === "all" || relation === type;
+      draw();
+    }
+    runtime.current = { command: execute, select: selectNode, showLinks };
     controls.addEventListener("change", draw);
     const resize = () => {
       renderer.setSize(
@@ -407,6 +424,7 @@ export default function Topology3D({
     resize();
     fit();
     selectNode(selection.current);
+    showLinks(activeRelation.current);
     let press = { x: 0, y: 0 };
     const down = (e: PointerEvent) => {
       press = { x: e.clientX, y: e.clientY };
@@ -475,6 +493,9 @@ export default function Topology3D({
   useEffect(() => {
     runtime.current?.select(selected);
   }, [selected]);
+  useEffect(() => {
+    runtime.current?.showLinks(relationship);
+  }, [relationship]);
   useEffect(() => {
     if (command) runtime.current?.command(command);
   }, [command]);

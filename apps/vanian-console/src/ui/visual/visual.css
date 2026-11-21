@@ -597,7 +597,7 @@
   font-size: 11px;
   color: var(--g-muted);
 }
-.vgraph-legend > span b {
+.vgraph-relations b {
   font:
     550 10px "JetBrains Mono",
     ui-monospace,
@@ -636,6 +636,56 @@
   color: var(--g-accent);
   font-weight: 600;
   margin-left: auto;
+}
+.vgraph-relations {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 5px;
+}
+.vgraph-relations button {
+  margin: 0;
+  min-height: 32px;
+  padding: 4px 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--g-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.vgraph-relations button:hover {
+  background: var(--g-soft);
+  color: var(--g-text);
+}
+.vgraph-relations button[aria-pressed="true"] {
+  background: var(--g-select);
+  border-color: var(--g-border);
+  color: var(--g-accent);
+}
+.vgraph-relations b {
+  color: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.vgraph-neighbor {
+  border: 0;
+  padding: 3px 0;
+  background: transparent;
+  color: var(--g-accent);
+  text-align: start;
+}
+.vgraph-neighbor:hover {
+  text-decoration: underline;
+}
+@media (max-width: 560px) {
+  .vgraph-relations {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+  .vgraph-relations button {
+    min-height: 42px;
+    justify-content: start;
+  }
 }
 .vgraph-empty,
 .vgraph-three-fallback {

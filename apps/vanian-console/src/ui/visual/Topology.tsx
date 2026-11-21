@@ -49,11 +49,17 @@ import {
   relationNames,
   type GraphCommand,
   type GraphLayout,
+  type Relation,
   type TopologyEdge,
   type TopologyNode,
 } from "./model";
 
 export type { TopologyEdge, TopologyNode } from "./model";
+export interface GraphExport {
+  nodes: TopologyNode[];
+  edges: TopologyEdge[];
+  relationshipFilter: Relation | "all";
+}
 const Spatial = lazy(() => import("./Topology3D"));
 const CARD_WIDTH = 192;
 const CARD_HEIGHT = 94;
@@ -124,7 +130,7 @@ interface Props {
   mode?: "light" | "command";
   initialView?: View;
   onSelect?: (node: TopologyNode) => void;
-  onExport?: () => void;
+  onExport?: (visible: GraphExport) => void;
   className?: string;
 }
 
@@ -300,9 +306,9 @@ function ViewportDriver({
   return null;
 }
 
-function downloadGraph(nodes: TopologyNode[], edges: TopologyEdge[]) {
+function downloadGraph(graph: GraphExport) {
   const content = JSON.stringify(
-    { schema: "vanian.graph.v1", nodes, edges },
+    { schema: "vanian.graph.v1", ...graph },
     null,
     2,
   );
@@ -327,6 +333,7 @@ export function Topology({
   className = "",
 }: Props) {
   const [view, setView] = useState<View>(initialView);
+  const [relationship, setRelationship] = useState<Relation | "all">("all");
   const [term, setTerm] = useState("");
   const [selected, setSelected] = useState("");
   const [collapsed, setCollapsed] = useState<Set<string>>(() => new Set());
@@ -345,9 +352,19 @@ export function Topology({
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-  const graph = useMemo(
+  const layout = useMemo(
     () => instrumentLayout(prepareGraph(nodes, edges, collapsed), columns),
     [nodes, edges, collapsed, columns],
+  );
+  const graph = useMemo(
+    () => ({
+      ...layout,
+      edges:
+        relationship === "all"
+          ? layout.edges
+          : layout.edges.filter((edge) => edge.relation === relationship),
+    }),
+    [layout, relationship],
   );
   const positions = useMemo(
     () => new Map(graph.nodes.map((n) => [n.id, n])),
@@ -365,7 +382,9 @@ export function Topology({
   const record = graph.nodes.find((n) => n.id === selected);
   const lookup = useMemo(() => new Map(nodes.map((n) => [n.id, n])), [nodes]);
   const rels = record
-    ? edges.filter((e) => e.source === record.id || e.target === record.id)
+    ? graph.edges.filter(
+        (e) => e.source === record.id || e.target === record.id,
+      )
     : [];
   const hits = useMemo(() => {
     const q = term.toLowerCase().trim();
@@ -611,15 +630,24 @@ export function Topology({
             </div>
           )}
         </div>
-        <span className="vgraph-total">
-          {graph.nodes.length} nodes <span>·</span> {graph.edges.length} links
+        <span className="vgraph-total" role="status">
+          {graph.nodes.length} nodes <span>·</span>{" "}
+          {relationship === "all"
+            ? graph.edges.length
+            : graph.edges.length + " of " + layout.edges.length}{" "}
+          links
         </span>
         <button
           className="vgraph-export"
           type="button"
-          onClick={() =>
-            onExport ? onExport() : downloadGraph(graph.nodes, graph.edges)
-          }
+          onClick={() => {
+            const visible = {
+              nodes: graph.nodes.map((node) => lookup.get(node.id)!),
+              edges: graph.edges,
+              relationshipFilter: relationship,
+            };
+            (onExport ?? downloadGraph)(visible);
+          }}
           title="Export visible graph and evidence references"
         >
           <Download size={14} />
@@ -700,7 +728,7 @@ export function Topology({
                 size={0.72}
                 color={mode === "command" ? "#493950" : "#d7d4dc"}
               />
-              <ViewportDriver command={command} layout={graph} />
+              <ViewportDriver command={command} layout={layout} />
             </ReactFlow>
           ) : (
             <Suspense
@@ -711,7 +739,8 @@ export function Topology({
               }
             >
               <Spatial
-                layout={graph}
+                layout={layout}
+                relationship={relationship}
                 selected={selected}
                 mode={mode}
                 onSelect={(n) => select(n)}
@@ -723,14 +752,44 @@ export function Topology({
           {tools}
         </div>
       )}
-      <div className="vgraph-legend" aria-label="Relationship types">
-        {(["observed", "declared", "inferred"] as const).map((t) => (
-          <span key={t}>
-            <i className={"vgraph-line vgraph-line--" + t} />
-            {relationNames[t]}{" "}
-            <b>{graph.edges.filter((e) => e.relation === t).length}</b>
-          </span>
-        ))}
+      <div className="vgraph-legend">
+        <div
+          className="vgraph-relations"
+          role="group"
+          aria-label="Filter relationship evidence"
+        >
+          {(["all", "observed", "declared", "inferred"] as const).map(
+            (type) => {
+              const count =
+                type === "all"
+                  ? layout.edges.length
+                  : layout.edges.filter((edge) => edge.relation === type)
+                      .length;
+              return (
+                <button
+                  key={type}
+                  type="button"
+                  aria-label={
+                    type === "all"
+                      ? "Show all links"
+                      : "Show " + type + " links"
+                  }
+                  aria-pressed={type === relationship}
+                  onClick={() => setRelationship(type)}
+                >
+                  {type !== "all" && (
+                    <i
+                      aria-hidden="true"
+                      className={"vgraph-line vgraph-line--" + type}
+                    />
+                  )}
+                  {type === "all" ? "All links" : relationNames[type]}{" "}
+                  <b>{count}</b>
+                </button>
+              );
+            },
+          )}
+        </div>
         {graph.unresolved > 0 && (
           <span className="vgraph-gap">
             {graph.unresolved} unresolved{" "}
@@ -811,10 +870,25 @@ export function Topology({
                 {rels.map((r, i) => (
                   <li key={i}>
                     <i className={"vgraph-line vgraph-line--" + r.relation} />
-                    <span>
+                    <button
+                      type="button"
+                      className="vgraph-neighbor"
+                      aria-label={
+                        "Follow connection to " +
+                        lookup.get(
+                          r.source === record.id ? r.target : r.source,
+                        )!.label
+                      }
+                      onClick={() => {
+                        const neighbor =
+                          r.source === record.id ? r.target : r.source;
+                        setSelected(neighbor);
+                        move("focus", neighbor);
+                      }}
+                    >
                       {lookup.get(r.source)?.label ?? r.source} →{" "}
                       {lookup.get(r.target)?.label ?? r.target}
-                    </span>
+                    </button>
                     <b>{r.label ?? relationNames[r.relation]}</b>
                     <small>
                       {relationNames[r.relation]}

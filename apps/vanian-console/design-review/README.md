@@ -17,14 +17,14 @@ Run `npm run build`, install Chromium with `npx playwright install chromium`, th
 
 [Phone overview](../docs/preview/mobile-overview.png) · [Run the native AIP verification gate](../bridge/IMPLEMENTATION.md)
 
-## Spatial lineage
-
-Run `npm run design:capture -- --spatial` to capture the Three.js view. This requires WebGL2. For Chromium with SwiftShader installed, set `VANIAN_SOFTWARE_WEBGL=1` to use the local software renderer. The command fails if the 2D fallback is displayed.
-
-Each successful console verification job attaches the desktop, phone, evidence and 3D captures as the **vanian-design-review** artifact for 30 days. All dashboard captures use the synthetic tenant. The evidence screenshot shows verification of the retained lab capture.
-
 ## Design references
 
 - [WitnessAI Observe](https://witness.ai/observe/) and the supplied tour informed the observation-to-investigation workflow.
 - [IBM Carbon data tables](https://carbondesignsystem.com/components/data-table/usage/) informed row density, sorting and toolbar layout.
 - [Storybook MCP](https://storybook.js.org/addons/@storybook/addon-mcp) and [accessibility checks](https://storybook.js.org/docs/writing-tests/accessibility-testing) support local component review.
+
+## Review a relationship
+
+Open Agent Lineage and select **Observed**, **Declared**, or **Inferred** below the graph. The node positions stay fixed while the links change. Switch between 2D, 3D and Records to compare the same filter. Select a node, expand its relationships, and follow a connection to inspect the adjacent identity. The JSON export records the active filter, visible nodes and visible links. For an execution trace it also retains the full trace timeline with its scope labeled.
+
+The capture job includes the filtered 3D command view and the phone records view. Both use labeled, synthetic traces.
