@@ -117,6 +117,9 @@ spec:
         kubernetes.io/os: linux
         vanian.example/runtime-role: {{ .Values.collector.nodeLabel | quote }}
       securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
         runAsUser: 10001
         runAsGroup: 10001
         fsGroup: 10001

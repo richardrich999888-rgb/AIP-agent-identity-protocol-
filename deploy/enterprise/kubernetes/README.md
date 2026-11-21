@@ -12,6 +12,17 @@ public fixture output are retained under
 `validation/enterprise/results/HELM_20261028T103133Z/`. Rendering does not
 qualify images, node privileges, the collection pipeline or the cluster.
 
+The pull request security checks render the current collector and host probe separately and scan each for high and critical findings. The filesystem scan also covers the retained October fixture. To repeat a profile scan locally with Helm and Trivy installed:
+
+```sh
+bash validation/ci/render_kubernetes_profile.sh collector > /tmp/vanian-collector.yaml
+trivy config --severity CRITICAL,HIGH --exit-code 1 /tmp/vanian-collector.yaml
+bash validation/ci/render_kubernetes_profile.sh host-probe > /tmp/vanian-host-probe.yaml
+trivy config --severity CRITICAL,HIGH --exit-code 1 /tmp/vanian-host-probe.yaml
+```
+
+The collector runs as a non-root user with the runtime-default seccomp profile. A clean collector scan covers static configuration only. The host probe exposes host namespaces and host mounts to the observer. Its findings remain subject to cluster operator review.
+
 Use this only after the Linux VM deployment passes on an approved test node.
 The images must contain `/usr/local/bin/aip-probe` or
 `/usr/local/bin/aip-collector` for the intended Linux architecture, built from
