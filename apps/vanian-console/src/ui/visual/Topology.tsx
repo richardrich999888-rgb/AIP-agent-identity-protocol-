@@ -42,6 +42,7 @@ import {
 } from "lucide-react";
 import "@xyflow/react/dist/style.css";
 import "./visual.css";
+import type { Provenance } from "../../types";
 import { DiagramGlyph, TopologyGlyph } from "./TopologyGlyph";
 import {
   kindNames,
@@ -56,6 +57,7 @@ import {
 
 export type { TopologyEdge, TopologyNode } from "./model";
 export interface GraphExport {
+  meta: Provenance;
   nodes: TopologyNode[];
   edges: TopologyEdge[];
   relationshipFilter: Relation | "all";
@@ -124,6 +126,7 @@ function portSides(
 type View = "2d" | "3d" | "records";
 
 interface Props {
+  meta: Provenance;
   nodes: TopologyNode[];
   edges: TopologyEdge[];
   title?: string;
@@ -323,6 +326,7 @@ function downloadGraph(graph: GraphExport) {
 }
 
 export function Topology({
+  meta,
   nodes,
   edges,
   title = "Execution topology",
@@ -642,6 +646,7 @@ export function Topology({
           type="button"
           onClick={() => {
             const visible = {
+              meta,
               nodes: graph.nodes.map((node) => lookup.get(node.id)!),
               edges: graph.edges,
               relationshipFilter: relationship,

@@ -160,6 +160,7 @@ export default function LiveRecords() {
       )}
       {b.graph && (
         <Topology
+          meta={b.meta}
           nodes={b.graph.nodes}
           edges={b.graph.edges}
           title={

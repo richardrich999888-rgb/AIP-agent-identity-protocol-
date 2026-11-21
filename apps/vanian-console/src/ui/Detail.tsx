@@ -360,6 +360,7 @@ export default function Detail({
             {query.data?.graph ? (
               <Topology
                 title="Detection relationships"
+                meta={query.data.meta}
                 nodes={query.data.graph.nodes}
                 edges={query.data.graph.edges}
               />

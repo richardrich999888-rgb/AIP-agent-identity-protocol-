@@ -466,6 +466,18 @@ test("native process observations drive the live home, inventory drill-down, lin
       page.getByRole("heading", { name: "Recorded process lineage" }),
     ).toBeVisible();
     await expect(page.locator(".vgraph-node").first()).toBeVisible();
+    const diagram = page.locator(".vgraph");
+    await diagram.getByRole("button", { name: "Show observed links" }).click();
+    const exportPromise = page.waitForEvent("download");
+    await diagram.getByRole("button", { name: "Export", exact: true }).click();
+    const { readFile } = await import("node:fs/promises");
+    const file = await exportPromise;
+    const exported = JSON.parse(await readFile((await file.path())!, "utf8"));
+    expect(exported.meta.mode).toBe("live");
+    expect(exported.meta.source).toBeTruthy();
+    expect(exported.meta.asOf).toMatch(/Z$/);
+    expect(exported.meta.status).toBeTruthy();
+    expect(exported.relationshipFilter).toBe("observed");
     await page.goto(live.url + "/sniffer-dog?mode=live");
     await page.getByRole("button", { name: "Follow archive updates" }).click();
     await expect(

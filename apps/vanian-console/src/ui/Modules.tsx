@@ -661,6 +661,7 @@ function Accountability() {
       {graph ? (
         <Topology
           key={b.meta.group + d.page.slug}
+          meta={b.meta}
           nodes={graph.nodes}
           edges={graph.edges}
           mode={d.command ? "command" : "light"}
