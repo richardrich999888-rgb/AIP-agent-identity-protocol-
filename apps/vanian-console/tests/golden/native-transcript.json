@@ -1,0 +1,310 @@
+{
+  "source": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/tree/d8ea36255d311b10b9b5b6e844336058622d45c6",
+  "sourceCommit": "d8ea36255d311b10b9b5b6e844336058622d45c6",
+  "captureSource": "5be83a87bec680d26510c2be93e66fdfda008b1e",
+  "observerCases": {
+    "t09/original": {
+      "exitCode": 0,
+      "report": {
+        "observer_id": "collector.syntriass.example",
+        "key_version": 1,
+        "public_key": "db060311e2da56e4d864804d0bfaf5dfd6e236a686acc2c9a98afb1dfd5c1899",
+        "batches": {
+          "records": 1,
+          "first_sequence": 1,
+          "last_sequence": 1,
+          "start": "Epoch",
+          "final_head": "695e33a5847967b8cc1282329d2ff8bd8f57895129e598da8aa8b025f264b9e8",
+          "observations": 0,
+          "kernel_events": 3
+        },
+        "health": {
+          "records": 1,
+          "states": [
+            "ContinuityUnverified"
+          ],
+          "with_coverage": 0,
+          "without_coverage": 1,
+          "cross_checked_against_batches": 1,
+          "clock_synchronised": 0,
+          "clock_unsynchronised": 0,
+          "clock_not_stated": 1,
+          "clock_worst_max_error_us": null
+        },
+        "findings": []
+      }
+    },
+    "t09/tampered": {
+      "exitCode": 1,
+      "report": {
+        "observer_id": "collector.syntriass.example",
+        "key_version": 1,
+        "public_key": "db060311e2da56e4d864804d0bfaf5dfd6e236a686acc2c9a98afb1dfd5c1899",
+        "batches": {
+          "records": 1,
+          "first_sequence": 1,
+          "last_sequence": 1,
+          "start": "Epoch",
+          "final_head": "a28a1c5fa6b10cb88d32cb944851cf7b7b8daa3e49d18a23654e74d2a6b1bc9e",
+          "observations": 0,
+          "kernel_events": 3
+        },
+        "health": {
+          "records": 1,
+          "states": [
+            "ContinuityUnverified"
+          ],
+          "with_coverage": 0,
+          "without_coverage": 1,
+          "cross_checked_against_batches": 1,
+          "clock_synchronised": 0,
+          "clock_unsynchronised": 0,
+          "clock_not_stated": 1,
+          "clock_worst_max_error_us": null
+        },
+        "findings": [
+          {
+            "kind": "SignatureRejected",
+            "line": 1,
+            "sequence": 1,
+            "error": "PayloadHashMismatch"
+          },
+          {
+            "kind": "HealthHeadMismatch",
+            "sequence": 1,
+            "health_head": "695e33a5847967b8cc1282329d2ff8bd8f57895129e598da8aa8b025f264b9e8",
+            "batch_head": "a28a1c5fa6b10cb88d32cb944851cf7b7b8daa3e49d18a23654e74d2a6b1bc9e"
+          }
+        ]
+      }
+    },
+    "t09/wrong-key": {
+      "exitCode": 1,
+      "report": {
+        "observer_id": "collector.syntriass.example",
+        "key_version": 1,
+        "public_key": "1924827571fc8b903e00eda3ba9856c6135ea4559b6e67913190243f0deb5b43",
+        "batches": {
+          "records": 1,
+          "first_sequence": 1,
+          "last_sequence": 1,
+          "start": "Epoch",
+          "final_head": "695e33a5847967b8cc1282329d2ff8bd8f57895129e598da8aa8b025f264b9e8",
+          "observations": 0,
+          "kernel_events": 3
+        },
+        "health": {
+          "records": 1,
+          "states": [
+            "ContinuityUnverified"
+          ],
+          "with_coverage": 0,
+          "without_coverage": 1,
+          "cross_checked_against_batches": 1,
+          "clock_synchronised": 0,
+          "clock_unsynchronised": 0,
+          "clock_not_stated": 1,
+          "clock_worst_max_error_us": null
+        },
+        "findings": [
+          {
+            "kind": "SignatureRejected",
+            "line": 1,
+            "sequence": 1,
+            "error": "SignatureInvalid"
+          },
+          {
+            "kind": "SignatureRejected",
+            "line": 1,
+            "sequence": 1,
+            "error": "SignatureInvalid"
+          }
+        ]
+      }
+    },
+    "t15/original": {
+      "exitCode": 0,
+      "report": {
+        "observer_id": "collector.syntriass.example",
+        "key_version": 1,
+        "public_key": "1924827571fc8b903e00eda3ba9856c6135ea4559b6e67913190243f0deb5b43",
+        "batches": {
+          "records": 1,
+          "first_sequence": 1,
+          "last_sequence": 1,
+          "start": "Epoch",
+          "final_head": "c56b8624b986eed29c05f2c8b94768efb689e905271f6e979050244d106dcdac",
+          "observations": 0,
+          "kernel_events": 0
+        },
+        "health": {
+          "records": 1,
+          "states": [
+            "Degraded"
+          ],
+          "with_coverage": 0,
+          "without_coverage": 1,
+          "cross_checked_against_batches": 1,
+          "clock_synchronised": 0,
+          "clock_unsynchronised": 0,
+          "clock_not_stated": 1,
+          "clock_worst_max_error_us": null
+        },
+        "findings": []
+      }
+    },
+    "t15/tampered": {
+      "exitCode": 1,
+      "report": {
+        "observer_id": "collector.syntriass.example",
+        "key_version": 1,
+        "public_key": "1924827571fc8b903e00eda3ba9856c6135ea4559b6e67913190243f0deb5b43",
+        "batches": {
+          "records": 1,
+          "first_sequence": 1,
+          "last_sequence": 1,
+          "start": "Epoch",
+          "final_head": "ae05bcccb21d8745707c643d40a58dcc2032352ffb64ef0f069c1135815e6d85",
+          "observations": 0,
+          "kernel_events": 0
+        },
+        "health": {
+          "records": 1,
+          "states": [
+            "Degraded"
+          ],
+          "with_coverage": 0,
+          "without_coverage": 1,
+          "cross_checked_against_batches": 1,
+          "clock_synchronised": 0,
+          "clock_unsynchronised": 0,
+          "clock_not_stated": 1,
+          "clock_worst_max_error_us": null
+        },
+        "findings": [
+          {
+            "kind": "SignatureRejected",
+            "line": 1,
+            "sequence": 1,
+            "error": "PayloadHashMismatch"
+          },
+          {
+            "kind": "HealthHeadMismatch",
+            "sequence": 1,
+            "health_head": "c56b8624b986eed29c05f2c8b94768efb689e905271f6e979050244d106dcdac",
+            "batch_head": "ae05bcccb21d8745707c643d40a58dcc2032352ffb64ef0f069c1135815e6d85"
+          }
+        ]
+      }
+    },
+    "t15/wrong-key": {
+      "exitCode": 1,
+      "report": {
+        "observer_id": "collector.syntriass.example",
+        "key_version": 1,
+        "public_key": "db060311e2da56e4d864804d0bfaf5dfd6e236a686acc2c9a98afb1dfd5c1899",
+        "batches": {
+          "records": 1,
+          "first_sequence": 1,
+          "last_sequence": 1,
+          "start": "Epoch",
+          "final_head": "c56b8624b986eed29c05f2c8b94768efb689e905271f6e979050244d106dcdac",
+          "observations": 0,
+          "kernel_events": 0
+        },
+        "health": {
+          "records": 1,
+          "states": [
+            "Degraded"
+          ],
+          "with_coverage": 0,
+          "without_coverage": 1,
+          "cross_checked_against_batches": 1,
+          "clock_synchronised": 0,
+          "clock_unsynchronised": 0,
+          "clock_not_stated": 1,
+          "clock_worst_max_error_us": null
+        },
+        "findings": [
+          {
+            "kind": "SignatureRejected",
+            "line": 1,
+            "sequence": 1,
+            "error": "SignatureInvalid"
+          },
+          {
+            "kind": "SignatureRejected",
+            "line": 1,
+            "sequence": 1,
+            "error": "SignatureInvalid"
+          }
+        ]
+      }
+    }
+  },
+  "authorityCases": {
+    "same-run/original": {
+      "exitCode": 0,
+      "result": "CannotProve",
+      "reason": "ActionEvidenceUnavailable",
+      "archiveVerified": true,
+      "signedReconciliationVerified": true,
+      "gatewayReceiptVerified": true,
+      "authorizationVerified": true
+    },
+    "same-run/missing-receipt": {
+      "exitCode": 0,
+      "result": "CannotProve",
+      "reason": "ActionEvidenceUnavailable",
+      "archiveVerified": true,
+      "signedReconciliationVerified": true,
+      "gatewayReceiptVerified": false,
+      "authorizationVerified": true
+    },
+    "same-run/wrong-key": {
+      "exitCode": 1,
+      "result": null,
+      "reason": null,
+      "archiveVerified": null,
+      "signedReconciliationVerified": null,
+      "gatewayReceiptVerified": null,
+      "authorizationVerified": null
+    },
+    "same-run-interruption/original": {
+      "exitCode": 0,
+      "result": "CannotProve",
+      "reason": "WindowNotCovered",
+      "archiveVerified": true,
+      "signedReconciliationVerified": true,
+      "gatewayReceiptVerified": true,
+      "authorizationVerified": true
+    },
+    "same-run-interruption/missing-receipt": {
+      "exitCode": 0,
+      "result": "CannotProve",
+      "reason": "WindowNotCovered",
+      "archiveVerified": true,
+      "signedReconciliationVerified": true,
+      "gatewayReceiptVerified": false,
+      "authorizationVerified": true
+    },
+    "same-run-interruption/wrong-key": {
+      "exitCode": 1,
+      "result": null,
+      "reason": null,
+      "archiveVerified": null,
+      "signedReconciliationVerified": null,
+      "gatewayReceiptVerified": null,
+      "authorizationVerified": null
+    }
+  },
+  "binaryFingerprints": {
+    "nativeObserver": "516471dcf5e9c09d345a377289cd898778af11054380dac4d95d51dcc19752b7",
+    "nativeAIP": "6e3d807cb30ebed2ad6633f804e61562bcef27ba33640cd6ee2f041c39dabec3"
+  },
+  "archiveDigests": {
+    "observer": "f6859f1235aa10755df8949ceb6b4d055d9d452512a15194f1a7026497d21996",
+    "authority": "bc5c9882c37fcd4039bb4f3db082329fffbc74a6624125dccd7660766d678c0a"
+  },
+  "archiveManifestItems": 19
+}

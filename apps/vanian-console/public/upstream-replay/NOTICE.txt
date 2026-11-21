@@ -1,0 +1,6 @@
+VANIAN AIP and Sniffer Dog research archive
+aip-observe-verify and aip-execution-assurance come from the user's VANIAN AIP repository, commit d8ea36255d311b10b9b5b6e844336058622d45c6. The upstream workspace declares LicenseRef-Proprietary. The compiled modules retain that status. Use and redistribution require authorization from the owner.
+
+The browser WASI shim is version 0.4.2, distributed under its included MIT license. The shim dispatches WebAssembly file reads into an in-memory directory. Signing, verification and reconciliation run in the original Rust executables.
+
+The signed cases are historical VANIAN lab captures with disposable lab trust anchors. They record November 14, 2026. Independent administration, customer workload coverage and deployment readiness are outside these captures.

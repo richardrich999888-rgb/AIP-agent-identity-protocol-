@@ -49,7 +49,7 @@ rand               = "0.8"
 # Unique token IDs and agent_id validation
 uuid               = { version = "1", features = ["v4"] }
 # Timestamp arithmetic
-chrono             = { version = "0.4", features = ["serde"] }
+time               = "0.3"
 # Public key fingerprint: SHA-256 of raw public key bytes
 sha2               = "0.10"
 # Revocation and delegation entry hashes: SHA3-256

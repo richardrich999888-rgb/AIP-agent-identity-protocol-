@@ -1,0 +1,915 @@
+.vgraph {
+  --g-canvas: #faf8fd;
+  --g-card: #fff;
+  --g-soft: #f5f1fa;
+  --g-border: #e6dfef;
+  --g-text: #242034;
+  --g-muted: #686075;
+  --g-accent: #6b39c9;
+  --g-select: #f3ecff;
+  --g-gridpoint: #d9d1e6;
+  border: 1px solid var(--g-border);
+  background: var(--g-card);
+  border-radius: 12px;
+  overflow: hidden;
+  color: var(--g-text);
+  font: inherit;
+  min-width: 0;
+}
+.vgraph--command {
+  --g-canvas: #161221;
+  --g-card: #211b2e;
+  --g-soft: #2b223a;
+  --g-border: #42344e;
+  --g-text: #f5f0fb;
+  --g-muted: #bcb1c9;
+  --g-accent: #d3b5ff;
+  --g-select: #332643;
+  --g-gridpoint: #3f334e;
+}
+.vgraph * {
+  box-sizing: border-box;
+}
+.vgraph button,
+.vgraph input {
+  font: inherit;
+}
+.vgraph button {
+  cursor: pointer;
+}
+.vgraph button:focus-visible,
+.vgraph input:focus-visible,
+.vgraph summary:focus-visible,
+.vgraph [tabindex="0"]:focus-visible,
+.vorb [tabindex]:focus-visible {
+  outline: 2px solid #965bfa;
+  outline-offset: 2px;
+}
+.vgraph-bar,
+.vgraph-toolbar,
+.vgraph-selection-head,
+.vgraph-legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.vgraph-bar {
+  justify-content: space-between;
+  padding: 15px 16px 12px;
+}
+.vgraph-bar h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.3;
+  font-weight: 650;
+  letter-spacing: -0.018em;
+  color: var(--g-text);
+}
+.vgraph-bar h3 svg {
+  color: var(--g-accent);
+}
+.vgraph-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  gap: 1px;
+  border: 1px solid var(--g-border);
+  border-radius: 7px;
+  background: var(--g-soft);
+}
+.vgraph-switch button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 0;
+  background: transparent;
+  color: var(--g-muted);
+  border-radius: 4px;
+  padding: 5px 8px;
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+  line-height: 1;
+}
+.vgraph-switch button[aria-pressed="true"] {
+  background: var(--g-card);
+  box-shadow: 0 1px 3px #21142e1f;
+  color: var(--g-accent);
+}
+.vgraph-toolbar {
+  padding: 0 16px 12px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.vgraph-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 128px;
+  max-width: 230px;
+  flex: 1;
+  height: 32px;
+  border: 1px solid var(--g-border);
+  border-radius: 6px;
+  background: var(--g-card);
+  padding: 0 8px;
+  color: var(--g-muted);
+}
+.vgraph-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+  outline: 0;
+  font-size: 12px;
+  color: var(--g-text);
+}
+.vgraph-search input::placeholder {
+  color: var(--g-muted);
+}
+.vgraph-search:focus-within {
+  outline: 2px solid #9863e866;
+  outline-offset: 0;
+}
+.vgraph-search input:focus-visible {
+  outline: none;
+}
+.vgraph-total {
+  font-size: 11px;
+  color: var(--g-muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.vgraph-total span {
+  padding: 0 3px;
+  color: var(--g-muted);
+}
+.vgraph-hits {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 5px);
+  min-width: min(270px, 75vw);
+  border-radius: 8px;
+  padding: 4px;
+  border: 1px solid var(--g-border);
+  background: var(--g-card);
+  box-shadow: 0 8px 25px #24153526;
+  z-index: 9;
+}
+.vgraph-hits button,
+.vgraph-hits > div {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  gap: 8px;
+  align-items: center;
+  padding: 7px 8px;
+  border: 0;
+  border-radius: 4px;
+  text-align: left;
+  background: transparent;
+  color: var(--g-text);
+  font-size: 12px;
+}
+.vgraph-hits button:hover,
+.vgraph-hits button:focus-visible {
+  background: var(--g-soft);
+}
+.vgraph-hits small {
+  font:
+    10px ui-monospace,
+    monospace;
+  color: var(--g-muted);
+  max-width: 45%;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+.vgraph-export,
+.vgraph-selection-head button,
+.vgraph-three-fallback button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  border: 1px solid var(--g-border);
+  border-radius: 6px;
+  background: var(--g-card);
+  color: var(--g-text);
+  font-size: 11px !important;
+  font-weight: 550 !important;
+  padding: 5px 8px;
+  line-height: 1.3;
+}
+.vgraph-export {
+  height: 30px;
+  margin-left: auto;
+}
+.vgraph-export:hover,
+.vgraph-selection-head button:hover,
+.vgraph-canvas-tools button:hover,
+.vgraph-three-fallback button:hover {
+  background: var(--g-soft);
+}
+.vgraph-canvas,
+.vgraph-empty,
+.vgraph-records {
+  width: 100%;
+  height: clamp(330px, 42vw, 455px);
+  position: relative;
+  border-block: 1px solid var(--g-border);
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--g-canvas);
+}
+.vgraph-canvas {
+  background: #faf9fc;
+}
+.vgraph--command .vgraph-canvas {
+  background: #191421;
+}
+.vgraph-canvas .react-flow {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  --xy-attribution-background-color: var(--g-canvas);
+  --xy-background-color: var(--g-canvas);
+}
+.vgraph-canvas .react-flow__attribution {
+  font-family: inherit;
+  font-size: 9px;
+}
+.vgraph-canvas .react-flow__attribution a {
+  color: var(--g-muted);
+}
+.vgraph-node {
+  width: 192px;
+  height: 94px;
+  display: grid;
+  grid-template-columns: 50px minmax(0, 1fr);
+  grid-template-rows: 1fr 23px;
+  align-items: center;
+  gap: 0 8px;
+  padding: 5px 9px 0 7px;
+  position: relative;
+  color: var(--g-text);
+  border: 1px solid var(--vg-node-border, #cabbdc);
+  border-radius: 10px;
+  background: linear-gradient(
+    115deg,
+    var(--vg-node-haze, #f0eafa),
+    var(--g-card) 50%,
+    var(--g-card)
+  );
+  box-shadow:
+    0 1px 1px #21133420,
+    0 5px 11px #2c174412,
+    inset 0 1px 0 #ffffff9c;
+  transition:
+    border-color 0.17s ease,
+    box-shadow 0.17s ease;
+}
+.vgraph--command .vgraph-node {
+  --vg-node-border: #574362;
+  --vg-node-haze: #3a2849;
+  box-shadow:
+    0 5px 14px #0a071a4d,
+    inset 0 1px 0 #bf8bff20;
+}
+.vgraph-node:hover,
+.vgraph-canvas .react-flow__node:focus-visible .vgraph-node,
+.vgraph-node--connected {
+  border-color: var(--g-accent);
+}
+.vgraph-node--active {
+  border-color: var(--g-accent);
+  box-shadow:
+    0 0 0 2px #aa70fc80,
+    0 6px 15px #5a399939;
+}
+.vgraph-node > span:has(.react-flow__handle) {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+.vgraph-glyph-well {
+  grid-column: 1;
+  grid-row: 1;
+  height: 48px;
+  width: 48px;
+  position: relative;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  border: 1px solid #503469;
+  box-shadow:
+    inset 0 1px 2px #f2d1ff39,
+    0 2px 5px #43246935;
+  background: radial-gradient(
+    ellipse at 40% 34%,
+    #6b477b 0,
+    #34203e 58%,
+    #1d152b 100%
+  );
+  overflow: hidden;
+}
+.vgraph-glyph-well:before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  opacity: 0.55;
+  background: repeating-linear-gradient(
+    142deg,
+    transparent 0 5px,
+    #cda5fe17 5px 5.5px,
+    transparent 5.5px 11px
+  );
+}
+.vgraph-glyph {
+  display: block;
+  width: 48px;
+  height: 48px;
+  position: relative;
+  filter: drop-shadow(0 1.3px 1.1px #1c0a36b0);
+}
+.vgraph-node-copy {
+  grid-column: 2;
+  grid-row: 1;
+  min-width: 0;
+  display: grid;
+  align-content: center;
+  gap: 3px;
+  line-height: 1.12;
+  position: relative;
+}
+.vgraph-node-copy small,
+.vgraph-selection-head small {
+  font-size: 10px;
+  font-weight: 550;
+  color: var(--g-muted);
+}
+.vgraph-node-copy small {
+  text-transform: uppercase;
+  font-size: 8.8px;
+  line-height: 1.1;
+  letter-spacing: 0.075em;
+  font-weight: 650;
+  color: var(--g-accent);
+}
+.vgraph-node-copy strong {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  overflow-wrap: anywhere;
+  font-size: 13px;
+  font-weight: 665;
+  letter-spacing: -0.02em;
+}
+.vgraph-node-rail {
+  display: flex;
+  grid-column: 1/3;
+  align-self: stretch;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px;
+  margin: 0 -1px;
+  color: var(--g-muted);
+  border-top: 1px solid var(--g-border);
+  font:
+    9px "JetBrains Mono",
+    ui-monospace,
+    monospace;
+  position: relative;
+}
+.vgraph-node-rail code,
+.vgraph-node-rail > span {
+  font: inherit;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background: transparent;
+  padding: 0;
+  color: inherit;
+  border: 0;
+}
+.vgraph-node-rail > span {
+  max-width: 58%;
+  color: var(--g-text);
+}
+.vgraph-node .react-flow__handle {
+  width: 4px;
+  height: 4px;
+  min-width: 4px;
+  min-height: 4px;
+  border: 1px solid var(--g-card);
+  background: var(--g-accent);
+  opacity: 0.8;
+}
+.vgraph-node .react-flow__handle-top,
+.vgraph-node .react-flow__handle-bottom {
+  opacity: 0.55;
+}
+.vgraph-conduit {
+  --trace: #8154bd;
+  --under: #8a5aca1a;
+}
+.vgraph-conduit--declared {
+  --trace: #806d9c;
+  --under: #b7a7d010;
+}
+.vgraph-conduit--inferred {
+  --trace: #995cb0;
+  --under: #aa72ba15;
+}
+.vgraph--command .vgraph-conduit {
+  --trace: #bd97ff;
+  --under: #bb7cff20;
+}
+.vgraph--command .vgraph-conduit--declared {
+  --trace: #aea1c3;
+  --under: #b7a7d010;
+}
+.vgraph--command .vgraph-conduit--inferred {
+  --trace: #d791eb;
+  --under: #aa72ba18;
+}
+.vgraph-conduit .vgraph-conduit-under {
+  stroke: var(--under);
+  stroke-width: 5.8;
+}
+.vgraph-conduit .vgraph-conduit-line {
+  stroke: var(--trace);
+  stroke-width: 2;
+  fill: none;
+}
+.vgraph-conduit--declared .vgraph-conduit-line {
+  stroke-dasharray: 2 4;
+  stroke-linecap: round;
+  stroke-width: 1.8;
+}
+.vgraph-conduit--inferred .vgraph-conduit-line {
+  stroke-dasharray: 8 4;
+  stroke-width: 1.8;
+}
+.vgraph-conduit-marker > * {
+  fill: var(--g-canvas);
+  stroke: var(--trace);
+  stroke-width: 1.5;
+}
+.vgraph-conduit-marker .vgraph-conduit-dot {
+  fill: var(--trace);
+  stroke: none;
+}
+.vgraph-conduit--focused .vgraph-conduit-under {
+  stroke-width: 9;
+  stroke: #b581ed55;
+}
+
+.vgraph:not(.vgraph--command) .vgraph-node {
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 0 10px;
+  padding: 5px 11px 0;
+  border-color: #d8d5df;
+  background: #fff;
+  box-shadow: 0 1px 3px #27202d0d;
+}
+.vgraph:not(.vgraph--command) .vgraph-node--connected {
+  border-color: #b794db;
+}
+.vgraph:not(.vgraph--command) .vgraph-node--active,
+.vgraph:not(.vgraph--command) .vgraph-node:hover,
+.vgraph:not(.vgraph--command) .react-flow__node:focus-visible .vgraph-node {
+  border-color: #8755bd;
+  box-shadow: 0 0 0 2px #965fe214;
+}
+.vgraph:not(.vgraph--command) .vgraph-glyph-well {
+  width: 34px;
+  height: 34px;
+  border-radius: 7px;
+  background: #f1ebf9;
+  color: #7540a8;
+  border: 1px solid #e8dff0;
+  box-shadow: none;
+}
+.vgraph:not(.vgraph--command) .vgraph-glyph-well::before {
+  display: none;
+}
+.vgraph-diagram-glyph {
+  width: 21px;
+  height: 21px;
+}
+.vgraph:not(.vgraph--command) .vgraph-node-copy small {
+  line-height: 1.2;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 10.5px;
+  font-weight: 500;
+  color: #6c6573;
+}
+.vgraph:not(.vgraph--command) .vgraph-node-copy strong {
+  font-size: 14px;
+  font-weight: 625;
+  line-height: 1.16;
+}
+.vgraph:not(.vgraph--command) .vgraph-node-rail {
+  font-size: 9.8px;
+  border-color: #eeecf1;
+  color: #68636d;
+}
+.vgraph:not(.vgraph--command) .vgraph-conduit {
+  --trace: #8063a7;
+}
+.vgraph:not(.vgraph--command) .vgraph-conduit--declared {
+  --trace: #93909a;
+}
+.vgraph:not(.vgraph--command) .vgraph-conduit--inferred {
+  --trace: #aa7bb1;
+}
+.vgraph:not(.vgraph--command) .vgraph-conduit-line {
+  stroke-width: 1.55;
+}
+.vgraph:not(.vgraph--command) .vgraph-conduit-under,
+.vgraph:not(.vgraph--command) .vgraph-conduit-marker {
+  opacity: 0;
+}
+.vgraph:not(.vgraph--command) .vgraph-conduit:hover .vgraph-conduit-under,
+.vgraph:not(.vgraph--command) .vgraph-conduit--focused .vgraph-conduit-under {
+  opacity: 0.5;
+}
+.vgraph-foldmark {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  right: -5px;
+  bottom: -6px;
+  height: 17px;
+  width: 17px;
+  border: 1px solid var(--g-border);
+  border-radius: 9px;
+  color: var(--g-accent);
+  background: var(--g-card);
+}
+.vgraph-canvas-tools {
+  display: flex;
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 5;
+  border: 1px solid var(--g-border);
+  border-radius: 7px;
+  box-shadow: 0 2px 6px #29193512;
+  background: var(--g-card);
+  padding: 2px;
+}
+.vgraph-canvas-tools button {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 27px;
+  border: 0;
+  border-radius: 5px;
+  margin: 0;
+  background: var(--g-card);
+  color: var(--g-text);
+}
+.vgraph-canvas-tools button + button {
+  margin-left: 1px;
+}
+.vgraph-legend {
+  min-height: 39px;
+  padding: 8px 16px;
+  flex-wrap: wrap;
+  gap: 8px 15px;
+}
+.vgraph-legend > span,
+.vgraph-legend button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  color: var(--g-muted);
+}
+.vgraph-relations b {
+  font:
+    550 10px "JetBrains Mono",
+    ui-monospace,
+    monospace;
+  color: var(--g-text);
+  margin-left: -2px;
+}
+.vgraph-line {
+  display: inline-block;
+  width: 19px;
+  height: 0;
+  flex: none;
+  border-top: 2px solid #7b52d5;
+}
+.vgraph-line--declared {
+  border-color: #797583;
+  border-top-style: dotted;
+}
+.vgraph-line--inferred {
+  border-color: #a16bb8;
+  border-top-style: dashed;
+}
+.vgraph--command .vgraph-line--observed {
+  border-color: #bba1ff;
+}
+.vgraph--command .vgraph-line--declared {
+  border-color: #a99cbc;
+}
+.vgraph--command .vgraph-line--inferred {
+  border-color: #cf9de6;
+}
+.vgraph-legend button {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  color: var(--g-accent);
+  font-weight: 600;
+  margin-left: auto;
+}
+.vgraph-relations {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px 5px;
+}
+.vgraph-relations button {
+  margin: 0;
+  min-height: 32px;
+  padding: 4px 9px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--g-muted);
+  font-size: 12px;
+  font-weight: 500;
+}
+.vgraph-relations button:hover {
+  background: var(--g-soft);
+  color: var(--g-text);
+}
+.vgraph-relations button[aria-pressed="true"] {
+  background: var(--g-select);
+  border-color: var(--g-border);
+  color: var(--g-accent);
+}
+.vgraph-relations b {
+  color: inherit;
+  font-variant-numeric: tabular-nums;
+}
+.vgraph-neighbor {
+  border: 0;
+  padding: 3px 0;
+  background: transparent;
+  color: var(--g-accent);
+  text-align: start;
+}
+.vgraph-neighbor:hover {
+  text-decoration: underline;
+}
+@media (max-width: 560px) {
+  .vgraph-relations {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+  .vgraph-relations button {
+    min-height: 42px;
+    justify-content: start;
+  }
+}
+.vgraph-empty,
+.vgraph-three-fallback {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: var(--g-muted);
+  font-size: 13px;
+}
+.vgraph-canvas > .vgraph-empty {
+  height: 100%;
+  border: 0;
+}
+.vgraph-three {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 48% 47%, #9770d60e 0, transparent 68%),
+    radial-gradient(var(--g-gridpoint) 0.7px, transparent 0.8px);
+  background-size:
+    auto,
+    16px 16px;
+}
+.vgraph-three canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  cursor: grab;
+}
+.vgraph-three canvas:active {
+  cursor: grabbing;
+}
+.vgraph-three-fallback {
+  position: absolute;
+  inset: 0;
+  background: var(--g-canvas);
+}
+.vgraph-three-fallback button {
+  margin-top: 4px;
+}
+.vgraph-orbit-tip {
+  position: absolute;
+  bottom: 13px;
+  right: 13px;
+  pointer-events: none;
+  color: var(--g-muted);
+  font-size: 10px;
+  background: var(--g-card);
+  padding: 4px 6px;
+  border: 1px solid var(--g-border);
+  border-radius: 4px;
+}
+.vgraph-records {
+  overflow: auto;
+  background: var(--g-card);
+}
+.vgraph-records table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: left;
+}
+.vgraph-records th,
+.vgraph-records td {
+  border-bottom: 1px solid var(--g-border);
+  padding: 8px 14px;
+  color: var(--g-text);
+  font-weight: 400;
+}
+.vgraph-records th {
+  position: sticky;
+  top: 0;
+  background: var(--g-soft);
+  color: var(--g-muted);
+  font-size: 11px;
+  font-weight: 600;
+}
+.vgraph-records td button {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--g-accent);
+  font-weight: 600;
+  font-size: 12px;
+  text-align: left;
+}
+.vgraph-records td small {
+  display: block;
+  font:
+    10px ui-monospace,
+    monospace;
+  color: var(--g-muted);
+  margin-top: 3px;
+}
+.vgraph-selection {
+  padding: 12px 16px 14px;
+  border-top: 1px solid var(--g-border);
+  background: var(--g-card);
+}
+.vgraph-selection-head {
+  gap: 7px;
+  flex-wrap: wrap;
+}
+.vgraph-selection-head > span {
+  display: grid;
+  gap: 3px;
+  margin-right: auto;
+}
+.vgraph-selection-head b {
+  font-size: 14px;
+  line-height: 1.2;
+  color: var(--g-text);
+}
+.vgraph-selection-head button.vgraph-close {
+  border-color: transparent;
+  min-width: 28px;
+}
+.vgraph-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px 16px;
+  margin: 11px 0 0;
+}
+.vgraph-meta > div {
+  min-width: 62px;
+  max-width: 100%;
+}
+.vgraph-meta dt {
+  font-size: 10px;
+  color: var(--g-muted);
+}
+.vgraph-meta dd {
+  margin: 3px 0 0;
+  color: var(--g-text);
+  font:
+    11px "JetBrains Mono",
+    ui-monospace,
+    monospace;
+  overflow-wrap: anywhere;
+}
+.vgraph-selection details {
+  margin-top: 11px;
+  font-size: 11px;
+  color: var(--g-muted);
+}
+.vgraph-selection summary {
+  cursor: pointer;
+  width: max-content;
+}
+.vgraph-selection ul {
+  list-style: none;
+  margin: 7px 0 0;
+  padding: 0;
+}
+.vgraph-selection li {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  border-top: 1px solid var(--g-border);
+  padding: 6px 0;
+  color: var(--g-text);
+}
+.vgraph-selection li small {
+  color: var(--g-muted);
+}
+.vorb {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.vorb-interactive {
+  cursor: pointer;
+  outline: none;
+}
+.vorb-interactive:focus circle:first-of-type,
+.vorb-interactive:hover circle:first-of-type {
+  fill: #d0adff;
+  fill-opacity: 0.22;
+}
+.vseal {
+  display: block;
+  flex: none;
+}
+.vseal--verifying .vseal-track {
+  transform-origin: 40px 40px;
+  animation: vseal-spin 2s linear infinite;
+}
+@keyframes vseal-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@media (max-width: 560px) {
+  .vgraph-bar {
+    align-items: flex-start;
+    flex-wrap: wrap;
+    gap: 9px;
+    padding: 13px 12px 10px;
+  }
+  .vgraph-toolbar {
+    padding: 0 12px 10px;
+  }
+  .vgraph-search {
+    max-width: 100%;
+  }
+  .vgraph-legend {
+    padding-inline: 12px;
+  }
+  .vgraph-canvas,
+  .vgraph-records,
+  .vgraph-empty {
+    height: 330px;
+  }
+  .vgraph-orbit-tip {
+    display: none;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vseal--verifying .vseal-track {
+    animation: none;
+  }
+}

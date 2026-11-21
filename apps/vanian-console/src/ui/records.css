@@ -1,0 +1,126 @@
+.table-scroll {
+  max-height: min(68vh, 740px);
+  overflow: auto;
+}
+.table-scroll thead th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--canvas);
+  box-shadow: inset 0 -1px var(--line);
+}
+.table-scroll th[data-number],
+.table-scroll td[data-number] {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+.table-scroll th[aria-sort="ascending"] button,
+.table-scroll th[aria-sort="descending"] button {
+  color: var(--brand);
+}
+.table-scroll tbody tr[aria-current="true"] {
+  background: var(--soft);
+  box-shadow: inset 3px 0 var(--brand);
+}
+.table-scroll tr:focus-visible {
+  outline-offset: -2px;
+}
+.table-shell[data-density="compact"] td {
+  height: 32px;
+  padding-block: 4px;
+}
+.table-density {
+  margin-left: auto;
+}
+.table-density .select-wrap {
+  height: 30px;
+}
+.table-density select {
+  font-size: 11.5px;
+}
+@media (max-width: 600px) {
+  .table-toolbar {
+    flex-wrap: wrap;
+  }
+  .table-density {
+    margin-left: 0;
+  }
+  .table-scroll {
+    max-height: 65vh;
+  }
+}
+@media print {
+  .table-scroll {
+    max-height: none !important;
+    overflow: visible;
+  }
+  .table-scroll thead th {
+    position: static;
+  }
+}
+
+.drawer::backdrop {
+  background: rgba(29, 26, 41, 0.23);
+  backdrop-filter: none;
+}
+.case-route {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  background: var(--canvas);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 13px;
+}
+.case-route > div,
+.case-outcome > div {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+  min-width: 0;
+}
+.case-route > svg {
+  color: var(--muted);
+}
+.case-route strong {
+  font-size: 13px;
+  font-weight: 640;
+  overflow-wrap: anywhere;
+}
+.case-route code {
+  color: var(--muted);
+  font: 450 11px/1.5 var(--mono);
+  overflow-wrap: anywhere;
+}
+.case-route small,
+.case-outcome small {
+  font-size: 11px;
+  color: var(--muted);
+}
+.case-outcome {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+  margin-bottom: 9px;
+}
+.case-outcome b {
+  font-size: 12px;
+  font-weight: 620;
+}
+.case-identifiers {
+  margin-top: 9px;
+  padding-top: 6px;
+  border-top: 1px solid var(--line);
+}
+.case-identifiers summary {
+  width: fit-content;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 580;
+  padding: 6px 0;
+  color: var(--brand);
+}

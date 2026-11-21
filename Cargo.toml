@@ -31,6 +31,7 @@
 [workspace]
 resolver = "2"
 members = [
+    "tools/cargo-test-binaries",
     # ── accountability core ────────────────────────────────────────────
     "aip-standalone/aip-types",
     "aip-standalone/aip-crypto",

@@ -1,0 +1,9 @@
+[package]
+name = "cargo-test-binaries"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+serde_json = "1"

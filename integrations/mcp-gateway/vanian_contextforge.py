@@ -13,6 +13,8 @@ import re
 import sqlite3
 import stat
 import time
+from contextvars import ContextVar
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
@@ -31,6 +33,55 @@ _STATE = "vanian.receipt.call"
 
 class ReceiptUnavailable(RuntimeError):
     """The gateway cannot establish/persist its receipt; payloads stay private."""
+
+
+@dataclass
+class _HttpInvocations:
+    starts: int = 0
+    single: _ReservedCall | None = None
+    closed: bool = False
+
+
+@dataclass
+class _ReservedCall:
+    scope: _HttpInvocations | None
+    boundary: tuple
+    call: dict[str, Any] | None
+
+
+_HTTP_INVOCATIONS: ContextVar[_HttpInvocations | None] = ContextVar("vanian_http_invocations", default=None)
+
+
+class ReceiptScopeMiddleware:
+    """Keep one HTTP request's reservation reachable across CPEX manager refreshes."""
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+        invocations = _HttpInvocations()
+        token = _HTTP_INVOCATIONS.set(invocations)
+        try:
+            return await self.app(scope, receive, send)
+        finally:
+            invocations.closed = True
+            if invocations.single is not None:
+                invocations.single.call = None
+            invocations.single = None
+            _HTTP_INVOCATIONS.reset(token)
+
+
+def create_app():
+    from mcpgateway.main import app
+    return ReceiptScopeMiddleware(app)
+
+
+def _uncovered_result():
+    return {"isError": True, "content": [{"type": "text", "text":
+            "Gateway receipt unavailable. The tool may have executed; do not automatically retry."}],
+            "_meta": {"vanian": {"receipt_persisted": False, "coverage": "CANNOT_PROVE"}}}
 
 
 class VanianToolReceiptPlugin(Plugin):
@@ -82,7 +133,16 @@ class VanianToolReceiptPlugin(Plugin):
             self._check_admin_path(trust_file)
             self._check_admin_path(Path(self.authorization_binary))
             self.authorization_env["AIP_RUN_TRUST_FILE"] = str(trust_file)
+        # Match administrator-controlled configuration across manager instances.
+        # Only public anchors, local paths and policy configuration enter this key.
+        self.receipt_boundary = json.dumps([config.name, options, self.signer_env, self.authorization_env,
+                                            str(self.authorization_directory)], sort_keys=True)
         self._initialize_database()
+
+    def _boundary(self, name: str, context: PluginContext) -> tuple:
+        identity = context.global_context
+        return (self.receipt_boundary, identity.request_id, identity.tenant_id, identity.server_id,
+                context.user_email, name)
 
     @staticmethod
     def _check_admin_path(path: Path, *, directory: bool = False) -> None:
@@ -217,6 +277,12 @@ class VanianToolReceiptPlugin(Plugin):
 
     async def tool_pre_invoke(self, payload: ToolPreInvokePayload, context: PluginContext) -> ToolPreInvokeResult:
         context.set_state(_STATE, None)
+        scope = _HTTP_INVOCATIONS.get()
+        if scope is not None:
+            if scope.closed:
+                return self._violation("RECEIPT_UNAVAILABLE")
+            scope.starts += 1
+            scope.single = None
         try:
             headers: dict[str, str] = {}
             for name, value in (payload.headers.root.items() if payload.headers else []):
@@ -239,8 +305,10 @@ class VanianToolReceiptPlugin(Plugin):
                 "headers": {name: headers[name] for name in ("mcp-method", "mcp-name") if name in headers},
                 "received_at_ms": time.time_ns() // 1_000_000,
             }
-            if len(json.dumps(call, allow_nan=False).encode()) > self.max_bytes:
+            encoded = json.dumps(call, allow_nan=False).encode()
+            if len(encoded) > self.max_bytes:
                 return self._violation("TOOL_REQUEST_TOO_LARGE")
+            call = json.loads(encoded)
             if payload.name not in self.tools:
                 return await self._refuse(call, "UNSUPPORTED_TOOL")
             if headers.get("mcp-method", "tools/call") != "tools/call" or headers.get("mcp-name", payload.name) != payload.name:
@@ -253,7 +321,12 @@ class VanianToolReceiptPlugin(Plugin):
             refusal = await asyncio.to_thread(self._reserve, call, checked["parameter_commitment"])
             if refusal:
                 return await self._refuse(call, refusal)
-            context.set_state(_STATE, call)
+            if scope is not None and scope.closed:
+                return self._violation("RECEIPT_UNAVAILABLE")
+            reservation = _ReservedCall(scope, self._boundary(payload.name, context), call)
+            context.set_state(_STATE, reservation)
+            if scope is not None and scope.starts == 1:
+                scope.single = reservation
             # These headers belong to this gateway's receipt boundary. In
             # particular, its namespaced Mcp-Name is not the upstream name.
             # The gateway's MCP client supplies upstream protocol headers.
@@ -265,14 +338,27 @@ class VanianToolReceiptPlugin(Plugin):
             return self._violation("RECEIPT_UNAVAILABLE")
 
     async def tool_post_invoke(self, payload: ToolPostInvokePayload, context: PluginContext) -> ToolPostInvokeResult:
-        call = context.get_state(_STATE)
-        if call is None:
-            # ContextForge invokes post hooks for pre-hook refusals as well.
-            return ToolPostInvokeResult(continue_processing=True)
-        # Clear before I/O: ContextForge may invoke error post hooks again when
-        # a later plugin fails. Never turn that second callback into success.
+        scope = _HTTP_INVOCATIONS.get()
+        reservation = context.get_state(_STATE)
         context.set_state(_STATE, None)
+        if reservation is None and scope is not None:
+            reservation = scope.single  # Always empty for batched or completed requests.
+        call = None
+        if reservation is not None and reservation.scope is scope and (scope is None or not scope.closed):
+            if reservation.boundary == self._boundary(payload.name, context):
+                call = reservation.call
+            reservation.call = None  # Consume before any await, even on a mismatched callback.
         result = payload.result
+        if call is None:
+            # ContextForge also issues error callbacks after pre-dispatch refusals.
+            # Preserve those errors, but never pass through unbound success or
+            # an upstream assertion of a VANIAN receipt.
+            if (isinstance(result, dict) and result.get("isError", result.get("is_error")) is True
+                    and not any(isinstance(result.get(key), dict) and "vanian" in result[key]
+                                for key in ("_meta", "meta"))):
+                return ToolPostInvokeResult(continue_processing=True)
+            return ToolPostInvokeResult(continue_processing=True,
+                                        modified_payload=payload.model_copy(update={"result": _uncovered_result()}))
         if not isinstance(result, dict):
             result = {"isError": True, "content": []}
         disposition = "Failed" if result.get("isError", result.get("is_error", False)) else "Forwarded"
@@ -291,7 +377,5 @@ class VanianToolReceiptPlugin(Plugin):
                 pass
             # The underlying effect may already have occurred. Tell the caller
             # precisely that receipt coverage is unavailable; never retry it.
-            result = {"isError": True, "content": [{"type": "text", "text":
-                      "Gateway receipt unavailable. The tool may have executed; do not automatically retry."}],
-                      "_meta": {"vanian": {"receipt_persisted": False, "coverage": "CANNOT_PROVE"}}}
+            result = _uncovered_result()
         return ToolPostInvokeResult(continue_processing=True, modified_payload=payload.model_copy(update={"result": result}))

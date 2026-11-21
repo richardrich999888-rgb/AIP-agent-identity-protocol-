@@ -1,0 +1,20 @@
+{
+  "tenant": "customer-tenant-id",
+  "group": "Engineering",
+  "sourceClassification": "customer-runtime",
+  "members": { "site-scoped-subject-id": "Analyst" },
+  "port": 8874,
+  "observer": {
+    "binary": "/opt/vanian/bin/aip-observe-verify",
+    "observerId": "customer-configured-collector",
+    "keyVersion": 1,
+    "publicKey": "SUPPLY_SEPARATELY_ENROLLED_64_HEX_CHARACTER_PUBLIC_KEY",
+    "batches": "/srv/vanian/exports/batches.jsonl",
+    "health": "/srv/vanian/exports/health.jsonl"
+  },
+  "authority": {
+    "binary": "/opt/vanian/bin/aip-execution-assurance",
+    "bundle": "/srv/vanian/exports/run-bundle.json",
+    "trust": "/etc/vanian/run-trust.json"
+  }
+}

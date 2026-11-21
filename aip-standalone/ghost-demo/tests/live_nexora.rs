@@ -53,37 +53,18 @@ const AGENT: &str = env!("CARGO_BIN_EXE_ghost-demo-agent");
 /// built here rather than assumed. Cargo has released the target lock by
 /// the time tests run, so the nested build is safe.
 fn verifier_path() -> std::path::PathBuf {
-    let exe = std::env::current_exe().expect("the test binary has a path");
-    let profile_dir = exe
-        .parent()
-        .and_then(|deps| deps.parent())
-        .expect("target/<profile>/deps/<test>");
-    let profile = profile_dir.file_name().unwrap().to_str().unwrap();
-    static BUILD: std::sync::Once = std::sync::Once::new();
-    BUILD.call_once(|| {
-        let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".into());
-        let out = std::process::Command::new(cargo)
-            .args([
-                "build",
-                "--locked",
-                "-p",
-                "aip-nexora",
-                "--bin",
-                "nexora-verify",
-                "--profile",
-                if profile == "debug" { "dev" } else { profile },
-            ])
-            .output()
-            .expect("cargo must be runnable to build the offline verifier");
-        assert!(
-            out.status.success(),
-            "could not build nexora-verify:\n{}",
-            String::from_utf8_lossy(&out.stderr)
-        );
-    });
-    let p = profile_dir.join("nexora-verify");
-    assert!(p.is_file(), "no offline verifier at {}", p.display());
-    p
+    static VERIFIER: std::sync::OnceLock<std::path::PathBuf> = std::sync::OnceLock::new();
+    VERIFIER
+        .get_or_init(|| {
+            cargo_test_binaries::build_binaries(
+                env!("CARGO_MANIFEST_DIR"),
+                &[("aip-nexora", "nexora-verify")],
+            )
+            .expect("build the current offline verifier")
+            .remove("nexora-verify")
+            .expect("Cargo reported the requested verifier")
+        })
+        .clone()
 }
 
 /// Package a live run exactly as it happened. Nothing is substituted: the

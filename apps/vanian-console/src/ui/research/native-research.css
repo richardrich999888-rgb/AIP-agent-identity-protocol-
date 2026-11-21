@@ -1,0 +1,145 @@
+.native-research {
+  border: 1px solid var(--border, #e8e3f2);
+  border-radius: 12px;
+  background: var(--card, #fff);
+  padding: 20px;
+  color: var(--text, #171625);
+  font: inherit;
+  min-width: 0;
+}
+.native-research header,
+.native-research .native-inputs,
+.native-research .native-result-title {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+.native-research .native-source {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #683db9;
+  background: #f3edff;
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 650;
+}
+.native-research h3 {
+  font-size: 17px;
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+.native-research p {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 8px 0;
+  color: var(--muted, #655f75);
+}
+.native-research .native-inputs {
+  justify-content: flex-start;
+  align-items: flex-end;
+  margin-top: 16px;
+}
+.native-research label {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: inherit;
+}
+.native-research select,
+.native-research button {
+  height: 34px;
+  border: 1px solid var(--border, #e8e3f2);
+  border-radius: 7px;
+  padding: 0 9px;
+  background: var(--card, #fff);
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+}
+.native-research button {
+  background: #6422e8;
+  color: white;
+  border-color: #6422e8;
+  font-weight: 600;
+  cursor: pointer;
+}
+.native-research button:disabled {
+  opacity: 0.63;
+}
+.native-research .native-result {
+  margin-top: 14px;
+  border-top: 1px solid var(--border, #e8e3f2);
+  padding-top: 14px;
+}
+.native-research .native-result-title {
+  justify-content: flex-start;
+}
+.native-research .native-result b {
+  font-size: 14px;
+}
+.native-research .native-result dl {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+  gap: 10px;
+  margin: 12px 0;
+}
+.native-research dt {
+  font-size: 11px;
+  color: var(--muted, #655f75);
+  font-weight: 550;
+}
+.native-research dd {
+  margin: 4px 0;
+  font:
+    500 12px/1.4 "JetBrains Mono",
+    monospace;
+  overflow-wrap: anywhere;
+}
+.native-research summary,
+.native-research a {
+  font-size: 12px;
+  color: #7035c6;
+  cursor: pointer;
+  margin: 7px 0;
+}
+.native-research code {
+  display: block;
+  max-height: 180px;
+  overflow: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  font: 12px/1.5 monospace;
+  background: var(--canvas, #f8f7fc);
+  padding: 9px;
+  border-radius: 6px;
+}
+.native-research .native-ok {
+  color: #14765a;
+  background: #edf8f2;
+}
+.native-research .native-fail {
+  color: #a72c30;
+  background: #ffeded;
+}
+.native-research .native-ok,
+.native-research .native-fail {
+  font-size: 12px;
+  border-radius: 5px;
+  padding: 3px 7px;
+}
+@media (max-width: 520px) {
+  .native-research .native-inputs {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .native-research .native-inputs select {
+    width: 100%;
+  }
+}

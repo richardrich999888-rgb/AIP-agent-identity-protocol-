@@ -34,6 +34,13 @@ mapping. Run this adapter as the final pre-invoke hook. Do not enable later
 argument/name transformations, automatic retries, direct proxy bypasses or
 response-cache short circuits for receipted tools.
 
+With the adapter and pinned ContextForge on the Python import path, start the
+gateway with its request-scoped receipt middleware:
+
+```bash
+python -m uvicorn vanian_contextforge:create_app --factory --host 127.0.0.1 --port 8000
+```
+
 Set these through administrator-controlled service configuration. Values below
 are placeholders, never provisioned credentials:
 
@@ -100,6 +107,14 @@ The actual post-invoke hook chooses `Forwarded` or `Failed` from the gateway
 result and asks Rust to sign/fsync the JSONL receipt. Deliberate refusals with
 valid receipt fields receive `Refused` receipts. Malformed IDs or unavailable
 signing material cause explicit refusal without an invented receipt.
+
+ContextForge may reload the per-tool plugin manager during a call. The adapter
+keeps the original checked reservation in the handling HTTP request until the
+post hook consumes it. This handoff requires the same gateway configuration,
+authenticated principal, tenant, server, gateway request ID and tool. A batch
+with multiple invocations requires each invocation's original framework
+context. An unbound success returns `CANNOT_PROVE` and the reservation stays
+pending. Callers must reconcile the possible effect before considering a retry.
 
 A crash before the post hook leaves `pending`. Signing failure after actual
 dispatch returns `CANNOT_PROVE`, records `receipt_error` when the journal is

@@ -14,11 +14,12 @@
 //!              absent on tokens minted before tenancy, which belong to the
 //!              legacy tenant for revocation purposes
 
-use chrono::Utc;
+use crate::timestamps::utc_seconds;
 use jsonwebtoken::{
     decode, encode, errors::ErrorKind, Algorithm, DecodingKey, EncodingKey, Header, Validation,
 };
 use serde::{Deserialize, Serialize};
+use time::OffsetDateTime;
 use uuid::Uuid;
 
 // ── Claims ────────────────────────────────────────────────────────────────────
@@ -61,9 +62,14 @@ pub fn issue(
     tenant_id: &str,
     encoding_key: &EncodingKey,
 ) -> Result<IssueResult, String> {
-    let now = Utc::now();
-    let iat = now.timestamp();
-    let exp = iat + ttl_seconds as i64;
+    let now = OffsetDateTime::now_utc();
+    let iat = now.unix_timestamp();
+    let exp = i64::try_from(ttl_seconds)
+        .ok()
+        .and_then(|ttl| iat.checked_add(ttl))
+        .ok_or("token expiry is outside the supported range")?;
+    let expiry = OffsetDateTime::from_unix_timestamp(exp)
+        .map_err(|_| "token expiry is outside the supported range")?;
 
     let claims = Claims {
         sub: agent_id.to_owned(),
@@ -78,16 +84,10 @@ pub fn issue(
     let token = encode(&Header::new(Algorithm::EdDSA), &claims, encoding_key)
         .map_err(|e| format!("JWT encode error: {e}"))?;
 
-    let fmt = "%Y-%m-%dT%H:%M:%SZ";
-    let issued_at = now.format(fmt).to_string();
-    let expires_at = chrono::DateTime::from_timestamp(exp, 0)
-        .map(|dt| dt.format(fmt).to_string())
-        .unwrap_or_else(|| "9999-12-31T23:59:59Z".to_owned());
-
     Ok(IssueResult {
         token,
-        issued_at,
-        expires_at,
+        issued_at: utc_seconds(now),
+        expires_at: utc_seconds(expiry),
     })
 }
 
@@ -175,8 +175,21 @@ mod tests {
 
         let result = issue(AGENT_ID, "human", None, 3600, "tenant-test", &ek).unwrap();
         assert!(!result.token.is_empty());
-        assert!(result.issued_at.contains('T'));
-        assert!(result.expires_at.contains('T'));
+        let mut validation = Validation::new(Algorithm::EdDSA);
+        validation.validate_aud = false;
+        let claims = decode::<Claims>(&result.token, &dk, &validation)
+            .unwrap()
+            .claims;
+        assert_eq!(claims.exp - claims.iat, 3600);
+        for (timestamp, text) in [
+            (claims.iat, result.issued_at),
+            (claims.exp, result.expires_at),
+        ] {
+            assert_eq!(
+                text,
+                utc_seconds(OffsetDateTime::from_unix_timestamp(timestamp).unwrap())
+            );
+        }
 
         let v = verify(&result.token, &dk);
         assert!(v.valid, "token must be valid: {:?}", v.reason);
@@ -184,6 +197,20 @@ mod tests {
         assert_eq!(v.agent_id, AGENT_ID);
         assert_eq!(v.agent_type, "human");
         assert!(v.reason.is_none());
+    }
+
+    #[test]
+    fn unrepresentable_ttl_is_rejected() {
+        let key = test_keypair();
+        assert!(issue(
+            AGENT_ID,
+            "service",
+            None,
+            u64::MAX,
+            "tenant-test",
+            &key.encoding_key()
+        )
+        .is_err());
     }
 
     // ── Test 2: issue with ttl=1, wait 2s → expired ───────────────────────────

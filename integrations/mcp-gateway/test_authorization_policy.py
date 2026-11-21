@@ -11,16 +11,18 @@ import asyncio
 import json
 import os
 from pathlib import Path
+import sqlite3
 import subprocess
 import tempfile
 import unittest
 from unittest.mock import patch
 import uuid
 
-from cpex.framework import GlobalContext, HttpHeaderPayload, PluginConfig, PluginContext
-from cpex.framework.hooks.tools import ToolPreInvokePayload
+from cpex.framework import GlobalContext, HttpHeaderPayload, PluginConfig, PluginContext, TenantPluginManager
+from cpex.framework.hooks.tools import ToolHookType, ToolPostInvokePayload, ToolPreInvokePayload
+from cpex.framework.models import Config
 
-from vanian_contextforge import VanianToolReceiptPlugin
+from vanian_contextforge import ReceiptScopeMiddleware, VanianToolReceiptPlugin
 
 REPO = Path(__file__).resolve().parents[2]
 BIN = Path(os.environ.get("AIP_ASSURANCE_TEST_BIN_DIR", str(REPO / "target/debug"))).resolve()
@@ -86,13 +88,144 @@ class AuthorizationPolicy(unittest.TestCase):
                     "tools": [self.tool], "agent_principals": {"validator@example.com": self.agent},
                     "require_authorization": True, **options}))
 
-    def invoke(self, plugin, *, arguments=None, decision=None):
-        context = PluginContext(global_context=GlobalContext(
-            request_id=uuid.uuid4().hex, user={"email": "validator@example.com"}))
-        payload = ToolPreInvokePayload(name=self.tool, args=arguments or self.arguments,
+    def pre_payload(self, *, arguments=None, decision=None):
+        return ToolPreInvokePayload(name=self.tool, args=arguments or self.arguments,
             headers=HttpHeaderPayload(root={"X-AIP-Agent-Id": self.agent,
                 "X-AIP-Decision-Id": decision or self.decision, "X-AIP-Request-Id": uuid.uuid4().hex}))
-        return asyncio.run(plugin.tool_pre_invoke(payload, context))
+
+    def context(self, **changes):
+        fields = {"request_id": "gateway-request-1", "user": {"email": "validator@example.com"},
+                  "tenant_id": "bank", "server_id": "read-service"}
+        return PluginContext(global_context=GlobalContext(**{**fields, **changes}))
+
+    def invoke(self, plugin, **options):
+        return asyncio.run(plugin.tool_pre_invoke(self.pre_payload(**options), self.context()))
+
+    @staticmethod
+    async def http(handler):
+        async def endpoint(scope, receive, send):
+            return await handler()
+        return await ReceiptScopeMiddleware(endpoint)({"type": "http"}, None, None)
+
+    def post(self, name=None, **changes):
+        return ToolPostInvokePayload(name=name or self.tool, result={"isError": False, "content": [], **changes})
+
+    def assert_uncovered(self, result):
+        payload = result.modified_payload.result
+        self.assertTrue(payload["isError"])
+        self.assertEqual(payload["_meta"]["vanian"], {"receipt_persisted": False, "coverage": "CANNOT_PROVE"})
+
+    def receipts(self):
+        sink = Path(self.environment["AIP_GATEWAY_RECEIPTS"])
+        return [json.loads(line) for line in sink.read_text().splitlines()] if sink.exists() else []
+
+    def test_replaced_cpex_manager_consumes_the_original_request_reservation_once(self):
+        entry = {**self.plugin().config.model_dump(mode="json"), "hooks": ["tool_pre_invoke", "tool_post_invoke"],
+                 "mode": "sequential", "on_error": "fail"}
+        config = Config.model_validate({"plugin_dirs": [str(Path(__file__).parent.resolve())],
+            "plugin_settings": {"include_user_info": True, "parallel_execution_within_band": False}, "plugins": [entry]})
+        pre = self.pre_payload()
+        identity = self.context().global_context
+
+        async def replace_during_call():
+            first = TenantPluginManager(config)
+            await first.initialize()
+            try:
+                result, contexts = await first.invoke_hook(ToolHookType.TOOL_PRE_INVOKE, pre, identity)
+                self.assertTrue(result.continue_processing)
+                self.assertIsNotNone(result.modified_payload)
+            finally:
+                await first.shutdown()
+            second = TenantPluginManager(config)
+            await second.initialize()
+            try:
+                post, fresh = await second.invoke_hook(ToolHookType.TOOL_POST_INVOKE, self.post(), identity, contexts)
+                self.assertTrue(set(fresh).isdisjoint(contexts))
+                metadata = post.modified_payload.result["_meta"]["vanian"]
+                self.assertTrue(metadata["receipt_persisted"])
+                self.assertEqual(self.receipts(), [metadata["signed_receipt"]])
+                duplicate, _ = await second.invoke_hook(ToolHookType.TOOL_POST_INVOKE, self.post(), identity, fresh)
+                self.assert_uncovered(duplicate)
+            finally:
+                await second.shutdown()
+
+        asyncio.run(self.http(replace_during_call))
+        signed, = self.receipts()
+        verified = rust(BIN / "aip-tool-receipt", "verify", signed)
+        self.assertTrue(verified["verified"])
+        receipt = verified["receipt"]
+        self.assertEqual((receipt["agent_id"], bytes(receipt["decision_id"]).hex(), receipt["tool_id"],
+                          receipt["tool_call_id"], receipt["disposition"]), (self.agent, self.decision, self.tool,
+                          pre.headers.root["X-AIP-Request-Id"], "Forwarded"))
+        with sqlite3.connect(self.directory / "replay.sqlite3") as db:
+            self.assertEqual(db.execute("SELECT state FROM requests").fetchall(), [("Forwarded",)])
+
+    def test_other_request_and_callback_after_cancellation_cannot_use_the_reservation(self):
+        plugin, parent_context = self.plugin(), self.context()
+        async def run():
+            authorized, release = asyncio.Event(), asyncio.Event()
+            children = []
+            async def late_callback():
+                await release.wait()
+                self.assert_uncovered(await plugin.tool_post_invoke(self.post(), parent_context))
+            async def owner():
+                result = await plugin.tool_pre_invoke(self.pre_payload(), parent_context)
+                self.assertTrue(result.continue_processing)
+                children.append(asyncio.create_task(late_callback()))
+                authorized.set()
+                await asyncio.Future()
+            async def other():
+                await asyncio.wait_for(authorized.wait(), timeout=10)
+                self.assert_uncovered(await plugin.tool_post_invoke(self.post(), self.context()))
+            owner_task = asyncio.create_task(self.http(owner))
+            await self.http(other)
+            owner_task.cancel()
+            with self.assertRaises(asyncio.CancelledError):
+                await owner_task
+            release.set()
+            await asyncio.gather(*children)
+        asyncio.run(run())
+        self.assertEqual(self.receipts(), [])
+        with sqlite3.connect(self.directory / "replay.sqlite3") as db:
+            self.assertEqual(db.execute("SELECT state FROM requests").fetchall(), [("pending",)])
+
+    def test_callback_must_match_principal_tenant_server_tool_request_and_configuration(self):
+        variants = ({"user": "other@example.com"}, {"tenant_id": "other"}, {"server_id": "other"},
+                    {"request_id": "other"}, {"name": "other-tool"}, {"max_requests": 10})
+        for index, variant in enumerate(variants):
+            with self.subTest(variant=variant):
+                journal = str(self.directory / f"boundary-{index}.sqlite3")
+                before = self.plugin(replay_database=journal)
+                policy = {"max_requests": variant["max_requests"]} if "max_requests" in variant else {}
+                after = self.plugin(replay_database=journal, **policy)
+                identity = {k: v for k, v in variant.items() if k not in {"name", "max_requests"}}
+                async def changed_boundary():
+                    pre = await before.tool_pre_invoke(self.pre_payload(), self.context())
+                    self.assertTrue(pre.continue_processing)
+                    post = await after.tool_post_invoke(self.post(name=variant.get("name")), self.context(**identity))
+                    self.assert_uncovered(post)
+                asyncio.run(self.http(changed_boundary))
+        self.assertEqual(self.receipts(), [])
+
+    def test_ambiguous_batch_preserves_the_refusal_and_never_guesses_the_success(self):
+        plugin = self.plugin()
+        async def run():
+            self.assertTrue((await plugin.tool_pre_invoke(self.pre_payload(), self.context())).continue_processing)
+            refused = await plugin.tool_pre_invoke(self.pre_payload(), self.context())
+            self.assertEqual(refused.violation.code, "REPLAY_REFUSED")
+            error = await plugin.tool_post_invoke(self.post(isError=True), self.context())
+            self.assertIsNone(error.modified_payload)
+            self.assert_uncovered(await plugin.tool_post_invoke(self.post(), self.context()))
+        asyncio.run(self.http(run))
+        signed, = self.receipts()
+        self.assertEqual(signed["receipt"]["disposition"], "Refused")
+
+    def test_unwrapped_unbound_success_and_untrusted_receipt_metadata_fail_closed(self):
+        plugin = self.plugin()
+        untrusted = {"vanian": {"receipt_persisted": True}}
+        for result in (self.post(), self.post(isError=True, _meta=untrusted), self.post(isError=True, meta=untrusted)):
+            self.assert_uncovered(asyncio.run(plugin.tool_post_invoke(result, self.context())))
+        self.assertEqual(self.receipts(), [])
 
     def test_valid_signed_fixture_permits_pre_dispatch_and_replay_is_refused(self):
         plugin = self.plugin()
