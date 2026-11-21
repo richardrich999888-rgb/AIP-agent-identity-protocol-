@@ -50,7 +50,7 @@ here is PREVENTION, because no enforcement point is wired (3.1b is blocked).
 | 1 | Agent inventory | **IT / native** | 21 Nov 18:20 IST: `inventory.py` over the registry and the store's gate records (2.2, native, not P0-059). Unit 11/0/0; live 12/12. Kernel-only processes are not joined. |
 | 2 | Shadow AI | **NV** | P0-059 |
 | 3 | Ghost AI | **NV** | P0-059 |
-| 4 | Orphan AI | **NV** | P0-059 |
+| 4 | Orphan AI | **IT / native** | 21 Nov 18:35 IST: `orphan.py` + the gate's lineage check (2.4, native, not P0-059). Unit 11/0/0; live 16/16 with a real process tree under Sniffer Dog. Grants are lab-issued. |
 | 5 | Parent-child | **NV** | P0-059 |
 | 6 | Governance enforcement | **II** | The decision component is tested (3.1a); the gate wiring is blocked (3.1b) → ADVISORY |
 | 7 | Human approval | **NI** | 3.2 not started; it needs the gateway |
