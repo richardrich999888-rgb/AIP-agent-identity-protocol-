@@ -25,7 +25,7 @@ def passed(runs: Path, name: str) -> bool | None:
     t = log.read_text(errors="replace")
     if name == "policy":
         return "PASS:" in t and "FAIL:" not in t
-    if name in ("server-suite", "gate-suite"):
+    if name in ("server-suite", "gate-suite", "inventory-suite"):
         return t.rstrip().endswith("OK")
     if name == "litellm-acceptance":
         return "checks: 16 passed, 0 failed" in t
@@ -41,10 +41,11 @@ def live_result(runs: Path, name: str) -> bool | None:
 
 
 def main(runs: Path) -> int:
-    t = {n: passed(runs, n) for n in ("policy", "server-suite", "gate-suite", "litellm-acceptance", "revocation-gap", "delegation-findings", "revocation-persistence", "live-sensors")}
+    t = {n: passed(runs, n) for n in ("policy", "server-suite", "gate-suite", "inventory-suite", "litellm-acceptance", "revocation-gap", "delegation-findings", "revocation-persistence", "live-sensors")}
     kill = live_result(runs, "live-kill")
     shadow = live_result(runs, "live-shadow")
     gate_live = live_result(runs, "live-gate")
+    inv_live = live_result(runs, "live-inventory")
 
     def verified(ok, scope):
         if ok is None:
@@ -58,7 +59,10 @@ def main(runs: Path) -> int:
 
     p0059 = ("NOT_AVAILABLE", "P0-059 is BLOCKED_BY_EXTERNAL_APPROVAL (0.1, final); the native replacement is not built yet")
     rows = [
-        ("1 Agent inventory", p0059),
+        ("1 Agent inventory", verified(t["inventory-suite"] and gate_live and inv_live,
+                                      "registered agents and ids that reach the native gate: registry fields, key fingerprint, "
+                                      "last seen and declared risk rule from gate records; kernel-only processes are not joined "
+                                      "(no agent id in kernel events); no console UI yet (native, not P0-059)")),
         ("2 Shadow AI", gate(shadow and t["server-suite"],
                              "HEURISTIC class passes live with 0 false positives; CONFIRMED class and registry are P0-059 (2.3b)")),
         ("3 Ghost AI", p0059),
@@ -89,7 +93,7 @@ def main(runs: Path) -> int:
     print(f"verified {verified}/12, failed {failed}")
     (runs / "verify-summary.json").write_text(json.dumps(
         {"capabilities": [{"capability": n, "status": s, "reason": w} for n, (s, w) in rows],
-         "checks": {**t, "live-kill": kill, "live-shadow": shadow, "live-gate": gate_live}, "verified": verified, "failed": failed}, indent=1) + "\n")
+         "checks": {**t, "live-kill": kill, "live-shadow": shadow, "live-gate": gate_live, "live-inventory": inv_live}, "verified": verified, "failed": failed}, indent=1) + "\n")
     return 0 if verified == 12 else 1
 
 

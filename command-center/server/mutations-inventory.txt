@@ -1,0 +1,16 @@
+Mutation record for inventory.py (2.2), against `python3 -m unittest test_inventory.Inventory`.
+Each mutation applied alone to a copy; the suite must fail.
+
+CAUGHT   I1 signature failure counted as activity
+CAUGHT   I2 never-seen reported LOW
+CAUGHT   I3 revoked use does not raise risk
+CAUGHT   I4 engine outage counted as policy denial
+CAUGHT   I5 public key in row instead of fingerprint
+CAUGHT   I6 invalid approval ignored for risk
+SURVIVED I7 auth-stage denial counted as policy   (first run: the only auth-stage test used "replayed nonce", caught earlier)
+CAUGHT   I8 unregistered ids dropped
+
+Fix: added test_auth_stage_non_replay_denial_is_not_policy (reason taken from the live store).
+CAUGHT   I7 auth-stage denial counted as policy (rerun)
+
+Result: 8/8 caught after the fix.
