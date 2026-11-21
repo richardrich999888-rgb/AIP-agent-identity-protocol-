@@ -290,6 +290,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Sat 21 Nov 00:40 | 2.5a delegation/identity | Done (findings) | #5 and #6 attacks not refused; ADR-002 |
 | Sat 21 Nov 00:43 | 4.2a FinOps aggregation | Done | 4.2b console blocked on 0.1 |
 | Sat 21 Nov 01:29 | ADR-002 impact, ADR-001 measured, 7.1a | Done | 279 tests depend on non-Delegate delegation; lost-revocation finding measured |
+| Sat 21 Nov 06:08 | **Checkpoint Sat 06:00** | Evaluated | Phase 1: 1.1–1.4 all ticked, so the cut rule does not apply. Phase 0: 0.2a, 0.3a and 0.4 ticked; 0.1, 0.2b and 0.3b are open, blocked because the P0-059 commits are still not on the remote (checked at Sat 21 Nov 06:08 IST). The plan has no cut rule for Phase 0. Risk for Sun 06:00: of the P0 items, only 2.1a, 2.3a, 2.5a, 2.6 and 3.1a are done; the rest need P0-059. If they are still open at Sun 06:00, the rule freezes 4.x (FinOps = LiteLLM capture only; 4.1a and 4.2a already exist). |
 
 ## Iteration log
 
