@@ -196,22 +196,15 @@ impl Peer {
     }
 }
 
-/// Locate a sibling workspace binary next to the running executable.
-///
-/// Cargo exposes `CARGO_BIN_EXE_*` only for binaries of the package under
-/// test, and moving the workload and observer into this package would destroy
-/// the dependency isolation the reference exists to demonstrate. So they are
-/// found on disk, exactly as `ghost-demo` finds its agent.
-///
-/// Returns a descriptive error rather than skipping: a reference that quietly
-/// does nothing when its own binaries are missing is worse than one that stops
-/// and says which command builds them.
 /// The sibling binaries the orchestrator spawns, by package name.
 pub const SIBLING_BINARIES: [&str; 2] = ["aip-edge-observer", "aip-edge-workload"];
 
-/// Build the sibling binaries the orchestrator spawns, with the cargo and
-/// profile that built the caller, into the target directory
-/// [`sibling_binary`] searches.
+type SiblingPaths = [PathBuf; SIBLING_BINARIES.len()];
+static SIBLING_BUILD: std::sync::OnceLock<Result<SiblingPaths, String>> =
+    std::sync::OnceLock::new();
+
+/// Build the sibling binaries the orchestrator spawns with the caller's Cargo
+/// and standard debug/release profile, retaining Cargo's executable paths.
 ///
 /// # Why a library function and not a test helper
 ///
@@ -233,85 +226,118 @@ pub const SIBLING_BINARIES: [&str; 2] = ["aip-edge-observer", "aip-edge-workload
 /// evidence. `cargo build` is a no-op when the binaries are current and the
 /// correct action when they are not, so it is always run.
 ///
-/// Once per process. Returns a descriptive error rather than skipping: a
-/// reference that quietly does nothing when its own binaries are absent is
-/// worse than one that stops and names the command that builds them.
+/// Once per process. A failed build or missing/ambiguous artifact is an error;
+/// there is no fallback to an older adjacent executable after a build attempt.
 pub fn ensure_sibling_binaries() -> Result<(), EdgeError> {
-    static BUILT: std::sync::OnceLock<Result<(), String>> = std::sync::OnceLock::new();
-    BUILT
+    SIBLING_BUILD
         .get_or_init(build_sibling_binaries)
-        .clone()
-        .map_err(EdgeError::Transport)
+        .as_ref()
+        .map(|_| ())
+        .map_err(|error| EdgeError::Transport(error.clone()))
 }
 
-fn build_sibling_binaries() -> Result<(), String> {
-    let exe = std::env::current_exe().map_err(|e| format!("current_exe: {e}"))?;
-    // `<target>/<profile>/deps/<test>` for a test binary, `<target>/<profile>/<bin>`
-    // for a binary. The profile directory is the one holding `deps`, so walk
-    // up until a directory named `deps` is passed, at most one level.
-    let mut profile_dir = exe
-        .parent()
-        .ok_or_else(|| format!("{} has no parent directory", exe.display()))?
-        .to_path_buf();
-    if profile_dir.file_name().is_some_and(|n| n == "deps") {
-        profile_dir = profile_dir
-            .parent()
-            .ok_or_else(|| "deps directory has no parent".to_string())?
-            .to_path_buf();
-    }
-    let target_dir = profile_dir
-        .parent()
-        .ok_or_else(|| format!("{} has no target directory", profile_dir.display()))?
-        .to_path_buf();
-    let release = profile_dir.file_name().is_some_and(|p| p == "release");
-
+fn build_sibling_binaries() -> Result<SiblingPaths, String> {
     let cargo = std::env::var_os("CARGO").unwrap_or_else(|| "cargo".into());
-    let mut cmd = std::process::Command::new(cargo);
-    cmd.arg("build").arg("--target-dir").arg(&target_dir);
-    if release {
-        cmd.arg("--release");
-    }
+    let profile = if cfg!(debug_assertions) {
+        "dev"
+    } else {
+        "release"
+    };
+    // Cargo owns the output layout. Coverage can run tests from a build-script
+    // output directory rather than <target>/<profile>/deps, so neither the
+    // build target directory nor executable paths may be inferred from it.
+    // Inherited Cargo target/build settings remain in effect.
+    let mut cmd = Command::new(cargo);
+    cmd.current_dir(env!("CARGO_MANIFEST_DIR")).args([
+        "build",
+        "--locked",
+        "--bins",
+        "--profile",
+        profile,
+        "--message-format=json",
+    ]);
     for name in SIBLING_BINARIES {
         cmd.arg("-p").arg(name);
     }
-    let status = cmd
-        .status()
+    let output = cmd
+        .output()
         .map_err(|e| format!("could not run cargo to build {SIBLING_BINARIES:?}: {e}"))?;
-    if !status.success() {
+    if !output.status.success() {
         return Err(format!(
-            "building {SIBLING_BINARIES:?} failed; from a shell: cargo build -p {} -p {}",
-            SIBLING_BINARIES[0], SIBLING_BINARIES[1]
+            "building {SIBLING_BINARIES:?} failed:\n{}\n{}",
+            String::from_utf8_lossy(&output.stderr),
+            String::from_utf8_lossy(&output.stdout),
         ));
     }
-    for name in SIBLING_BINARIES {
-        if !profile_dir.join(name).exists() {
+    let stdout = String::from_utf8(output.stdout)
+        .map_err(|e| format!("Cargo artifact output is not UTF-8: {e}"))?;
+    let mut paths: [Vec<PathBuf>; SIBLING_BINARIES.len()] = std::array::from_fn(|_| Vec::new());
+    for message in stdout
+        .lines()
+        .filter_map(|line| serde_json::from_str::<serde_json::Value>(line).ok())
+    {
+        if message["reason"] != "compiler-artifact"
+            || message["target"]["kind"] != serde_json::json!(["bin"])
+        {
+            continue;
+        }
+        for (index, name) in SIBLING_BINARIES.iter().enumerate() {
+            if message["target"]["name"] == *name {
+                if let Some(executable) = message["executable"].as_str() {
+                    paths[index].push(PathBuf::from(executable));
+                }
+            }
+        }
+    }
+    for (name, candidates) in SIBLING_BINARIES.iter().zip(&paths) {
+        if candidates.len() != 1 {
             return Err(format!(
-                "{name} was built but did not appear in {}",
-                profile_dir.display()
+                "Cargo must report exactly one executable for {name}; found {}",
+                candidates.len()
+            ));
+        }
+        if !candidates[0].is_file() {
+            return Err(format!(
+                "Cargo reported {name} at {}, but the executable is missing",
+                candidates[0].display()
             ));
         }
     }
-    Ok(())
+    Ok(paths.map(|mut candidates| candidates.remove(0)))
 }
 
+/// Locate a sibling binary from the completed fresh build, when requested by
+/// the test harness. Deployed reference executables that did not request a
+/// Cargo build retain the adjacent-binary lookup and need no Cargo install.
 pub fn sibling_binary(name: &str) -> Result<PathBuf, EdgeError> {
+    if let Some(index) = SIBLING_BINARIES.iter().position(|known| *known == name) {
+        if let Some(built) = SIBLING_BUILD.get() {
+            let paths = built
+                .as_ref()
+                .map_err(|error| EdgeError::Transport(error.clone()))?;
+            let path = &paths[index];
+            if !path.is_file() {
+                return Err(EdgeError::Transport(format!(
+                    "freshly built {name} is missing at {}",
+                    path.display()
+                )));
+            }
+            return Ok(path.clone());
+        }
+    }
     let exe =
         std::env::current_exe().map_err(|e| EdgeError::Transport(format!("current_exe: {e}")))?;
     let mut dir = exe.parent().map(Path::to_path_buf);
-    // `target/debug/deps/<test>` and `target/debug/<bin>` are both possible
-    // homes for the caller, so try this directory and its parent.
+    // Ordinary reference binaries are installed together. This lookup is not
+    // used to locate artifacts after ensure_sibling_binaries has run.
     for _ in 0..2 {
         let Some(d) = dir else { break };
         let candidate = d.join(name);
-        if candidate.exists() {
+        if candidate.is_file() {
             return Ok(candidate);
         }
         dir = d.parent().map(Path::to_path_buf);
     }
-    // `cargo test --workspace` does not build it: a package's binaries are
-    // compiled for tests only when that package has integration tests of
-    // its own, and the sibling packages have none. The reference test
-    // harness builds them on demand; from a shell it is one command.
     Err(EdgeError::Transport(format!(
         "{name} was not found next to {}; build it with `cargo build -p {name}`",
         exe.display()

@@ -38,11 +38,10 @@ serde_json = "1.0"
 # also re-link `aip-observe` into the workload's dependency closure through
 # this crate, destroying the isolation the reference exists to demonstrate.
 #
-# The tests instead locate the binaries on disk beside the test executable, as
-# `ghost-demo` does. `cargo test --workspace` — the mandated full-suite command
-# — builds every member's bin targets, so they are present. Under a narrower
-# `cargo test -p aip-edge` they may be absent, and the harness then fails with
-# an actionable message rather than skipping silently.
+# The shared transport helper always asks Cargo to build the sibling packages
+# and retains their compiler-artifact executable paths. This keeps narrow and
+# workspace tests independent of execution order and Cargo/coverage output
+# layouts, while refusing failed builds instead of reusing stale binaries.
 
 [[bin]]
 name = "aip-edge"
