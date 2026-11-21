@@ -697,6 +697,7 @@ impl ProcfsProbe {
                 .collect(),
         );
         ObservationBatch {
+            filter_report: None,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: self.probe_id.clone(),
             batch_id,

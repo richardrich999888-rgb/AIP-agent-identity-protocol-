@@ -402,11 +402,7 @@ def main():
         state = directory(private/'collector-state')
         probe_env = {'AIP_PROBE_ID':'probe.same-run','AIP_PROBE_COLLECTOR_ENDPOINT':'127.0.0.1:1',
             'AIP_PROBE_COLLECTOR_NOISE_PUBKEY':'0'*64,'AIP_PROBE_KEY_PATH':str(private/'probe.key.json'),'AIP_PROBE_SENSORS':'sched'}
-        probe = spawn('probe-enrollment',[tools/'aip-probe'],probe_env,host=True)
-        for _ in range(50):
-            if (private/'probe.key.json').exists(): break
-            time.sleep(0.1)
-        terminate(probe)
+        command([tools/'aip-probe', 'init-transport-key', private/'probe.key.json'])
         protected_json(private/'probes.json',[{'probe_id':'probe.same-run','transport_pubkey_hex':json.loads((private/'probe.key.json').read_text())['public_hex']}])
         (private/'collector-pass').write_text(secrets.token_urlsafe(48)); (private/'collector-pass').chmod(0o600)
         collector = spawn('collector',[tools/'aip-collector'],{

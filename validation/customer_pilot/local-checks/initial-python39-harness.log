@@ -1,0 +1,141 @@
+................E....E..EE.........................E.EE....................EE.........................................................
+======================================================================
+ERROR: test_capability_timeout_retains_failure_without_starting_business (test_agent_zero_profiles.AgentZeroProfileTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_agent_zero_profiles.py", line 202, in test_capability_timeout_retains_failure_without_starting_business
+    framework_capability('fixture-image','fixture-network',self.inputs,self.public,'fixture-model')
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/hosted_agent_zero.py", line 309, in framework_capability
+    return _run_framework_capability(image,network,inputs,public,model_container,workspace,framework_name=framework_name)
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/hosted_agent_zero.py", line 345, in _run_framework_capability
+    'challenge_sha256':sha256(inputs/'capability-input.json')}
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/evidence.py", line 24, in sha256
+    return hashlib.file_digest(stream, "sha256").hexdigest()
+AttributeError: module 'hashlib' has no attribute 'file_digest'
+
+======================================================================
+ERROR: test_profile_verification_still_hashes_every_manifest_and_blob (test_agent_zero_profiles.AgentZeroProfileTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_agent_zero_profiles.py", line 164, in test_profile_verification_still_hashes_every_manifest_and_blob
+    self.assertEqual(preparation.verify_model(models,NEW_PROFILE),manifest)
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/validation/enterprise/prepare_local_model.py", line 74, in verify_model
+    if sha(manifest) != profile['manifest_sha256']:
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/validation/enterprise/prepare_local_model.py", line 56, in sha
+    return hashlib.file_digest(stream, 'sha256').hexdigest()
+AttributeError: module 'hashlib' has no attribute 'file_digest'
+
+======================================================================
+ERROR: test_qwen3_weight_pin_is_enforced_in_addition_to_all_blob_hashes (test_agent_zero_profiles.AgentZeroProfileTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_agent_zero_profiles.py", line 139, in test_qwen3_weight_pin_is_enforced_in_addition_to_all_blob_hashes
+    self.assertEqual(preparation.verify_model(models,QWEN3_AGENT_ZERO_PROFILE),manifest)
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/validation/enterprise/prepare_local_model.py", line 74, in verify_model
+    if sha(manifest) != profile['manifest_sha256']:
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/validation/enterprise/prepare_local_model.py", line 56, in sha
+    return hashlib.file_digest(stream, 'sha256').hexdigest()
+AttributeError: module 'hashlib' has no attribute 'file_digest'
+
+======================================================================
+ERROR: test_real_capability_stage_requires_actual_access_counter_increment (test_agent_zero_profiles.AgentZeroProfileTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_agent_zero_profiles.py", line 189, in test_real_capability_stage_requires_actual_access_counter_increment
+    baseline=framework_capability('fixture-image','fixture-network',self.inputs,self.public,'fixture-model')
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/hosted_agent_zero.py", line 309, in framework_capability
+    return _run_framework_capability(image,network,inputs,public,model_container,workspace,framework_name=framework_name)
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/hosted_agent_zero.py", line 345, in _run_framework_capability
+    'challenge_sha256':sha256(inputs/'capability-input.json')}
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/evidence.py", line 24, in sha256
+    return hashlib.file_digest(stream, "sha256").hexdigest()
+AttributeError: module 'hashlib' has no attribute 'file_digest'
+
+======================================================================
+ERROR: test_run_timeout_invokes_common_finalizer_and_keeps_failed_return (test_finalization.FinalizationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_finalization.py", line 250, in test_run_timeout_invokes_common_finalizer_and_keeps_failed_return
+    code, status, run_out = self.run_timeout()
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_finalization.py", line 244, in run_timeout
+    code = harness.run(config, run_out, self.checkpoint)
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/harness.py", line 399, in run
+    status["task_sha256"] = sha256(config["task"])
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/evidence.py", line 24, in sha256
+    return hashlib.file_digest(stream, "sha256").hexdigest()
+AttributeError: module 'hashlib' has no attribute 'file_digest'
+
+======================================================================
+ERROR: test_unexpected_finalizer_fault_still_cleans_every_resource (test_finalization.FinalizationTests)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_finalization.py", line 265, in test_unexpected_finalizer_fault_still_cleans_every_resource
+    code, status, run_out = self.run_timeout(RuntimeError("fixture finalizer failure"))
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_finalization.py", line 244, in run_timeout
+    code = harness.run(config, run_out, self.checkpoint)
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/harness.py", line 399, in run
+    status["task_sha256"] = sha256(config["task"])
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/evidence.py", line 24, in sha256
+    return hashlib.file_digest(stream, "sha256").hexdigest()
+AttributeError: module 'hashlib' has no attribute 'file_digest'
+
+======================================================================
+ERROR: test_framework_smokes (unittest.loader._FailedTest)
+----------------------------------------------------------------------
+ImportError: Failed to import test module: test_framework_smokes
+Traceback (most recent call last):
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 436, in _find_test_path
+    module = self._get_module_from_name(name)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/unittest/loader.py", line 377, in _get_module_from_name
+    __import__(name)
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_framework_smokes.py", line 15, in <module>
+    from framework_smokes import _command_for, child_hold_seconds, source_project_metadata, wait_start_gate
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/adapters/framework_smokes.py", line 19, in <module>
+    import tomllib
+ModuleNotFoundError: No module named 'tomllib'
+
+
+======================================================================
+ERROR: test_cleanup_fixture_is_independent_of_unreadable_host_tracefs (test_observed_framework.ObservedFrameworkControls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_observed_framework.py", line 364, in test_cleanup_fixture_is_independent_of_unreadable_host_tracefs
+    code, result = self.invoke_default_main()
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_observed_framework.py", line 345, in invoke_default_main
+    code = observer.main()
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/hosted_observer_smoke.py", line 300, in main
+    transport_key = json.loads((private / 'probe.key.json').read_text())['public_hex']
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_observed_framework.py", line 302, in read
+    return actual_read(path, *args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1256, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1242, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1110, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/5t/djnvnhyx4ng3sybn024trl680000gn/T/tmpa_821zmy/run/private/probe.key.json'
+
+======================================================================
+ERROR: test_cleanup_only_failure_is_preserved_and_returns_nonzero (test_observed_framework.ObservedFrameworkControls)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_observed_framework.py", line 349, in test_cleanup_only_failure_is_preserved_and_returns_nonzero
+    code, result = self.invoke_default_main()
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_observed_framework.py", line 345, in invoke_default_main
+    code = observer.main()
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/hosted_observer_smoke.py", line 300, in main
+    transport_key = json.loads((private / 'probe.key.json').read_text())['public_hex']
+  File "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/integrations/real_agents/tests/test_observed_framework.py", line 302, in read
+    return actual_read(path, *args, **kwargs)
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1256, in read_text
+    with self.open(mode='r', encoding=encoding, errors=errors) as f:
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1242, in open
+    return io.open(self, mode, buffering, encoding, errors, newline,
+  File "/Library/Developer/CommandLineTools/Library/Frameworks/Python3.framework/Versions/3.9/lib/python3.9/pathlib.py", line 1110, in _opener
+    return self._accessor.open(self, flags, mode)
+FileNotFoundError: [Errno 2] No such file or directory: '/private/var/folders/5t/djnvnhyx4ng3sybn024trl680000gn/T/tmp94iiwepk/run/private/probe.key.json'
+
+----------------------------------------------------------------------
+Ran 134 tests in 2.355s
+
+FAILED (errors=9)

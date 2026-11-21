@@ -35,6 +35,23 @@ silently grant. Selecting an unavailable sensor makes the real daemon fail
 startup. A successful file preflight does not prove sensor availability,
 binding completeness or healthy observation coverage.
 
+The customer pilot changes add bounded durable buffering and an explicit
+process-instance filter. Use `AIP_PROBE_SPOOL_DIR` below
+`/var/lib/aip-probe`, with positive `AIP_PROBE_SPOOL_MAX_BYTES` and
+`AIP_PROBE_SPOOL_MAX_BATCHES` limits. `AIP_PROBE_FILTER_PATH` must name an
+operator-controlled file below `/etc/aip`. The host preflight requires exact
+root-owned mode `0600` or `0640` and a maximum size of 256 KiB, then delegates
+schema validation to the installed `aip-probe validate-filter` command. Before
+the binary is installed it reports `FILTER_SCHEMA_DEFERRED`; rerun preflight
+after installation and check actual service-user readability before startup.
+
+A concrete **inactive** full-sensor candidate and its qualification procedure
+are in [FULL_SENSOR_REVIEW.md](FULL_SENSOR_REVIEW.md). The review command
+writes the proposed unit and its digest without installing or starting it.
+Automatic approval review rejected activation of the proposed privilege
+expansion; explicit disposable-runner approval and real Linux qualification
+remain pending. The installed default still refuses fanotify.
+
 ## Build a verifiable package
 
 On a connected approved build machine, from a clean reviewed source commit:
@@ -147,7 +164,9 @@ institution-controlled retention procedure.
 
 For upgrade, approve a new archive digest, back up and verify state, record a
 coverage maintenance window, uninstall software, then install the new package
-with the identical retained config. Preserve collector chain state, wrapped
+with the identical retained config. Drain any outstanding queue with the
+matching protocol binaries before a protocol upgrade; do not relabel queued
+records or change their original bytes. Preserve collector chain state, wrapped
 key, Noise key, probe transport key and auditor trust anchors. Start manually
 and prove restart continuity before accepting the rollout. No automatic
 rollback, migration, high availability or no-downtime upgrade is claimed.

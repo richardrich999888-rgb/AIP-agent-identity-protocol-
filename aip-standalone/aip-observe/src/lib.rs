@@ -71,6 +71,7 @@ pub mod perf;
 pub mod probe;
 pub mod runtime;
 pub mod sched;
+pub mod scope;
 pub mod socksend;
 pub mod sockstate;
 pub mod store;
@@ -113,9 +114,10 @@ pub use observed::{
     is_verifiable_version, tcp_flags, tcp_state, AgentAttribution, BootClockAnchor, CgroupSample,
     KernelLifecycleEvent, KernelLifecycleKind, MechanismIntegrityReport, ObservationBatch,
     ObservedEffect, ObservedExecution, ObservedProcess, SocketEndpoint, SocketProtocol,
-    SourceMechanism, WireDirection, CGROUP_PROTOCOL_VERSION, KERNEL_EVENT_DOMAIN,
-    OBSERVATION_BATCH_DOMAIN, OBSERVED_EXECUTION_DOMAIN, OBSERVED_PROCESS_DOMAIN,
-    OBSERVED_PROCESS_IDENTITY_VERSION, OBSERVE_PROTOCOL_VERSION, VERIFIABLE_PROTOCOL_VERSIONS,
+    SourceMechanism, WireDirection, CGROUP_PROTOCOL_VERSION, FILTER_PROTOCOL_VERSION,
+    KERNEL_EVENT_DOMAIN, OBSERVATION_BATCH_DOMAIN, OBSERVED_EXECUTION_DOMAIN,
+    OBSERVED_PROCESS_DOMAIN, OBSERVED_PROCESS_IDENTITY_VERSION, OBSERVE_PROTOCOL_VERSION,
+    VERIFIABLE_PROTOCOL_VERSIONS,
 };
 #[cfg(target_os = "linux")]
 pub use perf::PerfTracepoints;
@@ -132,6 +134,10 @@ pub use runtime::{
 #[cfg(target_os = "linux")]
 pub use sched::ProcessTracer;
 pub use sched::{parse_exec_record, parse_fork_record, EXEC_TRACEPOINT, FORK_TRACEPOINT};
+pub use scope::{
+    AgentFilterScope, AgentFilterTarget, BatchFilterReport, FILTER_SCOPE_VERSION,
+    MAX_FILTER_TARGETS,
+};
 #[cfg(target_os = "linux")]
 pub use socksend::SockSendTracer;
 pub use socksend::{parse_sock_send_record, SOCK_SEND_TRACEPOINT};

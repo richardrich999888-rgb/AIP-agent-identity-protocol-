@@ -403,6 +403,9 @@ pub struct CollectorSigner {
     /// continuity is not verified — coverage is never asserted across a gap.
     attested_coverage: Option<CoverageWindow>,
     recovering: bool,
+    /// Production collector startup time. Buffered history remains evidence,
+    /// but cannot retroactively establish a live coverage epoch before this.
+    coverage_not_before_ms: Option<u64>,
     last_batch_id: Option<[u8; 16]>,
     // Stage 6.5
     probe_policy: ProbePolicy,
@@ -504,6 +507,7 @@ impl CollectorSigner {
             ledger: ObserverLedger::new(),
             attested_coverage: None,
             recovering: false,
+            coverage_not_before_ms: None,
             last_batch_id: None,
             probe_policy: ProbePolicy::Open,
             registry: HashMap::new(),
@@ -585,6 +589,19 @@ impl CollectorSigner {
         self.probe_policy = ProbePolicy::RegisteredOnly;
         self.registry
             .insert(probe_id.to_string(), mechanisms.iter().copied().collect());
+    }
+
+    /// Bound the next live coverage epoch at a collector-controlled time.
+    /// Daemons call this after each startup; deterministic/offline users may
+    /// supply an explicit boundary. Observation bytes are never rewritten.
+    pub fn begin_live_coverage_epoch(&mut self, not_before_ms: u64) {
+        self.coverage_not_before_ms = Some(
+            self.coverage_not_before_ms
+                .map_or(not_before_ms, |previous| previous.max(not_before_ms)),
+        );
+        self.attested_coverage = None;
+        self.covered_by = None;
+        self.recovering = true;
     }
 
     /// Record that the probe restarted. Continuity is not re-established by a
@@ -768,6 +785,7 @@ impl CollectorSigner {
                     ObserverState::ContinuityUnverified
                 }
             }
+            ContinuityStatus::Verified if self.recovering => ObserverState::Recovering,
             ContinuityStatus::Verified => ObserverState::Active,
         }
     }
@@ -826,7 +844,7 @@ impl CollectorSigner {
         }
         if let Some(prev_last) = self.last_probe_seq_last {
             let expected_first = prev_last + 1;
-            let has_content = !batch.observations.is_empty() || !batch.kernel_events.is_empty();
+            let has_content = batch.has_stream_records();
             if has_content && batch.probe_seq_first != expected_first {
                 self.probe_faults
                     .push(ProbeStreamFault::SequenceDiscontinuity {
@@ -836,7 +854,7 @@ impl CollectorSigner {
             }
         }
         self.last_probe_run = Some(batch.probe_run_id);
-        if !batch.observations.is_empty() || !batch.kernel_events.is_empty() {
+        if batch.has_stream_records() {
             self.last_probe_seq_last = Some(batch.probe_seq_last);
         }
     }
@@ -869,6 +887,11 @@ impl ObserverAttestor for CollectorSigner {
                 "probe_seq_first > probe_seq_last",
             ));
         }
+        if !batch.content_fits_version() {
+            return Err(AttestError::MalformedBatch(
+                "batch content is invalid for its protocol version or scope",
+            ));
+        }
         self.check_registry(&batch)?;
         self.absorb_mechanism_reports(&batch);
         let faults_before = self.probe_faults.len();
@@ -899,8 +922,19 @@ impl ObserverAttestor for CollectorSigner {
             .mechanism_integrity
             .values()
             .any(|integrity| !integrity.is_capable());
+        let coverage_from_ms = batch
+            .claimed_from_ms
+            .max(self.coverage_not_before_ms.unwrap_or(0));
+        let eligible_live_window = batch.claimed_to_ms >= coverage_from_ms;
         match admission {
-            _ if integrity_unknown || faulted_now || !self.probe_faults.is_empty() => {
+            // Signed health currently has no process scope. Attesting a selected
+            // stream must therefore never emit host-wide continuous coverage.
+            _ if !eligible_live_window
+                || batch.filter_report.is_some()
+                || integrity_unknown
+                || faulted_now
+                || !self.probe_faults.is_empty() =>
+            {
                 self.attested_coverage = None;
                 self.covered_by = None;
             }
@@ -911,7 +945,7 @@ impl ObserverAttestor for CollectorSigner {
                         to_ms: batch.claimed_to_ms.max(w.to_ms),
                     },
                     None => CoverageWindow {
-                        from_ms: batch.claimed_from_ms,
+                        from_ms: coverage_from_ms,
                         to_ms: batch.claimed_to_ms,
                     },
                 });
@@ -930,7 +964,7 @@ impl ObserverAttestor for CollectorSigner {
                 // fresh coverage epoch; it does not back-fill the gap.
                 self.recovering = false;
                 self.attested_coverage = Some(CoverageWindow {
-                    from_ms: batch.claimed_from_ms,
+                    from_ms: coverage_from_ms,
                     to_ms: batch.claimed_to_ms,
                 });
                 self.covered_by = Some(batch.active_mechanisms.clone());

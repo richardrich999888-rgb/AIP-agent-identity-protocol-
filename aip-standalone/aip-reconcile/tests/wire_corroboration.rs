@@ -316,6 +316,7 @@ fn raw_batch(
         mechanisms.push(SourceMechanism::WireTapAfPacket);
     }
     ObservationBatch {
+        filter_report: None,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: PROBE_ID.into(),
         batch_id: [id; 16],

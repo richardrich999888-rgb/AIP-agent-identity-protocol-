@@ -1,0 +1,39 @@
+{
+  "status": "NOT_READY",
+  "local_platform": "macOS",
+  "focused_rust": {
+    "passed": 350,
+    "failed": 0,
+    "ignored": 1
+  },
+  "python_agent_harness": {
+    "passed": 138
+  },
+  "packaging": {
+    "passed": 24
+  },
+  "harness_build": {
+    "passed": 3
+  },
+  "collector_release": {
+    "passed": 25
+  },
+  "spool_checkpoint": {
+    "passed": 26
+  },
+  "strict_clippy_on_changed_packages": "PASS (Mac compiler warnings retained; Linux -D warnings still required)",
+  "legacy_archives": {
+    "batches": 93,
+    "health": 6,
+    "verified": true
+  },
+  "linux_ci": "PENDING",
+  "full_sensor_service": "BLOCKED_APPROVAL",
+  "separate_administration": "BLOCKED_INFRASTRUCTURE",
+  "fresh_customer_pilot_workload": "NOT_RUN",
+  "limitations": [
+    "Mac sensor-dependent cases return unavailable and are not Linux runtime validation.",
+    "Full workspace Mac check fails on Linux-only SYS_clone3; full suite must run on Linux.",
+    "Spool and collector release counts overlap the focused Rust suite; do not sum these totals."
+  ]
+}

@@ -123,6 +123,7 @@ fn fixture() -> Fixture {
         let start = now + (u64::from(i) - 1) * 10;
         let end = now + u64::from(i) * 10;
         let batch = ObservationBatch {
+            filter_report: None,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: "probe.test".into(),
             batch_id: [i; 16],

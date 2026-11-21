@@ -18,11 +18,11 @@ const PROBE: &str = "probe-cgroup-wire";
 /// every version sealed in committed evidence or retire that evidence
 /// explicitly (`tests/sealed_archives.rs` fails until one is done).
 #[test]
-fn the_protocol_version_is_thirteen_and_twelve_stays_verifiable() {
-    assert_eq!(OBSERVE_PROTOCOL_VERSION, 13);
+fn structural_attribution_stays_verifiable_after_scope_version() {
+    assert_eq!(OBSERVE_PROTOCOL_VERSION, 14);
     assert_eq!(CGROUP_PROTOCOL_VERSION, 13);
-    assert_eq!(VERIFIABLE_PROTOCOL_VERSIONS, [12, 13]);
-    assert!(!is_verifiable_version(11) && !is_verifiable_version(14));
+    assert_eq!(VERIFIABLE_PROTOCOL_VERSIONS, [12, 13, 14]);
+    assert!(!is_verifiable_version(11) && !is_verifiable_version(15));
     // The identity tuple did not change in 13, so neither does its digest.
     assert_eq!(OBSERVED_PROCESS_IDENTITY_VERSION, 12);
 }
@@ -80,6 +80,7 @@ fn attach() -> KernelLifecycleKind {
 fn attested(f: &mut Fx, events: Vec<KernelLifecycleEvent>) -> AttestedBatch {
     let mut b = f.probe.batch([1; 16], 100, 200, vec![]);
     for (i, mut e) in events.into_iter().enumerate() {
+        e.version = b.version;
         e.probe_seq = b.probe_seq_first + i as u64;
         b.kernel_events.push(e);
     }
@@ -247,7 +248,7 @@ fn a_batch_mixing_event_versions_is_refused() {
         sign_ed25519(&f.kp.private_key, OBSERVER, &mixed.signing_preimage()).unwrap();
     assert_eq!(
         verify_attested_batch(&mixed, &f.anchors),
-        Err(VerifyError::ContentNotInVersion(13))
+        Err(VerifyError::ContentNotInVersion(OBSERVE_PROTOCOL_VERSION))
     );
 }
 

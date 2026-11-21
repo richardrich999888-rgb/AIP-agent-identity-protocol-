@@ -103,10 +103,7 @@ echo -n "pilot-e2e-passphrase" > "$W/pass"
 # written with it, and the collector starts once against a real list.
 
 step "Generate the probe's transport-auth key (the probe holds no evidence key)"
-env AIP_PROBE_ID=probe.pilot.e2e AIP_PROBE_COLLECTOR_ENDPOINT="127.0.0.1:1" \
-    AIP_PROBE_COLLECTOR_NOISE_PUBKEY="$(printf '0%.0s' $(seq 1 64))" \
-    AIP_PROBE_KEY_PATH="$W/probe.key.json" AIP_PROBE_SENSORS=sched \
-    timeout 4 "$REPO/target/debug/aip-probe" > "$W/probe.keygen.log" 2>&1
+"$REPO/target/debug/aip-probe" init-transport-key "$W/probe.key.json" > "$W/probe.keygen.log" 2>&1
 [ -s "$W/probe.key.json" ] || { cat "$W/probe.keygen.log"; die "probe did not generate a transport key"; }
 PROBE_PUB=$(python3 -c "import json;print(json.load(open('$W/probe.key.json'))['public_hex'])")
 printf '[{"probe_id":"probe.pilot.e2e","transport_pubkey_hex":"%s"}]\n' "$PROBE_PUB" > "$W/probes.json"

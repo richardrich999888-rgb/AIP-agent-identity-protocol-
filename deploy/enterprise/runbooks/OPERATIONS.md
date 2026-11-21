@@ -89,10 +89,18 @@ not proof that the agent did nothing.
 
 ## Reliability, backup and restore
 
-The collector fsyncs each archived attestation before acknowledgement and
-persists continuity state. The probe currently has **no durable resend
-buffer**: collector downtime can lose observations and must be reported as a
-gap. The collector uses one blocking thread per connection; systemd's task
+The probe now persists each serialized batch in a private bounded queue before
+network delivery. Collection continues while delivery reconnects. An authenticated
+collector acknowledgement removes the queued record only after the collector
+persists its signed archive and continuity state. Lost acknowledgements replay
+the original bytes; an identical committed batch receives its existing receipt.
+Queue exhaustion, corruption and storage failure stop collection explicitly;
+they never evict observations to keep the dashboard green. A probe stop or
+collector restart remains an observation-coverage boundary. Delayed batches
+retain their original timestamps and cannot backfill the new collector epoch.
+See [buffering and recovery](../linux/BUFFERING.md) for limits and refusal handling.
+
+The collector uses one blocking thread per connection; systemd's task
 limit bounds process resource use but is **not** a validated bounded worker
 pool or high-availability service. Restrict network ingress to approved probe
 hosts and test pressure/loss/restart behavior before an institutional pilot.
@@ -116,8 +124,18 @@ daemon package does not expose a PKCS#11/HSM configuration switch. A certified
 bank HSM, KMS adapter, key ceremony and key backup are not validated by this
 installer. Gateway and service signing keys are separate authorities too.
 
-The host sensor has no per-agent process filter. Procfs executable/path hashes,
-network addresses, process/container identifiers and file-event metadata can
-be operationally sensitive even without payload bytes. No transaction
-payload, model prompt or response is collected by default. Approve host and
-mount/interface scope with the institution's privacy officer before startup.
+The probe supports an optional immutable per-agent retention filter. Enroll
+exact live process instances using their boot identity, process start time,
+executable digest and measured namespaces. Filtering happens before queueing
+and export. The signed batch declares the selection and excluded/unassigned
+record counts; operator labels remain claims. A filtered stream does not grant
+host-wide completeness or absence claims. Process restarts and descendants
+require explicit enrollment. See [filter enrollment](../linux/FILTERING.md).
+
+Kernel acquisition still runs over the approved host/mount/interface scopes.
+Procfs executable/path hashes, network addresses, process/container identifiers
+and file-event metadata can be operationally sensitive even without payload
+bytes. No transaction payload, model prompt or response is collected by default.
+Approve both acquisition and retained scope before startup. Full sensor systemd
+installation remains pending the reviewed privilege profile and actual Linux
+qualification; an inactive generated profile is not a deployment result.

@@ -204,6 +204,7 @@ fn batch_with(
     signer()
         .attest_at(
             ObservationBatch {
+                filter_report: None,
                 version: OBSERVE_PROTOCOL_VERSION,
                 probe_id: PROBE_ID.into(),
                 batch_id: [7; 16],
@@ -239,6 +240,7 @@ fn signed_batch(events: Vec<KernelLifecycleEvent>) -> (AttestedBatch, String) {
     let attested = s
         .attest_at(
             ObservationBatch {
+                filter_report: None,
                 version: OBSERVE_PROTOCOL_VERSION,
                 probe_id: PROBE_ID.into(),
                 batch_id: [7; 16],

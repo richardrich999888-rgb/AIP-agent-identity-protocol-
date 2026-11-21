@@ -84,6 +84,7 @@ fn verify_batches(
             final_head: None,
             observations: 0,
             kernel_events: 0,
+            scoped_batches: 0,
         };
     }
 
@@ -147,6 +148,10 @@ fn verify_batches(
             .iter()
             .map(|l| l.record.batch.kernel_events.len())
             .sum(),
+        scoped_batches: lines
+            .iter()
+            .filter(|l| l.record.batch.filter_report.is_some())
+            .count(),
     }
 }
 

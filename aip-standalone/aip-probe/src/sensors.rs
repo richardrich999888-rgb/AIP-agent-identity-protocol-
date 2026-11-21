@@ -452,7 +452,13 @@ impl SensorSet {
     }
 
     #[cfg(not(target_os = "linux"))]
-    pub fn open(_probe_id: &str, _cfg: SensorConfig) -> Result<Self, String> {
+    pub fn open(_probe_id: &str, cfg: SensorConfig) -> Result<Self, String> {
+        if cfg.fanotify {
+            if cfg.fanotify_path.is_none() {
+                return Err("sensor fanotify requires AIP_PROBE_FANOTIFY_PATH".into());
+            }
+            return Err("cannot open fanotify: Linux and CAP_SYS_ADMIN are required; this platform has no supported sensor".into());
+        }
         Err("aip-probe requires Linux (perf tracepoints); this build cannot open sensors".into())
     }
 

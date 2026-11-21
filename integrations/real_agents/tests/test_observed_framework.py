@@ -301,6 +301,9 @@ class ObservedFrameworkControls(unittest.TestCase):
                 return 'sched:sched_process_exec\ncgroup:cgroup_attach_task\nsock:sock_send_length\n'
             return actual_read(path, *args, **kwargs)
         def command(args, **kwargs):
+            if Path(args[0]).name == 'aip-probe' and args[1] == 'init-transport-key':
+                Path(args[2]).write_text(json.dumps({'public_hex': '11' * 32}))
+                return '11' * 32 + '\n'
             if str(args[0]) == 'timedatectl':
                 if primary_failure:
                     raise Refused('fixture primary failure')
@@ -313,9 +316,7 @@ class ObservedFrameworkControls(unittest.TestCase):
             return ''
         def popen(args, **kwargs):
             name = Path(args[0]).name
-            if name == 'aip-probe':
-                (out / 'private/probe.key.json').write_text(json.dumps({'public_hex': '11' * 32}))
-            elif name == 'aip-collector':
+            if name == 'aip-collector':
                 state = out / 'private/state'
                 (state / 'noise.pub').write_text('22' * 32)
                 (state / 'observer.pub').write_text('33' * 32)

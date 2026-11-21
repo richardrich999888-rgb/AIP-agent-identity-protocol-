@@ -111,6 +111,10 @@ fn print_text(r: &ChainReport) {
         );
         println!("  observations       : {}", b.observations);
         println!("  kernel events      : {}", b.kernel_events);
+        if b.scoped_batches > 0 {
+            println!("  scoped batches     : {}", b.scoped_batches);
+            println!("  retention scope    : selected process instances; excluded/unassigned records are declared in signed batches; no host-wide completeness claim");
+        }
     }
 
     if let Some(h) = &r.health {

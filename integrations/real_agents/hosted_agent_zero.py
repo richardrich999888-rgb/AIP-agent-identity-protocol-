@@ -619,11 +619,7 @@ def main():
             'AIP_PROBE_COLLECTOR_ENDPOINT':'127.0.0.1:1','AIP_PROBE_COLLECTOR_NOISE_PUBKEY':'0'*64,
             'AIP_PROBE_SENSORS':'sched'}
         bootstrap_log=(private/'bootstrap.log').open('wb')
-        bootstrap=subprocess.Popen([str(tools/'aip-probe')],env={'PATH':os.environ['PATH'],**probe_env},stdout=bootstrap_log,stderr=bootstrap_log)
-        for _ in range(50):
-            if (private/'probe.key.json').exists(): break
-            time.sleep(0.1)
-        terminate(bootstrap); bootstrap=None
+        command([tools/'aip-probe', 'init-transport-key', private/'probe.key.json'])
         transport=json.loads((private/'probe.key.json').read_text())['public_hex']
         private_json(private/'probes.json',[{'probe_id':probe_env['AIP_PROBE_ID'],'transport_pubkey_hex':transport}])
         collector_env={'AIP_COLLECTOR_OBSERVER_ID':'collector.hosted-'+('agent-zero' if args.framework=='agent_zero' else args.framework),'AIP_COLLECTOR_KEY_VERSION':'1',

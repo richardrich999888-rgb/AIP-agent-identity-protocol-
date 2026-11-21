@@ -27,6 +27,8 @@ BINARIES = ("aip-probe", "aip-collector", "aip-observe-verify")
 TARGETS = {"x86_64-unknown-linux-gnu": 62, "aarch64-unknown-linux-gnu": 183}
 MAX_FILE = 256 * 1024 * 1024
 MAX_TOTAL = 768 * 1024 * 1024
+MAX_FILTER_BYTES = 256 * 1024
+INSTALLED_PROBE = Path("/opt/vanian/snifferdog/bin/aip-probe")
 SENSORS = {
     "sched": ("sched/sched_process_fork", "sched/sched_process_exec"),
     "cgroup": ("cgroup/cgroup_mkdir", "cgroup/cgroup_rmdir", "cgroup/cgroup_attach_task"),
@@ -37,6 +39,7 @@ SENSORS = {
 PROBE_KEYS = {
     "ID", "COLLECTOR_ENDPOINT", "COLLECTOR_NOISE_PUBKEY", "KEY_PATH", "SENSORS",
     "FANOTIFY_PATH", "AFPACKET_INTERFACE", "BATCH_INTERVAL_MS",
+    "FILTER_PATH", "SPOOL_DIR", "SPOOL_MAX_BYTES", "SPOOL_MAX_BATCHES",
 }
 COLLECTOR_KEYS = {
     "OBSERVER_ID", "KEY_VERSION", "KEY_PATH", "PASSPHRASE_FILE", "CONTINUITY",
@@ -189,9 +192,30 @@ def parse_config(path, role):
         if not sensors or len(set(sensors)) != len(sensors) or set(sensors) - set(SENSORS):
             fail("unknown, duplicate or empty sensor selection")
         if "fanotify" in sensors:
-            # The shipped pilot systemd unit lacks CAP_SYS_ADMIN and hides
-            # mounts. Never install a sensor/unit combination that cannot run.
-            fail("fanotify needs an institution-reviewed systemd override; not supported by this installer")
+            path = config.get(prefix + "FANOTIFY_PATH", "")
+            if (not path or not re.fullmatch(r"/[A-Za-z0-9_./-]+", path)
+                    or str(Path(path)) != path or ".." in Path(path).parts
+                    or path in {"/", "/home", "/var", "/var/lib", "/srv", "/mnt", "/opt"}
+                    or any(Path(path).is_relative_to(root) for root in (
+                        "/proc", "/sys", "/dev", "/etc", "/usr", "/bin", "/sbin", "/lib",
+                        "/lib64", "/run", "/tmp", "/var/tmp"))):
+                fail("fanotify requires an explicit dedicated workload mount path, not a system tree or shared temporary directory")
+        elif prefix + "FANOTIFY_PATH" in config:
+            fail("FANOTIFY_PATH requires the fanotify sensor")
+        if "afpacket" in sensors:
+            interface = config.get(prefix + "AFPACKET_INTERFACE", "")
+            if not re.fullmatch(r"[A-Za-z0-9_.-]{1,15}", interface) or interface in {".", ".."}:
+                fail("afpacket requires an explicit interface name (at most 15 characters)")
+        elif prefix + "AFPACKET_INTERFACE" in config:
+            fail("AFPACKET_INTERFACE requires the afpacket sensor")
+        for name, default in (("SPOOL_MAX_BYTES", "268435456"), ("SPOOL_MAX_BATCHES", "10000")):
+            value = config.get(prefix + name, default)
+            if not value.isdigit() or not 1 <= int(value) <= 2**63 - 1:
+                fail(f"{prefix + name} must be a bounded positive integer")
+        if prefix + "FILTER_PATH" in config:
+            path = Path(config[prefix + "FILTER_PATH"])
+            if not path.is_relative_to("/etc/aip") or path == Path("/etc/aip"):
+                fail("FILTER_PATH must name an operator-controlled file below /etc/aip")
         endpoint = config[prefix + "COLLECTOR_ENDPOINT"]
         host, separator, port = endpoint.rpartition(":")
         if not separator or not host or not port.isdigit() or not 1 <= int(port) <= 65535:
@@ -206,8 +230,9 @@ def parse_config(path, role):
             loopback = host.lower() in {"localhost", "localhost.localdomain", socket.gethostname().lower()}
         if loopback:
             fail("enterprise collector endpoint must be a separate host")
-        if int(config.get(prefix + "BATCH_INTERVAL_MS", "2000")) < 100:
-            fail("batch interval must be at least 100 ms")
+        interval = config.get(prefix + "BATCH_INTERVAL_MS", "2000")
+        if not interval.isdigit() or not 100 <= int(interval) <= 60000:
+            fail("batch interval must be between 100 and 60000 ms")
     else:
         if prefix + "PASSPHRASE_FILE" in config:
             fail("this installer requires the systemd collector-passphrase credential, not PASSPHRASE_FILE")
@@ -223,7 +248,7 @@ def parse_config(path, role):
     # Keep writable files inside the paths the reused systemd sandbox permits.
     state_root = Path(f"/var/lib/aip-{role}")
     for key, value in config.items():
-        if key.endswith(("KEY_PATH", "STATE_DIR", "ATTESTED_ARCHIVE_PATH")):
+        if key.endswith(("KEY_PATH", "STATE_DIR", "ATTESTED_ARCHIVE_PATH", "SPOOL_DIR")):
             if not Path(value).is_relative_to(state_root):
                 fail(f"{key} must be below {state_root} for the shipped unit")
     return config
@@ -245,6 +270,14 @@ def preflight(args):
                 for item in ("id", "format"):
                     if not os.access(trace_root / tracepoint / item, os.R_OK):
                         fail(f"BLOCKED: unreadable tracepoint {tracepoint}/{item}")
+        if "fanotify" in config["AIP_PROBE_SENSORS"].split(","):
+            approved_mount(config["AIP_PROBE_FANOTIFY_PATH"])
+        if "afpacket" in config["AIP_PROBE_SENSORS"].split(","):
+            interface = config["AIP_PROBE_AFPACKET_INTERFACE"]
+            if not (Path("/sys/class/net") / interface).is_dir():
+                fail(f"BLOCKED: configured packet interface is absent: {interface}")
+        if "AIP_PROBE_FILTER_PATH" in config:
+            filter_preflight(Path(config["AIP_PROBE_FILTER_PATH"]))
         print("PREREQUISITES_PRESENT: actual sensor open/coverage must still pass under the service identity")
     else:
         result = subprocess.run(["timedatectl", "show", "--property=NTPSynchronized", "--value"],
@@ -252,6 +285,137 @@ def preflight(args):
         if result.returncode or result.stdout.strip() != "yes":
             fail("BLOCKED: clock synchronization not established")
         print("PREREQUISITES_PRESENT: collector independently checks kernel clock discipline at startup")
+
+
+
+def private_filter_metadata(metadata):
+    """The operator owns the enrollment; the daemon may receive group read."""
+    if metadata.st_uid != 0 or (metadata.st_mode & 0o7777) not in {0o600, 0o640}:
+        fail("BLOCKED: filter must be root-owned with exact mode 0600 or 0640")
+    if metadata.st_size > MAX_FILTER_BYTES:
+        fail("BLOCKED: filter exceeds the 256 KiB runtime limit")
+
+
+def filter_preflight(path, probe_binary=INSTALLED_PROBE):
+    # This is enrollment validation, not process or sensor observation. The
+    # installed probe's parser remains the single authority for the schema.
+    if path.is_symlink() or not path.is_file() or path.resolve() != path:
+        fail("BLOCKED: filter must be a regular canonical file without symlinks")
+    private_filter_metadata(path.stat())
+    with path.open("rb") as stream:
+        raw = stream.read(MAX_FILTER_BYTES + 1)
+    if len(raw) > MAX_FILTER_BYTES:
+        fail("BLOCKED: filter exceeds the 256 KiB runtime limit")
+    try:
+        json.loads(raw)
+    except (ValueError, UnicodeDecodeError):
+        fail("BLOCKED: filter is not valid JSON")
+    if not probe_binary.exists() and not probe_binary.is_symlink():
+        print("FILTER_SCHEMA_DEFERRED: install the independently verified package, then rerun host preflight before starting the probe")
+        return
+    if probe_binary.is_symlink() or not probe_binary.is_file() or not os.access(probe_binary, os.X_OK):
+        fail("BLOCKED: installed probe must be a regular executable; filter schema validation did not run")
+    result = subprocess.run([str(probe_binary), "validate-filter", str(path)],
+                            capture_output=True, text=True, timeout=10, check=False,
+                            env={"PATH": os.defpath})
+    if result.returncode:
+        # Do not echo arbitrary binary diagnostics or enrollment identifiers.
+        fail("BLOCKED: installed probe refused the filter schema; validate-filter must pass before service startup")
+    print("FILTER_SCHEMA_VALIDATED: installed probe accepted enrollment; service-user access and live target identity still require runtime checks")
+
+
+def approved_mount(path, mountinfo="/proc/self/mountinfo"):
+    """Require a distinct, exact workload mount; a subdirectory marks its entire mount."""
+    location = Path(path)
+    if not location.is_dir() or location.resolve() != location:
+        fail("BLOCKED: fanotify path must be an existing canonical directory, without symlinks")
+    mounts = []
+    for line in Path(mountinfo).read_text().splitlines():
+        fields = line.split()
+        if len(fields) < 10 or "-" not in fields:
+            fail("BLOCKED: malformed mountinfo")
+        # Config refuses spaces/backslashes, including mountinfo escapes.
+        mounts.append((fields[2], fields[3], fields[4]))
+    selected = [item for item in mounts if item[2] == path]
+    if len(selected) != 1 or selected[0][1] != "/":
+        fail("BLOCKED: fanotify path must be the root of a dedicated mounted filesystem")
+    device = selected[0][0]
+    if any(item[0] == device and item[2] != path for item in mounts):
+        fail("BLOCKED: fanotify filesystem is also mounted elsewhere; approve a dedicated workload filesystem")
+    return selected[0]
+
+
+def proposed_probe_unit(template, config):
+    """REVIEW ONLY: this profile is never selected by install().
+
+    The host-mount lookup is a candidate requiring actual kernel/systemd
+    qualification. A generated profile cannot prove effective privileges or
+    file-event coverage. Preserve existing installed defaults until approval.
+    """
+    sensors = config["AIP_PROBE_SENSORS"].split(",")
+    # READ-mode procfs access checks for other UIDs require SYS_PTRACE; content
+    # measurement may also need read-only DAC bypass. Neither allows DAC writes.
+    capabilities = ["CAP_DAC_READ_SEARCH", "CAP_SYS_PTRACE"]
+    if any(SENSORS[sensor] for sensor in sensors):
+        capabilities.append("CAP_PERFMON")
+    if "connector" in sensors:
+        capabilities.append("CAP_NET_ADMIN")
+    if "fanotify" in sensors:
+        capabilities.append("CAP_SYS_ADMIN")
+    if "afpacket" in sensors:
+        capabilities.append("CAP_NET_RAW")
+    # Template comments describe the currently installed profile, not this
+    # proposal. Keep directives and place the review warning first.
+    template = "\n".join(line for line in template.splitlines() if not line.lstrip().startswith("#")) + "\n"
+    unit = "# REVIEW ONLY: not installed by package.py; approval and Linux qualification pending.\n" + template.replace("/usr/local/bin/", "/opt/vanian/snifferdog/bin/")
+    unit = re.sub(r"(?m)^(AmbientCapabilities|CapabilityBoundingSet)=.*$",
+                  lambda match: match.group(1) + "=" + " ".join(capabilities), unit)
+    families = ["AF_INET", "AF_INET6"]
+    if "connector" in sensors:
+        families.append("AF_NETLINK")
+    if "afpacket" in sensors:
+        families.append("AF_PACKET")
+    unit = re.sub(r"(?m)^RestrictAddressFamilies=.*$", "RestrictAddressFamilies=" + " ".join(families), unit)
+    # Do not disable mount namespace hardening. Syscall restrictions additionally
+    # deny mutation APIs, but are not a proof that all uses of broad capabilities
+    # are safe; e.g. read visibility and BPF integrity queries remain privileged.
+    controls = ("RestrictNamespaces=yes\nRestrictSUIDSGID=yes\n"
+                "SystemCallArchitectures=native\nSystemCallErrorNumber=EPERM\n"
+                "SystemCallFilter=~@mount @reboot @swap @module @raw-io @clock ptrace process_vm_writev pidfd_getfd\n"
+                "MemoryDenyWriteExecute=yes\n")
+    unit = unit.replace("NoNewPrivileges=yes\n", "NoNewPrivileges=yes\n" + controls)
+    unit = unit.replace("[Service]\n", "[Service]\nMemoryMax=512M\nTasksMax=128\nLimitNOFILE=8192\nCPUQuota=100%\nUMask=0077\n")
+    if "fanotify" in sensors:
+        # /proc/1/root resolves the root/mount view of PID 1. Whether this marks
+        # the correct host vfsmount from the systemd service must be qualified
+        # with a host-origin file write and negative alternate-mount test.
+        host_path = "/proc/1/root" + config["AIP_PROBE_FANOTIFY_PATH"]
+        unit = re.sub(r"(?m)^ExecStart=(.+)$",
+                      lambda match: "ExecStart=/usr/bin/env AIP_PROBE_FANOTIFY_PATH=" + host_path + " " + match.group(1), unit)
+        unit = unit.replace("[Unit]\n", "[Unit]\nRequiresMountsFor=" + config["AIP_PROBE_FANOTIFY_PATH"] + "\n")
+    return unit
+
+
+def review_probe_unit(args):
+    """Create an inert review artifact. No service, capability or mount is changed."""
+    manifest, package = verified_package(args.archive, args.expected_sha256)
+    config = parse_config(args.config, "probe")
+    proposed = proposed_probe_unit(package["systemd/aip-probe.service"][0].decode(), config)
+    review = {"format": "vanian-probe-unit-review-v1", "status": "NEEDS_SECURITY_PROFILE_APPROVAL",
+              "installable_by_this_tool": False, "source_commit": manifest["source_commit"],
+              "package_sha256": args.expected_sha256.lower(), "unit_sha256": digest(proposed.encode()),
+              "sensors": config["AIP_PROBE_SENSORS"].split(","),
+              "fanotify_mount": config.get("AIP_PROBE_FANOTIFY_PATH"),
+              "packet_interface": config.get("AIP_PROBE_AFPACKET_INTERFACE"),
+              "filter_path": config.get("AIP_PROBE_FILTER_PATH"), "unit": proposed,
+              "limitations": ["Unexecuted profile: no host coverage or security qualification claimed",
+                  "CAP_SYS_ADMIN and SYS_PTRACE broaden access; separate security-owner approval required",
+                  "Host root mount reference and cross-UID measurements require actual systemd tests",
+                  "Same-administrator hosted tests do not establish independent collector custody"]}
+    output = Path(args.output)
+    with output.open("xb") as stream:
+        stream.write(canonical(review))
+    print(json.dumps({"status": review["status"], "output": str(output), "unit_sha256": review["unit_sha256"]}))
 
 
 def safe_destination(root, absolute):
@@ -283,6 +447,8 @@ def install(args):
     manifest, package = verified_package(args.archive, args.expected_sha256)
     root = installation_root(args)
     config = parse_config(args.config, args.role)
+    if args.role == "probe" and "fanotify" in config["AIP_PROBE_SENSORS"].split(","):
+        fail("full-sensor service profile is review-only pending security approval and Linux qualification; use review-probe-unit")
     if root == Path("/"):
         machine = {"x86_64": "x86_64", "aarch64": "aarch64"}.get(platform.machine())
         if not manifest["target"].startswith(str(machine) + "-"):
@@ -413,6 +579,11 @@ def main():
             command.add_argument("--config", required=True)
             command.add_argument("--root", default="/", help="existing staging directory for packaging tests only")
             command.add_argument("--confirm-separate-host", action="store_true")
+    command = commands.add_parser("review-probe-unit", help="write an inert candidate profile; never install or start it")
+    command.add_argument("--archive", required=True)
+    command.add_argument("--expected-sha256", required=True)
+    command.add_argument("--config", required=True)
+    command.add_argument("--output", required=True)
     command = commands.add_parser("preflight")
     command.add_argument("--role", choices=("probe", "collector"), required=True)
     command.add_argument("--config", required=True)
@@ -425,7 +596,7 @@ def main():
             manifest, _ = verified_package(args.archive, args.expected_sha256)
             print(json.dumps({"status": "PACKAGE_VERIFIED", "manifest": manifest}))
         else:
-            globals()[args.command](args)
+            globals()[args.command.replace("-", "_")](args)
     except (ValueError, OSError, KeyError, tarfile.TarError, subprocess.SubprocessError) as error:
         print(f"ERROR: {error}", file=sys.stderr)
         return 1

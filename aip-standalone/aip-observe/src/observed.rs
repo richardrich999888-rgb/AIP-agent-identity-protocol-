@@ -86,15 +86,20 @@ pub const KERNEL_EVENT_DOMAIN: &str = "SYNTRIASS/GHOST/KERNEL_EVENT/v1";
 ///   their sealed bytes exactly, and a record claiming an earlier version
 ///   while carrying any of them is refused ([`ObservationBatch::content_fits_version`]).
 ///
-/// Versions 1–11 never left this branch and are refused. Version 12 has
-/// been **sealed** in committed evidence and stays verifiable
+/// - `14` Customer retention scope: `ObservationBatch.filter_report` carries
+///   exact process targets and excluded/unassigned record counts inside the
+///   signed encoding. A scoped stream cannot grant host-wide coverage.
+///
+/// Versions 1–11 never left this branch and are refused. Versions 12 and 13
+/// have been **sealed** in committed evidence and stay verifiable
 /// ([`VERIFIABLE_PROTOCOL_VERSIONS`]).
-pub const OBSERVE_PROTOCOL_VERSION: u16 = 13;
+pub const OBSERVE_PROTOCOL_VERSION: u16 = 14;
+pub const FILTER_PROTOCOL_VERSION: u16 = 14;
 
 /// Every version a verifier accepts: the current one, and every earlier
 /// version under which evidence has been sealed. New records are only ever
 /// produced at [`OBSERVE_PROTOCOL_VERSION`].
-pub const VERIFIABLE_PROTOCOL_VERSIONS: [u16; 2] = [12, 13];
+pub const VERIFIABLE_PROTOCOL_VERSIONS: [u16; 3] = [12, 13, 14];
 
 /// The version that introduced in-event cgroup ids, cgroup lifecycle kinds
 /// and `ExecPermission`.
@@ -1331,6 +1336,11 @@ pub struct ObservationBatch {
     /// derived from it is `Attested` at most. `None` when the probe has no
     /// kernel-timestamped source; kernel time is then unanchored.
     pub clock_anchor: Option<BootClockAnchor>,
+    /// Explicit export/retention selection. Never establishes agent identity
+    /// or authorizes an absence claim. Missing means the legacy unfiltered
+    /// stream, not that the host itself was completely observable.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub filter_report: Option<crate::scope::BatchFilterReport>,
 }
 
 /// Three clocks read as close together as user space can. Kernel event stamps
@@ -1407,9 +1417,15 @@ impl ObservationBatch {
     pub fn content_fits_version(&self) -> bool {
         let v = self.version;
         let mech_ok = |m: &SourceMechanism| m.introduced_in() <= v;
-        self.kernel_events
-            .iter()
-            .all(|e| e.version == v && e.content_fits_version())
+        (v >= FILTER_PROTOCOL_VERSION || self.filter_report.is_none())
+            && self
+                .filter_report
+                .as_ref()
+                .is_none_or(|r| r.validate_for(self))
+            && self
+                .kernel_events
+                .iter()
+                .all(|e| e.version == v && e.content_fits_version())
             && self.observations.iter().all(|o| mech_ok(&o.mechanism))
             && self.active_mechanisms.iter().all(mech_ok)
             && self
@@ -1461,11 +1477,31 @@ impl ObservationBatch {
             }
             None => put_u8(&mut buf, 0),
         }
+        if self.version >= FILTER_PROTOCOL_VERSION {
+            match &self.filter_report {
+                Some(report) => {
+                    put_u8(&mut buf, 1);
+                    report.encode(&mut buf);
+                }
+                None => put_u8(&mut buf, 0),
+            }
+        }
         buf
     }
 
     pub fn digest(&self) -> [u8; 32] {
         sha256(&self.canonical_bytes())
+    }
+
+    /// Records consumed from the original stream, including deliberately
+    /// withheld records. Their original sequence range must still advance.
+    pub fn has_stream_records(&self) -> bool {
+        !self.observations.is_empty()
+            || !self.kernel_events.is_empty()
+            || self
+                .filter_report
+                .as_ref()
+                .is_some_and(|r| r.original_records > 0)
     }
 
     /// Every mechanism claimed anywhere in the batch: declared active, used
@@ -1513,6 +1549,7 @@ mod tests {
 
     fn empty_batch() -> ObservationBatch {
         ObservationBatch {
+            filter_report: None,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: "probe-1".into(),
             batch_id: [7u8; 16],

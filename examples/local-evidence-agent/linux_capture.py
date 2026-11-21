@@ -302,11 +302,7 @@ def main(argv=None):
         collector_port=in_host(free_port)
         probe_env={'AIP_PROBE_ID':'probe.local.qa','AIP_PROBE_COLLECTOR_ENDPOINT':'127.0.0.1:1',
             'AIP_PROBE_COLLECTOR_NOISE_PUBKEY':'0'*64,'AIP_PROBE_KEY_PATH':str(private/'probe.key.json'),'AIP_PROBE_SENSORS':'sched'}
-        probe=spawn('probe-enrollment',[tools/'aip-probe'],probe_env,host=True)
-        for _ in range(80):
-            if (private/'probe.key.json').exists():break
-            time.sleep(.1)
-        terminate(probe);probe=None
+        command([tools/'aip-probe', 'init-transport-key', private/'probe.key.json'])
         transport=json.loads((private/'probe.key.json').read_text())['public_hex']
         save(private/'probes.json',[{'probe_id':'probe.local.qa','transport_pubkey_hex':transport}])
         (private/'pass').write_text(secrets.token_urlsafe(48));(private/'pass').chmod(0o600)
