@@ -163,7 +163,7 @@ The brief's claims about each project are hypotheses. Verify the license file in
   - Tests: parity with the old allowlist on all P0-059 cases, plus OPA-down → DENY.
   - [x] **3.1a** OPA decision adapter `command-center/server/opa_gate.py` and bundle `command-center/policy/`. **Done** `141a11e9`. Bundle hash and input hash recorded per decision. Every engine failure is DENY. PENDING_APPROVAL is not forwarded. `opa test command-center/policy`: 17/17. `VANIAN_OPA_BIN=… python3 -m unittest test_opa_gate`: 23 passed / 0 failed / 0 skipped (16 passed / 7 skipped without the binary). Six mutations all caught. Uses `opa eval` per call, not a server (the 1.2 finding).
   - [x] **3.1b (native, not P0-059)** `command-center/server/gate.py`. It verifies signed requests (proof of possession), freshness and replay, decides with OPA using the operator-signed revocations, and forwards only on ALLOW. OPA-down is DENY. Every decision is recorded with the bundle hash. **Done** `01ee5db7`. `test_gate` 20 passed / 0 failed / 0 skipped; six mutations all caught. `live_gate.py`, offline with the real OPA: 11/11 checks; the tool server received only the one allowed call. Limits: PREVENTION only for calls through the gate; P0-059 parity is N/A (0.1 final); tool-server network isolation is not enforced.
-- [ ] **3.2 Human approval with real enforcement.**
+- [x] **3.2 Human approval with real enforcement.** **Done (native, not P0-059)** `6546b589`. Sensitive calls above the threshold are held. They are forwarded only with an operator-signed approval bound to the request sha256, inside its time window, single use, and with OPA re-checked. Rego 20/20; `test_gate` 30 passed / 0 failed / 0 skipped; 13 mutations all caught. `live_gate.py`, offline with the real OPA: 18/18 checks; the tool server received only the allowed calls. A defect the live run found (a replay cancelled the hold) is fixed with regression tests. Limits: no console UI for approving yet (3.3); the operator signs with a key file.
   - A sensitive call (`payments.settle_batch` above a threshold) returns `PENDING_APPROVAL`, and the gateway holds it.
   - An operator approves in the console. The approval is signed with the operator's principal key; the agent retries with the approval id, and the call is ALLOWED and forwarded.
   - Test: no approval means no forwarding.
@@ -297,6 +297,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Sat 21 Nov 11:40 | P0-059 cut-off set | Decided | owner asked to push from the originating session; Sat 18:00 IST cut-off, then build natively |
 | Sat 21 Nov 18:01 | **P0-059 cut-off reached** | 0.1 final: BLOCKED_BY_EXTERNAL_APPROVAL | Native build begins: 3.1b native gate (signed requests, OPA enforcement, OPA-down DENY), then 3.2 approvals, then 2.2 inventory. The :30 scheduled task is re-enabled. |
 | Sat 21 Nov 18:05 | 3.1b native gate | Done | PREVENTION through the gate, live; next 3.2 approvals |
+| Sat 21 Nov 18:10 | 3.2 native approvals | Done | next: fold the gate into the lab scripts/verify, then 2.2 inventory |
 
 ## Iteration log
 
@@ -323,6 +324,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 19 | 4.2a | Done: FinOps aggregation, no-telemetry never 0 | `48ba91cf` | 13/0/0 + live 16 OK |
 | 20 | 7.1a | Done: rehearsal harness; 2-cycle dry run behaves as designed | `ee03b7bf` | dry run: test 0, run 0, verify 1 x2 |
 | 21 | 3.1b native | Done: enforcing gate, signed calls, OPA-down DENY | `01ee5db7` | unit 20/0/0; live 11/11 |
+| 22 | 3.2 native | Done: signed approvals with hold/forward | `6546b589` | unit 30/0/0; live 18/18 |
 
 ---
 
