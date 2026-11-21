@@ -1,6 +1,6 @@
 # ADR-001: DecisionPoint must consult revocation
 
-- **Status:** Proposed. Under the loop's rule, nothing in `DecisionPoint` is
+- **Status:** Proposed. Tracking: #27 (DecisionPoint ignores revocation), #28 (an unpersisted revocation is lost on restart). Under the loop's rule, nothing in `DecisionPoint` is
   changed this weekend.
 - **Date:** 20 Nov 2026
 - **Scope:** `aip-standalone/aip-authorize` (`DecisionPoint`,
@@ -97,7 +97,7 @@ visible through an accessor, and never silently absent.
 any persistence error. A revocation can therefore be reported as done while
 it is not on disk, and a restart loses it: this fails open. Recommendation:
 return the error, and treat a revocation as effective only once persisted.
-**Measured** by `aip-core/tests/revocation_persistence_finding.rs` (2 passed / 0 failed). The log's path is made unwritable (its parent is a regular file). `revoke` then returns the entry, and `is_revoked` is true in memory. Nothing is written, and a `with_file` reload of the same path, as a restart does, no longer has the agent revoked. The control (a writable path) persists and survives a reload. This is out of scope for this loop. Record it as a tracking issue; none has been filed yet (that is an outward action).
+**Measured** by `aip-core/tests/revocation_persistence_finding.rs` (2 passed / 0 failed). The log's path is made unwritable (its parent is a regular file). `revoke` then returns the entry, and `is_revoked` is true in memory. Nothing is written, and a `with_file` reload of the same path, as a restart does, no longer has the agent revoked. The control (a writable path) persists and survives a reload. This is out of scope for this loop. Tracked in #28.
 
 ## When implemented
 

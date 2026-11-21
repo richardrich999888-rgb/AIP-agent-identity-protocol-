@@ -1,6 +1,6 @@
 # ADR-002: Require the Delegate action to sub-delegate, and proof of possession at the decision point
 
-- **Status:** Proposed. `aip-core` and `DecisionPoint` are **not** changed
+- **Status:** Proposed. Tracking: #29 (Delegate not required), #30 (no proof of possession). `aip-core` and `DecisionPoint` are **not** changed
   this weekend: the change alters verification of every existing chain (see
   `aip-protocol-change-guard`), and the loop does not change those cores
   under deadline, the same rule as ADR-001.
