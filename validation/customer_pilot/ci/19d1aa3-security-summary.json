@@ -1,0 +1,81 @@
+{
+  "source_head": "19d1aa31b29997ffcbadcf6e5f52591ff41b5bca",
+  "workflow_run": 44914774583,
+  "scans": [
+    {
+      "artifact_id": 14711585256,
+      "file": "work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/results.sarif",
+      "tool": "gitleaks",
+      "result_count": 217,
+      "rule_counts": {
+        "generic-api-key": 217
+      },
+      "level_counts": {
+        "unknown": 217
+      },
+      "rule_severities": {
+        "generic-api-key": []
+      },
+      "locations": []
+    },
+    {
+      "artifact_id": 14711431281,
+      "file": "trivy-results.sarif",
+      "tool": "Trivy",
+      "result_count": 4,
+      "rule_counts": {
+        "KSV-0009": 1,
+        "KSV-0010": 1,
+        "KSV-0118": 1,
+        "KSV-0121": 1
+      },
+      "level_counts": {
+        "error": 4
+      },
+      "rule_severities": {
+        "KSV-0121": [
+          "misconfiguration",
+          "security",
+          "HIGH"
+        ],
+        "KSV-0118": [
+          "misconfiguration",
+          "security",
+          "HIGH"
+        ],
+        "KSV-0010": [
+          "misconfiguration",
+          "security",
+          "HIGH"
+        ],
+        "KSV-0009": [
+          "misconfiguration",
+          "security",
+          "HIGH"
+        ]
+      },
+      "locations": [
+        {
+          "rule_id": "KSV-0009",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "line": 33
+        },
+        {
+          "rule_id": "KSV-0010",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "line": 33
+        },
+        {
+          "rule_id": "KSV-0118",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "line": 43
+        },
+        {
+          "rule_id": "KSV-0121",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "line": 33
+        }
+      ]
+    }
+  ]
+}

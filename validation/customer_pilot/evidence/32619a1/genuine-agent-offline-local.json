@@ -1,0 +1,87 @@
+{
+  "source_head": "32619a16b102d14d9cca667699a3b64394ca644f",
+  "artifact_id": 14711609978,
+  "platform": "macOS",
+  "network_policy": "deny network*",
+  "network_denial_errno": 1,
+  "verifier_sha256": "54ee1d59f373f82c6c26c3199600b111d55a3d0322f11c83dd27362ed7990233",
+  "profiles": {
+    "same-run": {
+      "original_evidence": {
+        "exit_code": 0,
+        "batches": 47,
+        "health": 4,
+        "findings": 0
+      },
+      "deleted_middle_record": {
+        "exit_code": 1,
+        "findings": 2
+      },
+      "archive_sha256": {
+        "attested.archive.jsonl": "c134500dccbb14deb864ce003e4e5d7e777f16754ef584705364d543f35b8cba",
+        "health.archive.jsonl": "f1a212c7f7b69eb7a2964d7e38cd4dd6351b7831fde1b3bf37df35d5ebd93c1b"
+      },
+      "controller_report": {
+        "status": "PASS",
+        "model_id": "ollama:llama3.2:1b@sha256:baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+        "model_calls": 2,
+        "autonomous_workload_executed": true,
+        "validation_profile": "OBSERVED_EXECUTION",
+        "observation_coverage": "SIGNED_ACTIVE_FOR_WINDOW",
+        "separate_administrative_custody": "INCOMPLETE"
+      }
+    },
+    "same-run-interruption": {
+      "original_evidence": {
+        "exit_code": 0,
+        "batches": 18,
+        "health": 3,
+        "findings": 0
+      },
+      "deleted_middle_record": {
+        "exit_code": 1,
+        "findings": 2
+      },
+      "archive_sha256": {
+        "attested.archive.jsonl": "bc370a4161d9824acb2f5a352c8ec403803ab7e04953018455412e7587ce80db",
+        "health.archive.jsonl": "c4bfb256a992ff64e1a629307099926931f8b5e686d6a931b16672774730824a"
+      },
+      "controller_report": {
+        "status": "PASS",
+        "model_id": "ollama:llama3.2:1b@sha256:baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+        "model_calls": 2,
+        "autonomous_workload_executed": true,
+        "validation_profile": "OBSERVER_INTERRUPTION",
+        "observation_coverage": "UNAVAILABLE_OBSERVER_INTERRUPTED",
+        "separate_administrative_custody": "INCOMPLETE"
+      }
+    },
+    "same-run-recovery": {
+      "original_evidence": {
+        "exit_code": 0,
+        "batches": 46,
+        "health": 4,
+        "findings": 0
+      },
+      "deleted_middle_record": {
+        "exit_code": 1,
+        "findings": 2
+      },
+      "archive_sha256": {
+        "attested.archive.jsonl": "2657367804444c261e7ebc3158873b65d466c8cb7c650553b26f7aad9194e680",
+        "health.archive.jsonl": "9522adb610c313b358325a06e964b5ed577b34a1ace618aacc3b366480c32885"
+      },
+      "controller_report": {
+        "status": "PASS",
+        "model_id": "ollama:llama3.2:1b@sha256:baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+        "model_calls": 2,
+        "autonomous_workload_executed": true,
+        "validation_profile": "OBSERVED_EXECUTION",
+        "observation_coverage": "SIGNED_ACTIVE_FOR_WINDOW",
+        "separate_administrative_custody": "INCOMPLETE"
+      }
+    }
+  },
+  "separate_collector_administration": false,
+  "trust_boundary": "Controller checkpoints and public trust anchors came from the same hosted administration. This is independent verifier execution, not independent collector custody."
+}

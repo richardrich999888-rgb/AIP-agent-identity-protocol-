@@ -1,0 +1,83 @@
+{
+  "source_head": "19d1aa31b29997ffcbadcf6e5f52591ff41b5bca",
+  "workflow_run": 44914774583,
+  "job_id": 136877911610,
+  "artifact_id": 14711242635,
+  "conclusion": "success",
+  "database": {
+    "advisory-count": 1555,
+    "last-commit": "55e1c3dfbd834237a05bbbf7b50ba3b5be27b662",
+    "last-updated": "2026-11-21T10:28:03+01:00"
+  },
+  "vulnerabilities": 0,
+  "existing_ignore": [
+    "RUSTSEC-2026-0097"
+  ],
+  "informational_warnings": {
+    "unmaintained": [
+      {
+        "id": "RUSTSEC-2026-0543",
+        "title": "chrono is unmaintained",
+        "package": "chrono",
+        "version": "0.4.45",
+        "url": "https://github.com/chronotope/chrono/issues/1768",
+        "patched": [],
+        "unaffected": []
+      }
+    ],
+    "unsound": [
+      {
+        "id": "RUSTSEC-2026-0486",
+        "title": "xattr functions mark unwritten bytes as initialized when given a zero-length buffer",
+        "package": "rustix",
+        "version": "1.1.5",
+        "url": "https://github.com/bytecodealliance/rustix/commit/8e6aaa6713d2bb64b1fdd8c472e3a32a10a76d70",
+        "patched": [
+          ">=1.1.6"
+        ],
+        "unaffected": [
+          "<1.0.0"
+        ]
+      }
+    ]
+  },
+  "cargo_deny": {
+    "run": 44914774478,
+    "job": 136877911173,
+    "conclusion": "failure",
+    "advisory": "RUSTSEC-2026-0543",
+    "dependency": "chrono 0.4.45 <- airon-aip 0.2.0",
+    "remaining_categories": "bans, licenses and sources passed",
+    "exception_added": false
+  },
+  "source_cargo_lock_sha256": "1d3abf6ec70e99df58690a5639c71197136aa935581fe7a1917acf78ed19a6ae",
+  "official_advisory_review": [
+    {
+      "id": "RUSTSEC-2026-0543",
+      "url": "https://rustsec.org/advisories/RUSTSEC-2026-0543.html",
+      "reviewed_at": "2026-11-21",
+      "type": "INFO Unmaintained",
+      "affected": "all chrono versions",
+      "patched": "none"
+    },
+    {
+      "id": "RUSTSEC-2026-0486",
+      "url": "https://rustsec.org/advisories/RUSTSEC-2026-0486.html",
+      "reviewed_at": "2026-11-21",
+      "type": "INFO Unsound",
+      "affected": "rustix >=1.0.0, <1.1.6 extended attribute functions with zero-length output buffer",
+      "patched": ">=1.1.6",
+      "unaffected": "<1.0.0"
+    }
+  ],
+  "upgrades_applied": false,
+  "waivers_added": false,
+  "rustix_parent_chain": {
+    "package": "rustix 1.1.5",
+    "direct_parent": "tempfile 3.27.0",
+    "parents": [
+      "ot-accountability-core 0.4.0",
+      "ot-sentinel 0.4.0"
+    ]
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "source_head": "32619a16b102d14d9cca667699a3b64394ca644f",
+  "platform": "macOS",
+  "test_counts": {
+    "dependency_isolation_passed": 8,
+    "no_second_engine_passed": 6,
+    "failed_fresh_build_refuses_stale_siblings_passed": 1
+  },
+  "real_relocated_sibling_build": "PASS_IN_LINUX_DEBUG_RELEASE_AND_COVERAGE",
+  "mac_limitation": "The real observer sibling requires Linux ProcfsProbe::observe_sockets; initial macOS attempt could not compile that observer. No sensor behavior was changed to bypass it.",
+  "format": "PASS",
+  "scoped_patch_check": "PASS",
+  "network_disabled_replay_preflight": {
+    "policy": "(version 1) (allow default) (deny network*)",
+    "loopback_bind_refused_errno": 1,
+    "actual_archive_replay": "PASS: ../evidence/32619a1/rbi-offline-local.json and genuine-agent-offline-local.json"
+  },
+  "linux_follow_up": "32619a1-workspace-tests.json"
+}

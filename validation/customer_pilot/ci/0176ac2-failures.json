@@ -1,0 +1,41 @@
+{
+  "source_head": "0176ac2c6c57526f8e5fa2f39cc7d58deed178cf",
+  "failure_snapshot_at": "2026-11-21T14:54:34.734Z",
+  "failures": [
+    {
+      "run_id": 44915790045,
+      "job_id": 136880985133,
+      "job": "coverage",
+      "reason": "aip-edge sibling binary discovery incorrectly assumes the Cargo executable is next to a test artifact. The fresh build succeeded but expected path was target/llvm-cov-target/debug/build/aip-edge/864eeba112f12ebe/out.",
+      "source": "aip-standalone/aip-edge/tests/common/mod.rs:58:52",
+      "first_failing_target": "aip-edge --test adversarial",
+      "failed_tests": 12,
+      "partial_counts": {
+        "passed": 795,
+        "failed": 12,
+        "ignored": 1
+      },
+      "complete_workspace_coverage": false,
+      "verification_rules_weakened": false
+    },
+    {
+      "run_id": 44915790045,
+      "job_id": 136880985043,
+      "job": "cargo audit / deny",
+      "reason": "cargo deny rejects chrono 0.4.45 unmaintained advisory RUSTSEC-2026-0543",
+      "exception_added": false
+    },
+    {
+      "run_id": 44915790018,
+      "job_id": 136880984942,
+      "job": "gitleaks",
+      "findings": 217
+    },
+    {
+      "run_id": 44915790018,
+      "job_id": 136880984676,
+      "job": "trivy",
+      "high_findings": 4
+    }
+  ]
+}

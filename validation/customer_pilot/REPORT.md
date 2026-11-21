@@ -1,6 +1,6 @@
 # Customer pilot qualification
 
-Status: **NOT READY — local software checks passed; Linux CI and deployment gates remain.**
+Status: **NOT READY — filtering and durable delivery are implemented; CI security and customer deployment gates remain.**
 This report covers the new customer-pilot changes. The earlier genuine Linux
 Q&A capture remains preserved separately; it is not a test of this new deployment.
 
@@ -34,8 +34,11 @@ See [filtering](../../deploy/enterprise/linux/FILTERING.md),
    must actually pass under the service account before enabling this profile.
 2. **Separately administered Linux collector.** The available configuration has
    no SSH host alias, registered self-hosted runner, or approved validation secret
-   names. Provide connection/configuration names for the workload and collector
-   hosts plus their responsible administrators; do not paste secret values.
+   names for an independent collector. The existing disposable GitHub Actions
+   runner can remain the workload host for initial integration. The missing
+   infrastructure is a reachable Linux collector controlled by a different
+   administrator, its connection/configuration name, and approved secret names
+   for access; do not paste secret values.
    The workload administrator must not control the collector signing key,
    continuity storage or independently held checkpoints. Two runners under the
    same administrator do not establish this boundary.
@@ -46,6 +49,8 @@ See [filtering](../../deploy/enterprise/linux/FILTERING.md),
    No model result or customer action is inferred from a valid signature.
 4. **Capacity and customer acceptance.** Qualify sensor loss/overhead, queue
    capacity and collector replay retention with the intended customer workload.
+   Disposable Actions runners cannot qualify persistent customer storage, actual
+   host restart/power-loss behavior, long-duration capacity or customer deployment.
    The current 1,000,000-receipt limit, process reenrollment and unsupported
    automatic archive/key rotation are documented operational limits.
 
@@ -72,4 +77,88 @@ batches for new filtered archives.
 Mac-only workspace compile failure and startup-diagnostic test failures, alongside
 the corrected runs. The project requires Python 3.12; tests were rerun with it.
 Unsupported-platform diagnostics were corrected without opening any sensor or
-changing the Linux sensor path. Full workspace validation awaits Linux CI.
+changing the Linux sensor path. Linux results are recorded separately below.
+
+## Current Linux candidate and retained evidence
+
+Implementation source: `32619a16b102d14d9cca667699a3b64394ca644f`.
+All seven configured workflows and 22 jobs finished: **16 successful, three
+security-gate failures and three gated skips**. The overall CI result remains
+failed because the security gates are unresolved. The tested PR merge checkout
+was `e004eb0e49d39647c6e509909b0264c023416a9d`.
+
+| Functional check | Exact result |
+| --- | --- |
+| Formatting and workspace Clippy with warnings denied | Passed |
+| Workspace debug tests | 3,322 passed, zero failed, seven ignored |
+| Workspace release/performance tests | 3,324 passed, zero failed, five ignored |
+| Doctests, each profile | Two passed, zero failed, two ignored |
+| Coverage execution | 3,322 passed, zero failed, seven ignored |
+
+The two new Linux binary-location regressions passed in debug, release and
+coverage. The [complete job matrix and ignored-test details](ci/32619a1-FINAL-OUTCOMES.md)
+retain the scope of these results. Coverage was 82.893% of lines; no minimum
+percentage gate is configured. The RED ledger reproduced 43 runnable cases,
+with ten blocked cases and two notes. Two real-client tests ignored in the
+general workspace suite ran explicitly in enterprise integration.
+
+The three gated jobs were the separate Qwen evidence-agent Linux/offline jobs
+and the Agent Zero genuine-task job. Agent Zero image/API component success
+does not validate its genuine workload; no claim is made that all three
+open-source agent integrations have executed.
+
+- The exact release regression
+  `g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too`
+  passed all **20 repetitions**; its verdict assertions were not changed.
+- The real Linux interference rehearsal passed with **85 signed batches, 3,696
+  kernel events and four signed health records**. Honest, interfered and recovery
+  behavior remained distinct; coverage was withdrawn for interference. The
+  offline verifier accepted the originals and rejected deletion of one middle
+  record with exit code 1. This is a controlled workload, not an AI-model run.
+- The original [public rehearsal artifact](evidence/32619a1/rbi-public.zip) was
+  downloaded with its GitHub digest checked. A separate local verification
+  process ran with networking denied and accepted all 85 batches/four health
+  records with zero findings. Its deletion control was rejected again. The
+  [local receipt](evidence/32619a1/rbi-offline-local.json) records the binary hash
+  and actual network-denial check.
+- The [genuine hosted AI-agent workflow](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/44916522554)
+  passed normal execution, observer interruption and fresh recovery. Its original
+  [public evidence ZIP](evidence/32619a1/genuine-agent-public.zip) is retained with
+  its GitHub digest checked. All three archives also passed the current local
+  verifier with networking denied and exact controller checkpoint hashes checked:
+
+  | Profile | Signed batches | Signed health | Controller-reported model calls | Workload observation coverage |
+  | --- | ---: | ---: | ---: | --- |
+  | Normal genuine execution | 47 | 4 | 2 | Signed Active for the task window |
+  | Observer interrupted | 18 | 3 | 2 | Unavailable; archive integrity does not prove unobserved work |
+  | Fresh recovery | 46 | 4 | 2 | Signed Active for the new task window |
+
+  The [local offline receipt](evidence/32619a1/genuine-agent-offline-local.json)
+  records zero verification findings and rejection of a deleted middle record
+  for each profile. Model-call counts and workload success are controller
+  observations, not conclusions inferred from archive signatures. These runs
+  used one GitHub administration; they do not establish independent collector
+  custody or the still-unrun scoped customer pilot.
+
+Security gates remain failing: **217 Gitleaks findings**, **four HIGH Trivy
+configuration findings** in retained Helm example evidence, and cargo-deny's
+unmaintained Chrono alert. The audit also reports a rustix unsoundness warning.
+These are scanner findings, not a claim that all are exploitable defects. No new
+ignore, scan exclusion or security waiver was added. Safe exact-source scanner
+receipts are under [CI records](ci/). The dependency review identified
+[Chrono RUSTSEC-2026-0543](https://rustsec.org/advisories/RUSTSEC-2026-0543.html)
+(no patched version) and
+[rustix RUSTSEC-2026-0486](https://rustsec.org/advisories/RUSTSEC-2026-0486.html)
+(patched in 1.1.6); neither dependency was changed by this pilot feature work.
+
+Earlier failed candidates and corrected harness checks are retained in the CI
+records. The final artifact lookup uses Cargo's current compiler-artifact paths
+instead of assuming its output-directory layout, and refuses failed builds
+rather than reusing a stale executable. Rehearsal readiness requires an actual
+authenticated collector acknowledgement. Public diagnostic export keeps private
+state permissions unchanged and cannot upload a preexisting output directory.
+
+No full-sensor service was installed, and no separately administered collector
+was contacted. Per-agent filtering and delivery crash/replay checks remain
+component validation until the scoped workload and outage/restart acceptance
+procedure has actually run on the approved pilot hosts.

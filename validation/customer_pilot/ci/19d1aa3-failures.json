@@ -1,0 +1,81 @@
+{
+  "source_head": "19d1aa31b29997ffcbadcf6e5f52591ff41b5bca",
+  "workflow_merge_checkout": "c4fa9543fd66f5c7554a21b7e9d65cf0175a2657",
+  "failures": [
+    {
+      "run_id": 44914774402,
+      "job_id": 136877910968,
+      "job": "release-regression",
+      "reason": "E0433: serde_json absent from ghost-demo direct development dependencies; new Cargo compiler-artifact helper cannot compile.",
+      "source": "aip-standalone/ghost-demo/tests/live_nexora.rs:92,96",
+      "prior_passes": {
+        "probe_lib": 59,
+        "startup_and_binding_focus": 3
+      },
+      "g14_04_completed_repeats": 0,
+      "g14_04_configured_repeats": 20,
+      "verifier_verdict_observed": false
+    },
+    {
+      "run_id": 44914774478,
+      "job_id": 136877911153,
+      "job": "fmt / clippy / test",
+      "reason": "E0063: ObservationBatch fixture missing filter_report.",
+      "source": "orbitaltrust-accountability/rust/aip-feed-conformance/tests/conformance.rs:191",
+      "format": "pass",
+      "clippy": "compilation failure",
+      "workspace_debug": "compilation failure before tests",
+      "workspace_release": "compilation failure before tests",
+      "workspace_test_counts": null,
+      "doctest_counts": null
+    },
+    {
+      "run_id": 44914774478,
+      "job_id": 136877911317,
+      "job": "coverage",
+      "reason": "Same E0063 in aip-feed-conformance fixture; no coverage report produced."
+    },
+    {
+      "run_id": 44914774620,
+      "job_id": 136878005813,
+      "job": "live-rehearsal",
+      "reason": "Full-system honest/observer-interference/offline verification gate reported failure. Detailed redirected files unavailable because artifact upload failed with EACCES for root-owned attested.archive.jsonl.",
+      "specific_runtime_root_cause": "unknown from retained output",
+      "artifacts_retained": 0,
+      "pass_counts": {
+        "cross_sensor": 13,
+        "integrity_recovery": 6,
+        "resource_scoping_assertions": 11,
+        "tool_boundary_assertions": 38
+      },
+      "live_gateway_receipt": "pass"
+    },
+    {
+      "run_id": 44914774478,
+      "job_id": 136877911173,
+      "job": "cargo audit / deny",
+      "reason": "cargo deny: chrono 0.4.45 unmaintained advisory RUSTSEC-2026-0543. No exception added.",
+      "cargo_audit": "pass with pre-existing ignore RUSTSEC-2026-0097",
+      "cargo_deny": {
+        "advisories": "fail",
+        "bans": "pass",
+        "licenses": "pass",
+        "sources": "pass"
+      }
+    },
+    {
+      "run_id": 44914774583,
+      "job_id": 136877911579,
+      "job": "gitleaks",
+      "reason": "217 generic-api-key findings; no match content retained.",
+      "artifact_id": 14711585256
+    },
+    {
+      "run_id": 44914774583,
+      "job_id": 136877911318,
+      "job": "trivy",
+      "reason": "4 HIGH misconfigurations KSV-0009, KSV-0010, KSV-0118, KSV-0121 in retained Helm example evidence.",
+      "artifact_id": 14711431281
+    }
+  ]
+}
