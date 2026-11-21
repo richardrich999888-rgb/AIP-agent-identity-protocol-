@@ -132,7 +132,17 @@ else
   else
     SYSTEM_RUN="fail"
     note_fail "the full-system RBI requirements did not pass — see system_run.log and control_check.log"
-    tail -20 "$OUT/system_run.log" | sed 's/^/       /' | tee -a "$T" >/dev/null
+    # These two logs contain only the fixed rehearsal/verification commands.
+    # Print failures to CI as well as retaining them: a failed artifact upload
+    # must not hide the actual failing stage or the strict control assertion.
+    for DIAGNOSTIC in system_run.log control_check.log; do
+      info "failure diagnostic: $DIAGNOSTIC (last 80 lines)"
+      if [ -f "$OUT/$DIAGNOSTIC" ]; then
+        tail -80 "$OUT/$DIAGNOSTIC" | sed 's/^/       /' | tee -a "$T"
+      else
+        info "$DIAGNOSTIC was not created; the preceding stage failed"
+      fi
+    done
   fi
 fi
 

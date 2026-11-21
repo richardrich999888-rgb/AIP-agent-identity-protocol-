@@ -189,6 +189,7 @@ fn signed_archive(events: Vec<KernelLifecycleEvent>) -> (String, Vec<u8>) {
     let attested = signer
         .attest_at(
             ObservationBatch {
+                filter_report: None,
                 version: OBSERVE_PROTOCOL_VERSION,
                 probe_id: PROBE_ID.into(),
                 batch_id: [9; 16],

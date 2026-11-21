@@ -141,9 +141,8 @@ env AIP_PROBE_ID=probe.pilot.e2e AIP_PROBE_COLLECTOR_ENDPOINT="127.0.0.1:$PORT" 
     AIP_PROBE_BATCH_INTERVAL_MS=1000 \
     "$REPO/target/debug/aip-probe" > "$W/probe.log" 2>&1 &
 PROBE_PID=$!
-sleep 3
-kill -0 "$PROBE_PID" 2>/dev/null || { cat "$W/probe.log"; die "probe died"; }
-grep -q "connected" "$W/probe.log" || { cat "$W/probe.log"; die "probe never connected"; }
+source "$REPO/validation/pilot_e2e/wait_probe_ack.sh" || die "probe readiness helper unavailable"
+wait_probe_ack "$PROBE_PID" "$W/probe.log" || { cat "$W/probe.log"; die "probe did not receive a durable collector ACK within 30 seconds"; }
 ok "probe up, four kernel sensors open, connected over the confidential transport"
 
 # Real agent-like workload: executions and TCP activity.
