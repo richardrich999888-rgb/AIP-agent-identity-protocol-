@@ -1,4 +1,4 @@
-# Native gate (item 3.1b; native, not P0-059)
+# Native gate (items 3.1b and 3.2; native, not P0-059)
 
 `gate.py` is the enforcement point and `gate_http.py` is its loopback HTTP
 front. A call reaches the tool server **only** after all of the following
@@ -13,14 +13,33 @@ pass, in order:
 5. OPA allows the call (`opa_gate.py`), given the **operator-signed**
    revocation list.
 
-Any failure is DENY. PENDING_APPROVAL holds the call (3.2). OPA failure is
-DENY. Every decision is a `gate.decision` event with the bundle hash.
+Any failure is DENY. OPA failure is DENY. Every decision is a
+`gate.decision` event, tagged with the stage it reached (pre-auth, auth or
+policy) and the bundle hash.
+
+**Approval (3.2).** `payments.settle_batch` above the threshold (10,000), or
+with no numeric amount, gets PENDING_APPROVAL and is held. The agent retries
+the same signed request with an operator's Ed25519 approval. The approval
+must:
+
+- be bound to that request's sha256;
+- say APPROVE;
+- be signed by a registered operator;
+- be inside its time window (TTL at most 15 min).
+
+OPA is consulted again, so a revocation made since the hold still denies.
+An approval is single use.
+
+Neither a forged request reusing the nonce, nor a plain replay, nor a bad
+approval can cancel a held call. The live run found a defect here: a plain
+replay used to cancel the hold. It is fixed and covered by regression
+tests.
 
 | Check | Command | Result |
 |---|---|---|
-| Unit tests | `venv-gate/bin/python -m unittest test_gate` | 20 passed / 0 failed / 0 skipped |
-| Mutations | `mutations-gate.txt` | 6/6 caught |
-| Live, offline, real OPA | `unshare -n … VANIAN_OPA_BIN=… venv-gate/bin/python command-center/lab/live_gate.py OUT` | **11/11 checks** (`docs/enterprise-wow/evidence/3.1b-native-gate/result.json`) |
+| Unit tests | `venv-gate/bin/python -m unittest test_gate` | 30 passed / 0 failed / 0 skipped |
+| Mutations | `mutations-gate.txt` | 13/13 caught |
+| Live, offline, real OPA | `unshare -n … VANIAN_OPA_BIN=… venv-gate/bin/python command-center/lab/live_gate.py OUT` | 3.1b: **11/11 checks** (`evidence/3.1b-native-gate/`). With 3.2: **18/18 checks** (`evidence/3.2-approvals/result.json`) |
 
 The live run sends six signed calls and one replay. The TEST DATA tool
 server's hit list is the proof. It received **only** the allowed call. It

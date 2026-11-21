@@ -1,4 +1,4 @@
-"""Live 3.1b: the native gate enforces, with the real OPA binary (native, not P0-059).
+"""Live 3.1b + 3.2: the native gate enforces, and holds sensitive calls for approval (native, not P0-059).
 
     VANIAN_OPA_BIN=…/opa GATE_VENV/bin/python command-center/lab/live_gate.py OUT_DIR
 
@@ -71,8 +71,8 @@ def main(out: Path) -> int:
         threading.Thread(target=srv.serve_forever, daemon=True).start()
         return srv, f"http://127.0.0.1:{port}/call"
 
-    def call(url, agent, server, tool, jtis=("root-1", "hop-1"), signer=None, envelope=None):
-        r = {"agent_id": agent, "server": server, "tool": tool, "args": {"n": 1}, "authority_jtis": list(jtis),
+    def call(url, agent=None, server=None, tool=None, jtis=("root-1", "hop-1"), signer=None, envelope=None, args=None):
+        r = {"agent_id": agent, "server": server, "tool": tool, "args": args or {"n": 1}, "authority_jtis": list(jtis),
              "delegation_depth": 1, "nonce": secrets.token_hex(16), "issued_at_ms": now_ms()}
         e = envelope or {"request": r, "signature_hex": signing.sign(signing.DOMAIN_REQUEST, r, k[signer or agent][0])}
         req = urllib.request.Request(url, data=json.dumps(e).encode(), headers={"content-type": "application/json"})
@@ -103,6 +103,23 @@ def main(out: Path) -> int:
     step("sensitive call held for approval, not forwarded", 202, "PENDING_APPROVAL", 0, agent="payments-agent",
          server="payments", tool="settle_batch")
     step("replayed request refused", 403, "DENY", 0, agent="recon-reporter", server="fs", tool="read_file", envelope=allowed)
+
+    # 3.2: approval with real enforcement.
+    held = step("settlement above threshold is held", 202, "PENDING_APPROVAL", 0, agent="payments-agent",
+                server="payments", tool="settle_batch", args={"amount": 50_000})
+    step("retry without approval is not forwarded", 403, "DENY", 0, envelope=held)
+    rsha = signing.digest(signing.DOMAIN_REQUEST, held["request"])
+
+    def approval(signer):
+        a = {"request_sha256": rsha, "operator_id": "ops-1", "decision": "APPROVE",
+             "decided_at_ms": now_ms(), "expires_at_ms": now_ms() + 60_000}
+        return {"approval": a, "signature_hex": signing.sign(signing.DOMAIN_APPROVAL, a, k[signer][0])}
+
+    step("forged approval is not forwarded", 403, "DENY", 0, envelope={**held, "approval": approval("mallory")})
+    step("operator-signed approval forwards the held call", 200, "ALLOW", 1, envelope={**held, "approval": approval("ops-1")})
+    step("approval cannot be reused", 403, "DENY", 0, envelope={**held, "approval": approval("ops-1")})
+    step("settlement under threshold is allowed", 200, "ALLOW", 1, agent="payments-agent", server="payments",
+         tool="settle_batch", args={"amount": 500})
     srv.shutdown()
     srv, url = start(str(out / "no-such-opa"))
     step("OPA unreachable: DENY, not forwarded", 403, "DENY", 0, agent="recon-reporter", server="fs", tool="read_file")
@@ -111,7 +128,10 @@ def main(out: Path) -> int:
 
     decisions = [e.event for e in store.events(kind=gate_mod.DECISION_KIND)]
     checks["every call recorded as a gate.decision"] = len(decisions) == len(steps)
-    checks["tool server saw exactly the one allowed call"] = hits == [("fs", "read_file")]
+    checks["tool server saw exactly the allowed calls"] = hits == [("fs", "read_file"), ("payments", "settle_batch"),
+                                                                    ("payments", "settle_batch")]
+    approved = [d for d in decisions if d.get("approved_by")]
+    checks["the approved forward names its operator"] = [d["approved_by"] for d in approved] == ["ops-1"]
     checks["allowed decision carries the OPA bundle hash"] = bool(decisions and decisions[0].get("bundle_sha256"))
     checks["store chain intact"] = store.verify() == []
     store.close()

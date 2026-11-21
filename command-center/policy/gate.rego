@@ -83,10 +83,19 @@ delegable if {
 	e.delegable == true
 }
 
+# A sensitive tool needs approval unless the call's amount is a number at or
+# below the declared threshold. A missing or non-numeric amount needs
+# approval (fail closed).
 sensitive if {
 	some s in data.inventory.sensitive_tools
 	s.server == input.server
 	s.tool == input.tool
+	not below_threshold
+}
+
+below_threshold if {
+	is_number(input.amount)
+	input.amount <= data.inventory.approval_threshold
 }
 
 outcome := "PENDING_APPROVAL" if {

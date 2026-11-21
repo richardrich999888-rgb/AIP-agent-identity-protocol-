@@ -1,0 +1,36 @@
+{
+ "agents": {
+  "orchestrator": {
+   "public_key_hex": "b5fb007584ff571e3f798f72e97aad361946229ab5f2ea9591dd19eba0a901b6",
+   "owner": "alice",
+   "framework": "scripted-test-agent",
+   "host": "lab",
+   "runtime": "python3.11",
+   "parent": null,
+   "responsible_human": "alice"
+  },
+  "recon-reporter": {
+   "public_key_hex": "70afeccca2ce1ebe9d3d50e57a49075f7f31aaa93198e55514228d71dc5bc99a",
+   "owner": "alice",
+   "framework": "scripted-test-agent",
+   "host": "lab",
+   "runtime": "python3.11",
+   "parent": "orchestrator",
+   "responsible_human": "alice"
+  },
+  "payments-agent": {
+   "public_key_hex": "c78c8dc6b64c4fac09dff887fb260289dc248077c231370a0d8212232b5ace77",
+   "owner": "alice",
+   "framework": "scripted-test-agent",
+   "host": "lab",
+   "runtime": "python3.11",
+   "parent": "orchestrator",
+   "responsible_human": "alice"
+  }
+ },
+ "operators": {
+  "ops-1": {
+   "public_key_hex": "b790e6b0b5fb5e43a293fc7a4c7227aeecb3ed32b64f702203f305d510eb801f"
+  }
+ }
+}

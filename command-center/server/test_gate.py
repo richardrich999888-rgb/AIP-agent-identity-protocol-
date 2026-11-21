@@ -203,3 +203,102 @@ class Signing(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class Approval(Base):
+    """Item 3.2: a held call is forwarded only with a valid operator approval."""
+
+    def setUp(self):
+        super().setUp()
+        self.opa = StubOpa("PENDING_APPROVAL")
+        self.r = req(agent="payments-agent", server="payments", tool="settle_batch")
+        self.e = env(self.k, self.r)
+        self.rsha = signing.digest(signing.DOMAIN_REQUEST, self.r)
+
+    def approval(self, rsha=None, op="ops-1", signer="ops-1", decision="APPROVE", at=NOW - 1, exp=NOW + 60_000):
+        a = {"request_sha256": rsha or self.rsha, "operator_id": op, "decision": decision,
+             "decided_at_ms": at, "expires_at_ms": exp}
+        return {"approval": a, "signature_hex": signing.sign(signing.DOMAIN_APPROVAL, a, self.k[signer][0])}
+
+    def hold(self):
+        r = self.gate().handle(self.e)
+        self.assertEqual((r.outcome, r.forwarded), ("PENDING_APPROVAL", False))
+
+    def retry(self, approval):
+        return self.gate().handle({**self.e, "approval": approval})
+
+    def test_no_approval_means_no_forwarding(self):
+        self.hold()
+        self.assertEqual(self.gate().handle(self.e).reasons, ("replayed nonce",))
+        self.assertEqual(self.forwarded, [])
+
+    def test_plain_replay_does_not_cancel_the_held_request(self):
+        # Regression (found by live_gate): a replay without approval used to close the hold.
+        self.hold()
+        self.gate().handle(self.e)
+        r = self.retry(self.approval())
+        self.assertEqual((r.outcome, r.forwarded), ("ALLOW", True))
+
+    def test_forged_request_reusing_the_nonce_does_not_burn_it(self):
+        forged = env(self.k, self.r, signer="mallory")
+        self.assertEqual(self.gate().handle(forged).reasons, ("request signature invalid",))
+        self.hold()  # the genuine request with the same nonce is still accepted
+
+    def test_valid_approval_forwards_exactly_once(self):
+        self.hold()
+        r = self.retry(self.approval())
+        self.assertEqual((r.outcome, r.forwarded), ("ALLOW", True))
+        self.assertEqual(self.decisions()[-1]["approved_by"], "ops-1")
+        again = self.retry(self.approval())
+        self.assertEqual((again.outcome, again.reasons), ("DENY", ("approval retry for a request that is not pending",)))
+        self.assertEqual(len(self.forwarded), 1)
+
+    def test_approval_without_prior_hold(self):
+        r = self.retry(self.approval())
+        self.assertEqual(r.reasons, ("approval retry for a request that is not pending",))
+
+    def test_bad_approvals_are_denied_and_not_forwarded(self):
+        self.hold()
+        cases = {
+            "approval is for another request": self.approval(rsha="0" * 64),
+            "approval decision is not APPROVE": self.approval(decision="REJECT"),
+            "approval by unregistered operator": self.approval(op="nobody"),
+            "approval signature invalid": self.approval(signer="payments-agent"),
+            "approval outside its time window": self.approval(at=NOW - 120_000, exp=NOW - 1),
+        }
+        for reason, a in cases.items():
+            with self.subTest(reason=reason):
+                self.assertEqual(self.retry(a).reasons, (reason,))
+        self.assertEqual(self.retry(self.approval(at=NOW, exp=NOW + g.MAX_APPROVAL_TTL_MS + 1)).reasons,
+                         ("approval outside its time window",))
+        self.assertEqual(self.retry({"approval": {}, "signature_hex": "x"}).reasons, ("approval malformed",))
+        self.assertEqual(self.forwarded, [])
+
+    def test_bad_approval_does_not_cancel_the_held_request(self):
+        # A captured envelope plus a garbage approval must not cancel a legitimate pending call.
+        self.hold()
+        self.assertEqual(self.retry(self.approval(decision="REJECT")).outcome, "DENY")
+        self.assertEqual(self.decisions()[-1]["outcome"], g.APPROVAL_INVALID)
+        r = self.retry(self.approval())
+        self.assertEqual((r.outcome, r.forwarded), ("ALLOW", True))
+        self.assertEqual(len(self.forwarded), 1)
+
+    def test_policy_deny_on_retry_closes_the_request(self):
+        self.hold()
+        self.opa = StubOpa("DENY", ["authority revoked"])
+        self.retry(self.approval())
+        self.opa = StubOpa("PENDING_APPROVAL")
+        self.assertEqual(self.retry(self.approval()).reasons, ("approval retry for a request that is not pending",))
+        self.assertEqual(self.forwarded, [])
+
+    def test_policy_deny_beats_approval(self):
+        self.hold()
+        self.opa = StubOpa("DENY", ["authority revoked"])
+        r = self.retry(self.approval())
+        self.assertEqual((r.outcome, r.reasons, r.forwarded), ("DENY", ("authority revoked",), False))
+
+    def test_amount_reaches_opa_only_when_numeric(self):
+        self.gate().handle(env(self.k, {**self.r, "nonce": "22" * 8, "args": {"amount": 5}}))
+        self.gate().handle(env(self.k, {**self.r, "nonce": "33" * 8, "args": {"amount": "5"}}))
+        self.assertEqual(self.opa.calls[0].get("amount"), 5)
+        self.assertNotIn("amount", self.opa.calls[1])

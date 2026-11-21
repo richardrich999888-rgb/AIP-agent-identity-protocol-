@@ -37,9 +37,22 @@ test_non_delegable_tool_under_delegation if {
 
 test_non_delegable_tool_direct_ok if d(object.union(ok_input, {"agent_id": "orchestrator", "delegation_depth": 0})).outcome == "ALLOW"
 
-test_sensitive_needs_approval if {
-	r := d(object.union(ok_input, {"agent_id": "payments-agent", "server": "payments", "tool": "settle_batch"}))
-	r == {"outcome": "PENDING_APPROVAL", "reasons": []}
+pay := object.union(ok_input, {"agent_id": "payments-agent", "server": "payments", "tool": "settle_batch"})
+
+test_sensitive_without_amount_needs_approval if {
+	d(pay) == {"outcome": "PENDING_APPROVAL", "reasons": []}
+}
+
+test_sensitive_above_threshold_needs_approval if {
+	d(object.union(pay, {"amount": 10001})).outcome == "PENDING_APPROVAL"
+}
+
+test_sensitive_at_or_below_threshold_is_allowed if {
+	d(object.union(pay, {"amount": 10000})).outcome == "ALLOW"
+}
+
+test_non_numeric_amount_needs_approval if {
+	d(object.union(pay, {"amount": "5"})).outcome == "PENDING_APPROVAL"
 }
 
 test_sensitive_and_revoked_is_deny if {

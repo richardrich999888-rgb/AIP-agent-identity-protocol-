@@ -1,12 +1,49 @@
-{"inventory": {
-  "agents": {"orchestrator": {}, "recon-reporter": {}, "payments-agent": {}},
+{
+ "inventory": {
+  "agents": {
+   "orchestrator": {},
+   "recon-reporter": {},
+   "payments-agent": {}
+  },
   "max_delegation_depth": 2,
   "allowlist": [
-    {"agent_id": "recon-reporter", "server": "fs", "tool": "read_file", "delegable": true},
-    {"agent_id": "orchestrator", "server": "fs", "tool": "read_file", "delegable": false},
-    {"agent_id": "payments-agent", "server": "payments", "tool": "settle_batch", "delegable": true},
-    {"agent_id": "recon-reporter", "server": "shell", "tool": "exec", "delegable": false}
+   {
+    "agent_id": "recon-reporter",
+    "server": "fs",
+    "tool": "read_file",
+    "delegable": true
+   },
+   {
+    "agent_id": "orchestrator",
+    "server": "fs",
+    "tool": "read_file",
+    "delegable": false
+   },
+   {
+    "agent_id": "payments-agent",
+    "server": "payments",
+    "tool": "settle_batch",
+    "delegable": true
+   },
+   {
+    "agent_id": "recon-reporter",
+    "server": "shell",
+    "tool": "exec",
+    "delegable": false
+   }
   ],
-  "denied_tools": [{"server": "shell", "tool": "exec"}],
-  "sensitive_tools": [{"server": "payments", "tool": "settle_batch"}]
-}}
+  "denied_tools": [
+   {
+    "server": "shell",
+    "tool": "exec"
+   }
+  ],
+  "sensitive_tools": [
+   {
+    "server": "payments",
+    "tool": "settle_batch"
+   }
+  ],
+  "approval_threshold": 10000
+ }
+}
