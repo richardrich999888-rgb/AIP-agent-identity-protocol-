@@ -33,13 +33,20 @@ import httpx2
 from mcp.client import Client
 from mcp.client.streamable_http import streamable_http_client
 from cpex.framework import PluginConfig
-from vanian_contextforge import VanianToolReceiptPlugin
+from vanian_contextforge import VanianToolReceiptPlugin, create_app
 
 HERE = Path(__file__).resolve().parent
 PIN = json.loads((HERE / "contextforge.lock.json").read_text())
 AGENT = "agent.bank-evaluation"
 PRINCIPAL = "vanian-validator@example.com"
 HEADERS = ["X-AIP-Agent-Id", "X-AIP-Decision-Id", "X-AIP-Request-Id", "Mcp-Method", "Mcp-Name"]
+
+
+def create_refreshing_test_gateway():
+    """Exercise the pinned gateway's normal manager expiry on every lookup."""
+    from mcpgateway.plugins.gateway_plugin_manager import TenantPluginManagerFactory
+    TenantPluginManagerFactory.DEFAULT_CACHE_TTL = 1e-9  # Zero disables expiry in this version.
+    return create_app()
 
 
 def port() -> int:
@@ -229,8 +236,8 @@ def main() -> int:
             processes.append(process)
             return process
 
-        def gateway_start():
-            process = launch("contextforge", [str(python), "-m", "uvicorn", "mcpgateway.main:app",
+        def gateway_start(factory="vanian_contextforge:create_app"):
+            process = launch("contextforge", [str(python), "-m", "uvicorn", factory, "--factory",
                             "--host", "127.0.0.1", "--port", str(gateway_port), "--no-access-log"])
             wait_ready(base, process)
             return process
@@ -311,9 +318,9 @@ def main() -> int:
             status, _ = http(base, "/mcp", token=token, body={"jsonrpc":"2.0", "id":1, "method":"tools/list"},
                              headers={"Origin":"http://untrusted.invalid", "MCP-Protocol-Version":"2026-07-28", "Mcp-Method":"tools/list"})
             check("mcp_ingress_rejects_unapproved_origin", status == 403, str(status))
-            async def official_client():
+            async def official_client(decision=None, call_id=None):
                 headers = {"Authorization":"Bearer " + token, "X-AIP-Agent-Id":AGENT,
-                           "X-AIP-Decision-Id":secrets.token_hex(16), "X-AIP-Request-Id":secrets.token_hex(16)}
+                           "X-AIP-Decision-Id":decision or secrets.token_hex(16), "X-AIP-Request-Id":call_id or secrets.token_hex(16)}
                 async with httpx2.AsyncClient(headers=headers, timeout=20, trust_env=False) as http_client:
                     async with Client(streamable_http_client(base + "/mcp", http_client=http_client),
                                       mode="2026-07-28", cache=None) as client:
@@ -437,6 +444,26 @@ def main() -> int:
                       agent.returncode == 0 and event_count() == before_events + 1 and len(receipt_list()) == before_receipts + 1
                       and receipt_list()[-1]["receipt"]["disposition"] == "Forwarded",
                       "No kernel observation or signed execution verdict is claimed.")
+            gateway.terminate()
+            gateway.wait(timeout=20)
+            gateway = gateway_start("validate_contextforge:create_refreshing_test_gateway")
+            before, before_receipts = event_count(), len(receipt_list())
+            reply, decision, call_id = invocation(amount=0)
+            result = reply[1].get("result", {}).get("_meta", {}).get("vanian", {})
+            fresh = receipt_list()[before_receipts:]
+            check("rpc_call_completes_with_its_own_receipt_across_manager_refresh",
+                  succeeded(reply) and event_count() == before + 1 and len(fresh) == 1
+                  and fresh == [result.get("signed_receipt")] and result.get("receipt_persisted") is True
+                  and bytes(fresh[0]["receipt"]["decision_id"]).hex() == decision
+                  and fresh[0]["receipt"]["tool_call_id"] == call_id and fresh[0]["receipt"]["disposition"] == "Forwarded")
+            before, before_receipts = event_count(), len(receipt_list())
+            decision, call_id = secrets.token_hex(16), secrets.token_hex(16)
+            _, mcp_result = asyncio.run(official_client(decision, call_id))
+            fresh = receipt_list()[before_receipts:]
+            check("mcp_streamable_client_completes_with_a_gateway_receipt_across_manager_refresh",
+                  not mcp_result.get("isError", False) and event_count() == before + 1
+                  and len(fresh) == 1 and bytes(fresh[0]["receipt"]["decision_id"]).hex() == decision
+                  and fresh[0]["receipt"]["tool_call_id"] == call_id and fresh[0]["receipt"]["disposition"] == "Forwarded")
             for signed in receipt_list():
                 verify_env = {key: value for key, value in env.items() if key not in ("AIP_GATEWAY_KEY_FILE", "AIP_GATEWAY_RECEIPTS")}
                 verification = subprocess.run([str(binary), "verify"], input=json.dumps(signed).encode(), env=verify_env,

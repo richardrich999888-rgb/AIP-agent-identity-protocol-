@@ -456,7 +456,7 @@ def main():
         upstream = spawn('upstream',[python,ROOT/'validation/enterprise/same_run_upstream.py','--port','19993','--database',db,'--work',tool_work],
             {'HOME':str(tool_work),'PYTHONUNBUFFERED':'1'},UID_TOOL,True)
         ready_http('http://127.0.0.1:19993',upstream,'/mcp')
-        gateway = spawn('gateway',[python,'-m','uvicorn','mcpgateway.main:app','--host','127.0.0.1','--port','19992','--no-access-log'],gateway_env,UID_GATEWAY,True)
+        gateway = spawn('gateway',[python,'-m','uvicorn','vanian_contextforge:create_app','--factory','--host','127.0.0.1','--port','19992','--no-access-log'],gateway_env,UID_GATEWAY,True)
         base = 'http://127.0.0.1:19992'; ready_http(base,gateway)
         status, _ = request(base,'/gateways',admin_token,{'name':'same-run','url':'http://127.0.0.1:19993/mcp',
             'transport':'STREAMABLEHTTP','passthrough_headers':headers,'visibility':'public'})
