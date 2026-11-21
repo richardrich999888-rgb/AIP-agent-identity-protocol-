@@ -162,7 +162,7 @@ The brief's claims about each project are hypotheses. Verify the license file in
   - If OPA is unreachable, the gate **denies** (fail closed).
   - Tests: parity with the old allowlist on all P0-059 cases, plus OPA-down → DENY.
   - [x] **3.1a** OPA decision adapter `command-center/server/opa_gate.py` and bundle `command-center/policy/`. **Done** `141a11e9`. Bundle hash and input hash recorded per decision. Every engine failure is DENY. PENDING_APPROVAL is not forwarded. `opa test command-center/policy`: 17/17. `VANIAN_OPA_BIN=… python3 -m unittest test_opa_gate`: 23 passed / 0 failed / 0 skipped (16 passed / 7 skipped without the binary). Six mutations all caught. Uses `opa eval` per call, not a server (the 1.2 finding).
-  - [ ] **3.1b** Gate step 7 calls `OpaGate.decide`. `revoked_jtis` comes from signature-verified revocations. Parity tests against all P0-059 allowlist cases, plus an OPA-down test at the gate (call not forwarded). **Blocked on 0.1.** Until then 3.1a is a decision component, not PREVENTION.
+  - [x] **3.1b (native, not P0-059)** `command-center/server/gate.py`. It verifies signed requests (proof of possession), freshness and replay, decides with OPA using the operator-signed revocations, and forwards only on ALLOW. OPA-down is DENY. Every decision is recorded with the bundle hash. **Done** `01ee5db7`. `test_gate` 20 passed / 0 failed / 0 skipped; six mutations all caught. `live_gate.py`, offline with the real OPA: 11/11 checks; the tool server received only the one allowed call. Limits: PREVENTION only for calls through the gate; P0-059 parity is N/A (0.1 final); tool-server network isolation is not enforced.
 - [ ] **3.2 Human approval with real enforcement.**
   - A sensitive call (`payments.settle_batch` above a threshold) returns `PENDING_APPROVAL`, and the gateway holds it.
   - An operator approves in the console. The approval is signed with the operator's principal key; the agent retries with the approval id, and the call is ALLOWED and forwarded.
@@ -296,6 +296,7 @@ The console reads only persisted backend data. The video shows that same run.
 | Sat 21 Nov 11:00 | Findings tracked; cadence reduced | Done | Security findings filed as issues #27–#30. The :30 scheduled task is disabled, so the loop checks every 3 h, at :00. Every open item waits on P0-059 or on freeze, and idle runs were only polling. `feature/vanian-accountability-console` is not used as a source: it is not P0-059, and the plan names P0-059. |
 | Sat 21 Nov 11:40 | P0-059 cut-off set | Decided | owner asked to push from the originating session; Sat 18:00 IST cut-off, then build natively |
 | Sat 21 Nov 18:01 | **P0-059 cut-off reached** | 0.1 final: BLOCKED_BY_EXTERNAL_APPROVAL | Native build begins: 3.1b native gate (signed requests, OPA enforcement, OPA-down DENY), then 3.2 approvals, then 2.2 inventory. The :30 scheduled task is re-enabled. |
+| Sat 21 Nov 18:05 | 3.1b native gate | Done | PREVENTION through the gate, live; next 3.2 approvals |
 
 ## Iteration log
 
@@ -321,6 +322,7 @@ The console reads only persisted backend data. The video shows that same run.
 | 18 | 2.5a | Done with 2 findings: Delegate not enforced; no proof of possession | `f2353c6c` | 5/0/0; aip-authorize 108/0/0 |
 | 19 | 4.2a | Done: FinOps aggregation, no-telemetry never 0 | `48ba91cf` | 13/0/0 + live 16 OK |
 | 20 | 7.1a | Done: rehearsal harness; 2-cycle dry run behaves as designed | `ee03b7bf` | dry run: test 0, run 0, verify 1 x2 |
+| 21 | 3.1b native | Done: enforcing gate, signed calls, OPA-down DENY | `01ee5db7` | unit 20/0/0; live 11/11 |
 
 ---
 
