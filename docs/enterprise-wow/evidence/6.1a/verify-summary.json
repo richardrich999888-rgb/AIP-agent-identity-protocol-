@@ -3,7 +3,7 @@
   {
    "capability": "1 Agent inventory",
    "status": "NOT_AVAILABLE",
-   "reason": "P0-059 commits are not on this branch (item 0.1)"
+   "reason": "P0-059 is BLOCKED_BY_EXTERNAL_APPROVAL (0.1, final); the native replacement is not built yet"
   },
   {
    "capability": "2 Shadow AI",
@@ -13,27 +13,27 @@
   {
    "capability": "3 Ghost AI",
    "status": "NOT_AVAILABLE",
-   "reason": "P0-059 commits are not on this branch (item 0.1)"
+   "reason": "P0-059 is BLOCKED_BY_EXTERNAL_APPROVAL (0.1, final); the native replacement is not built yet"
   },
   {
    "capability": "4 Orphan AI",
    "status": "NOT_AVAILABLE",
-   "reason": "P0-059 commits are not on this branch (item 0.1)"
+   "reason": "P0-059 is BLOCKED_BY_EXTERNAL_APPROVAL (0.1, final); the native replacement is not built yet"
   },
   {
    "capability": "5 Parent-child",
    "status": "NOT_AVAILABLE",
-   "reason": "P0-059 commits are not on this branch (item 0.1)"
+   "reason": "P0-059 is BLOCKED_BY_EXTERNAL_APPROVAL (0.1, final); the native replacement is not built yet"
   },
   {
    "capability": "6 Governance enforcement",
-   "status": "PARTIAL",
-   "reason": "the OPA decision is tested but not wired into the gate: ADVISORY (3.1b)"
+   "status": "VERIFIED",
+   "reason": "PREVENTION for calls through the native gate (signed requests, OPA, OPA-down DENY); a path that bypasses the gate is not covered (native, not P0-059)"
   },
   {
    "capability": "7 Human approval",
-   "status": "NOT_IMPLEMENTED",
-   "reason": "3.2 needs the gateway"
+   "status": "VERIFIED",
+   "reason": "held calls forward only with an operator-signed, request-bound, single-use approval; no console UI yet (native, not P0-059)"
   },
   {
    "capability": "8 Activity and observer coverage",
@@ -43,7 +43,7 @@
   {
    "capability": "9 Human vs agent attribution",
    "status": "NOT_IMPLEMENTED",
-   "reason": "4.3 needs the gateway"
+   "reason": "4.3 not built yet (the native gate it needs now exists)"
   },
   {
    "capability": "10 FinOps",
@@ -64,14 +64,16 @@
  "checks": {
   "policy": true,
   "server-suite": true,
+  "gate-suite": true,
   "litellm-acceptance": true,
   "revocation-gap": true,
   "delegation-findings": true,
   "revocation-persistence": true,
   "live-sensors": true,
   "live-kill": true,
-  "live-shadow": true
+  "live-shadow": true,
+  "live-gate": true
  },
- "verified": 0,
+ "verified": 2,
  "failed": 0
 }

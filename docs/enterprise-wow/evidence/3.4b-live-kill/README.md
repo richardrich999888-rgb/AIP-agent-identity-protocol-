@@ -23,6 +23,14 @@ What each run shows:
 - **At task end.** The whole task window is **not** covered. The state is
   DEGRADED, and the open gap starts before the kill.
 
+**Probe loss, observed once (21 Nov 12:41Z, `docs/enterprise-wow/evidence/3.4b-live-kill/run-loss-20261121/result.json`).**
+During a `run.sh` pass, the probe reported **1 dropped event** (batch
+sequence 4), and signed coverage stopped 5.1 s before the kill. The check
+"pre-kill part of the task is covered" therefore **failed**, correctly: a
+loss or a gap is never called clean. Two immediate reruns passed 7/7 with
+no loss. Over the six kill runs so far, this is 1 failure. The cause of the
+drop is not established. The container had restarted 11 min earlier.
+
 Limitations, stated so they are not assumed:
 
 - **State lag.** The summary state stays COVERED for up to

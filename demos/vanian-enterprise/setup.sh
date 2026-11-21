@@ -25,4 +25,11 @@ if "$VENV/bin/python" -c 'import importlib.util,sys; sys.exit(0 if importlib.uti
   die "litellm_enterprise is installed (proprietary; item 1.3 rule)"
 fi
 log "ok litellm 1.110.2 core, no enterprise package"
+if [ ! -x "$GATE_VENV/bin/python" ]; then
+  python3 -m venv "$GATE_VENV"
+  "$GATE_VENV/bin/pip" install -q -r "$GATE_LOCK"
+fi
+"$GATE_VENV/bin/python" -c 'from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey; Ed25519PrivateKey.generate()' \
+  || die "gate venv cannot do Ed25519"
+log "ok gate venv (cryptography pinned in requirements-gate.lock.txt)"
 log "setup complete: $LAB"

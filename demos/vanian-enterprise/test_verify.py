@@ -12,6 +12,7 @@ import verify as v
 GOOD = {
     "policy": "PASS: 17/17\n",
     "server-suite": "Ran 70 tests in 4.9s\n\nOK\n",
+    "gate-suite": "Ran 30 tests in 0.2s\n\nOK\n",
     "litellm-acceptance": "checks: 16 passed, 0 failed\n",
     "revocation-gap": "test result: ok. 3 passed; 0 failed\n",
     "delegation-findings": "test result: ok. 5 passed; 0 failed\n",
@@ -23,7 +24,8 @@ GOOD = {
 def lab(tmp: Path, logs: dict, kill: dict | None, shadow: dict | None = None) -> Path:
     for name, text in logs.items():
         (tmp / f"test-{name}.log").write_text(text)
-    for run, checks in (("live-kill", kill), ("live-shadow", shadow if shadow is not None else kill)):
+    for run, checks in (("live-kill", kill), ("live-shadow", shadow if shadow is not None else kill),
+                        ("live-gate", kill)):
         if checks is not None:
             (tmp / f"{run}-latest").mkdir()
             (tmp / f"{run}-latest" / "result.json").write_text(json.dumps({"checks": checks}))
@@ -44,9 +46,20 @@ class Verify(unittest.TestCase):
     def test_all_good_is_partial_not_verified(self):
         code, st = run(lab(self.tmp, GOOD, {"a": True}))
         self.assertEqual(code, 1)
-        self.assertEqual((st["2"], st["6"], st["8"], st["10"], st["1"], st["7"]),
-                         ("PARTIAL", "PARTIAL", "PARTIAL", "PARTIAL", "NOT_AVAILABLE", "NOT_IMPLEMENTED"))
-        self.assertNotIn("VERIFIED", st.values())
+        self.assertEqual((st["2"], st["6"], st["7"], st["8"], st["10"], st["1"], st["9"]),
+                         ("PARTIAL", "VERIFIED", "VERIFIED", "PARTIAL", "PARTIAL", "NOT_AVAILABLE", "NOT_IMPLEMENTED"))
+        self.assertEqual(code, 1)  # not all 12 verified
+
+    def test_failed_gate_live_is_fail(self):
+        tmp = self.tmp
+        lab(tmp, GOOD, {"a": True})
+        (tmp / "live-gate-latest" / "result.json").write_text(json.dumps({"checks": {"x": False}}))
+        _, st = run(tmp)
+        self.assertEqual((st["6"], st["7"]), ("FAIL", "FAIL"))
+
+    def test_skipped_gate_suite_is_fail(self):
+        _, st = run(lab(self.tmp, {**GOOD, "gate-suite": "OK (skipped=2)\n"}, {"a": True}))
+        self.assertEqual((st["6"], st["7"]), ("FAIL", "FAIL"))
 
     def test_failed_policy_is_fail(self):
         code, st = run(lab(self.tmp, {**GOOD, "policy": "FAIL: 1/17\n"}, {"a": True}))
