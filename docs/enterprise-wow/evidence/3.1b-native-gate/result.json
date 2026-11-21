@@ -1,0 +1,91 @@
+{
+ "label": "live lab run; tool server replies are TEST DATA",
+ "steps": [
+  {
+   "step": "allowed call is forwarded",
+   "http": 200,
+   "outcome": "ALLOW",
+   "reasons": [],
+   "forwarded": true,
+   "tool_server_hits_delta": 1
+  },
+  {
+   "step": "explicitly denied tool never reaches the tool server",
+   "http": 403,
+   "outcome": "DENY",
+   "reasons": [
+    "tool explicitly denied",
+    "tool not delegable"
+   ],
+   "forwarded": false,
+   "tool_server_hits_delta": 0
+  },
+  {
+   "step": "forged identity (#6) refused, not forwarded",
+   "http": 403,
+   "outcome": "DENY",
+   "reasons": [
+    "request signature invalid"
+   ],
+   "forwarded": false,
+   "tool_server_hits_delta": 0
+  },
+  {
+   "step": "revoked authority refused, not forwarded",
+   "http": 403,
+   "outcome": "DENY",
+   "reasons": [
+    "authority revoked"
+   ],
+   "forwarded": false,
+   "tool_server_hits_delta": 0
+  },
+  {
+   "step": "sensitive call held for approval, not forwarded",
+   "http": 202,
+   "outcome": "PENDING_APPROVAL",
+   "reasons": [],
+   "forwarded": false,
+   "tool_server_hits_delta": 0
+  },
+  {
+   "step": "replayed request refused",
+   "http": 403,
+   "outcome": "DENY",
+   "reasons": [
+    "replayed nonce"
+   ],
+   "forwarded": false,
+   "tool_server_hits_delta": 0
+  },
+  {
+   "step": "OPA unreachable: DENY, not forwarded",
+   "http": 403,
+   "outcome": "DENY",
+   "reasons": [
+    "policy engine unavailable: binary not found"
+   ],
+   "forwarded": false,
+   "tool_server_hits_delta": 0
+  }
+ ],
+ "tool_server_hits": [
+  [
+   "fs",
+   "read_file"
+  ]
+ ],
+ "checks": {
+  "allowed call is forwarded": true,
+  "explicitly denied tool never reaches the tool server": true,
+  "forged identity (#6) refused, not forwarded": true,
+  "revoked authority refused, not forwarded": true,
+  "sensitive call held for approval, not forwarded": true,
+  "replayed request refused": true,
+  "OPA unreachable: DENY, not forwarded": true,
+  "every call recorded as a gate.decision": true,
+  "tool server saw exactly the one allowed call": true,
+  "allowed decision carries the OPA bundle hash": true,
+  "store chain intact": true
+ }
+}
