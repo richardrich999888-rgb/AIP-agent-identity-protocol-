@@ -122,6 +122,53 @@ class ScannerControls(unittest.TestCase):
         }
         self.assertEqual(self.scan(contents), [])
 
+    def test_pr_scan_includes_late_history_and_checks_tree_after_failure(self):
+        # Reproduce the pagination failure: a credential appears after commit 30,
+        # then is removed. Both this historical exposure and an uncommitted
+        # current-tree control must be detected independently.
+        with tempfile.TemporaryDirectory(prefix="full-pr-scan-") as tmp:
+            root = Path(tmp)
+            repo = root / "repo"
+            repo.mkdir()
+
+            def git(*args):
+                return subprocess.check_output(
+                    ["git", "-c", "core.hooksPath=/dev/null", "-c", "commit.gpgsign=false",
+                     "-c", "user.name=Scanner Control", "-c", "user.email=scanner@example.invalid",
+                     "-C", str(repo), *args], stderr=subprocess.DEVNULL, text=True).strip()
+
+            git("init")
+            shutil.copyfile(ROOT / ".gitleaks.toml", repo / ".gitleaks.toml")
+            (repo / ".gitleaksignore").write_text("")
+            git("add", ".")
+            git("commit", "-m", "base")
+            base = git("rev-parse", "HEAD")
+            rng = random.Random(374689)
+            fake = "".join(rng.choices(string.ascii_letters + string.digits, k=48))
+            for number in range(40):
+                if number == 34:
+                    (repo / "credential-control.txt").write_text('api_key="' + fake + '"\n')
+                    git("add", "credential-control.txt")
+                elif number == 35:
+                    git("rm", "credential-control.txt")
+                git("commit", "--allow-empty", "-m", f"control {number + 1}")
+            head = git("rev-parse", "HEAD")
+            env = dict(os.environ, GITHUB_EVENT_NAME="pull_request", PR_BASE_SHA=base, PR_HEAD_SHA=head)
+            for tree_control in (False, True):
+                if tree_control:
+                    (repo / "current-control.txt").write_text('api_key="' + fake + '"\n')
+                output = root / str(tree_control)
+                result = subprocess.run(
+                    [sys.executable, str(ROOT / "validation/security/run_secret_scan.py"),
+                     "--repository", str(repo), "--output", str(output), "--gitleaks", GITLEAKS],
+                    env=env, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 1)
+                scope = json.loads((output / "scope.json").read_text())
+                self.assertEqual(scope["history_range"], base + ".." + head)
+                self.assertEqual(scope["history_commits"], 40)
+                self.assertEqual(scope["results"]["history"]["exit_code"], 1)
+                self.assertEqual(scope["results"]["tree"]["exit_code"], int(tree_control))
+
 
 class KubernetesControls(unittest.TestCase):
     @staticmethod

@@ -37,7 +37,7 @@ jobs:
         run: |
           test "$RUNNER_ENVIRONMENT" = github-hosted
           sudo apt-get update -qq
-          sudo apt-get install -y -qq chrony iproute2 libcap2-bin util-linux
+          sudo apt-get install -y -qq chrony iproute2 libcap2-bin util-linux apparmor apparmor-utils
           sudo systemctl restart chrony
           sudo chronyc waitsync 30 0.1 0.0 2
           test "$(timedatectl show --property=NTPSynchronized --value)" = yes

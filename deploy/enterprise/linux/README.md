@@ -126,8 +126,9 @@ sudo python3 package.py install --role collector --config collector.env \
   --expected-sha256 "$INSTITUTION_APPROVED_ARCHIVE_SHA256" --confirm-separate-host
 ```
 
-Installation writes only the selected daemon, offline verifier, reviewed
-installer, systemd unit and supplied configuration; it creates the selected
+Installation writes the selected daemon, offline verifier, reviewed
+installer, systemd unit and supplied configuration. The explicitly approved
+full-sensor profile also installs its exact enforcing AppArmor policy; it creates the selected
 service account/state directory and reloads systemd. It refuses an existing
 installation or other role on the same host. It does **not** start services.
 The confirmation records an operator assertion, not independently verified
@@ -173,3 +174,9 @@ records or change their original bytes. Preserve collector chain state, wrapped
 key, Noise key, probe transport key and auditor trust anchors. Start manually
 and prove restart continuity before accepting the rollout. No automatic
 rollback, migration, high availability or no-downtime upgrade is claimed.
+
+The full-sensor approval gate also requires `--approved-probe-apparmor-sha256`.
+AppArmor must be enabled with its parser available and the exact policy loaded
+in enforce mode. The v2 package binds policy bytes to the archive and receipt;
+legacy v1 packages cannot activate this profile. See [the full-sensor review](FULL_SENSOR_REVIEW.md)
+for the retained host-root write finding and the required fresh qualification.

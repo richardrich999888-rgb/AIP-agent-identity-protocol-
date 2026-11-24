@@ -18,9 +18,11 @@ import time
 
 def operation(name, args):
     libc = ctypes.CDLL(None, use_errno=True)
-    if name in ('outside_write', 'host_root_write'):
+    if name in ('outside_write', 'host_root_write', 'other_root_write', 'state_symlink_write'):
         path = args.outside_writable
         if name == 'host_root_write': path = '/proc/1/root' + path
+        if name == 'other_root_write': path = f'/proc/{args.outside_pid}/root' + path
+        if name == 'state_symlink_write': path = args.state_symlink
         try:
             with open(path, 'ab', buffering=0) as stream: stream.write(b'UNEXPECTED-PROBE-WRITE\n')
             return {'allowed': True}
@@ -86,16 +88,19 @@ def isolated(name, args):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     for name in ('output', 'outside-writable', 'outside-private', 'mount-target'): parser.add_argument('--' + name, required=True)
+    parser.add_argument('--outside-pid', type=int, required=True)
+    parser.add_argument('--state-symlink', required=True)
     args = parser.parse_args()
     if sys.platform != 'linux' or os.geteuid() == 0: raise RuntimeError('requires actual nonroot Linux service identity')
     status = {}
     for line in Path('/proc/self/status').read_text().splitlines():
         key, _, value = line.partition(':')
         if key in ('Uid', 'Gid', 'CapEff', 'CapBnd', 'CapAmb', 'NoNewPrivs', 'Seccomp'): status[key] = value.strip()
-    operations = {name: isolated(name, args) for name in ('outside_write', 'host_root_write', 'mount', 'unshare', 'ptrace', 'process_vm_writev', 'private_read')}
-    forbidden = ('outside_write', 'host_root_write', 'mount', 'unshare', 'ptrace', 'process_vm_writev')
+    operations = {name: isolated(name, args) for name in ('outside_write', 'host_root_write', 'other_root_write', 'state_symlink_write', 'mount', 'unshare', 'ptrace', 'process_vm_writev', 'private_read')}
+    forbidden = ('outside_write', 'host_root_write', 'other_root_write', 'state_symlink_write', 'mount', 'unshare', 'ptrace', 'process_vm_writev')
     failures = [name for name in forbidden if operations[name].get('allowed') is not False or operations[name].get('errno') not in (errno.EPERM, errno.EACCES, errno.EROFS)]
-    result = {'status': 'FAIL' if failures else 'PASS', 'process_status': status, 'operations': operations, 'failed_negative_controls': failures,
+    label = Path('/proc/self/attr/current').read_text().strip()
+    result = {'status': 'FAIL' if failures else 'PASS', 'process_status': status, 'lsm_label': label, 'operations': operations, 'failed_negative_controls': failures,
               'broad_read_access_observed': operations['private_read'].get('allowed'),
               'scope': 'Disposable canaries only; allowed private read records residual CAP_DAC_READ_SEARCH visibility, not customer isolation.'}
     Path(args.output).write_text(json.dumps(result, indent=2) + '\n')

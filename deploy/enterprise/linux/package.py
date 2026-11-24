@@ -22,7 +22,11 @@ import tarfile
 import tempfile
 
 REPO = Path(__file__).resolve().parents[3]
-FORMAT = "vanian-runtime-package-v1"
+FORMAT = "vanian-runtime-package-v2"
+LEGACY_FORMAT = "vanian-runtime-package-v1"
+APPARMOR_NAME = "aip-probe-full-sensor"
+APPARMOR_MEMBER = "apparmor/aip-probe-full-sensor"
+APPARMOR_PATH = "/etc/apparmor.d/aip-probe-full-sensor"
 BINARIES = ("aip-probe", "aip-collector", "aip-observe-verify")
 TARGETS = {"x86_64-unknown-linux-gnu": 62, "aarch64-unknown-linux-gnu": 183}
 MAX_FILE = 256 * 1024 * 1024
@@ -82,6 +86,7 @@ def build(args):
     for role in ("probe", "collector"):
         for relative in (f"systemd/aip-{role}.service", f"{role}.env.example"):
             payload[relative] = ((REPO / "deploy/pilot" / relative).read_bytes(), 0o644)
+    payload[APPARMOR_MEMBER] = ((Path(__file__).parent / "aip-probe.full-sensor.apparmor.review").read_bytes(), 0o644)
     payload["package.py"] = (Path(__file__).read_bytes(), 0o755)
     manifest = {
         "format": FORMAT, "source_commit": args.source_commit,
@@ -129,11 +134,13 @@ def verified_package(path, expected):
             files[name] = (archive.extractfile(member).read(), member.mode)
     try:
         manifest = json.loads(files["manifest.json"][0])
-        if (manifest["format"] != FORMAT or manifest["mode"] != "OBSERVER_ONLY"
+        if (manifest["format"] not in {FORMAT, LEGACY_FORMAT} or manifest["mode"] != "OBSERVER_ONLY"
                 or manifest["target"] not in TARGETS
                 or not re.fullmatch(r"[0-9a-f]{40}", manifest["source_commit"])):
             fail("unsupported manifest or operating mode")
         expected_names = {"package.py"}
+        if manifest["format"] == FORMAT:
+            expected_names.add(APPARMOR_MEMBER)
         expected_names.update(f"bin/{name}" for name in BINARIES)
         expected_names.update(f"systemd/aip-{role}.service" for role in ("probe", "collector"))
         expected_names.update(f"{role}.env.example" for role in ("probe", "collector"))
@@ -358,13 +365,15 @@ def approved_mount(path, mountinfo="/proc/self/mountinfo"):
     return selected[0]
 
 
-def proposed_probe_unit(template, config):
+def proposed_probe_unit(template, config, apparmor_policy=None):
     """Generate exact bytes for review or explicitly approved runner validation.
 
     The host-mount lookup requires actual kernel/systemd qualification. Profile
     generation does not prove effective privileges or file-event coverage.
     Installation selects these bytes only through the explicit digest gate.
     """
+    if apparmor_policy is None:
+        apparmor_policy = (Path(__file__).parent / "aip-probe.full-sensor.apparmor.review").read_text()
     sensors = config["AIP_PROBE_SENSORS"].split(",")
     # READ-mode procfs access checks for other UIDs require SYS_PTRACE; content
     # measurement may also need read-only DAC bypass. Neither allows DAC writes.
@@ -392,7 +401,8 @@ def proposed_probe_unit(template, config):
     # Do not disable mount namespace hardening. Syscall restrictions additionally
     # deny mutation APIs, but are not a proof that all uses of broad capabilities
     # are safe; e.g. read visibility and BPF integrity queries remain privileged.
-    controls = ("RestrictNamespaces=yes\nRestrictSUIDSGID=yes\n"
+    controls = (f"AppArmorProfile={APPARMOR_NAME}\n# AppArmor policy SHA256: {digest(apparmor_policy.encode())}\n"
+                "RestrictNamespaces=yes\nRestrictSUIDSGID=yes\n"
                 "SystemCallArchitectures=native\nSystemCallErrorNumber=EPERM\n"
                 "SystemCallFilter=~@mount @reboot @swap @module @raw-io @clock ptrace process_vm_writev pidfd_getfd\n"
                 "MemoryDenyWriteExecute=yes\n")
@@ -414,13 +424,17 @@ def review_probe_unit(args):
     manifest, package = verified_package(args.archive, args.expected_sha256)
     config_bytes = Path(args.config).read_bytes()
     config = parse_config_bytes(config_bytes, "probe")
-    proposed = proposed_probe_unit(package["systemd/aip-probe.service"][0].decode(), config)
+    if APPARMOR_MEMBER not in package:
+        fail("full-sensor review requires a v2 package containing the write-confinement policy")
+    apparmor_policy = package[APPARMOR_MEMBER][0].decode()
+    proposed = proposed_probe_unit(package["systemd/aip-probe.service"][0].decode(), config, apparmor_policy)
     review = {"format": "vanian-probe-unit-review-v1", "status": "NEEDS_EXACT_DIGEST_APPROVAL",
               "installable_by_this_tool": False,
               "explicit_activation_scope": "APPROVED_DISPOSABLE_RUNNER_VALIDATION_ONLY",
               "source_commit": manifest["source_commit"],
               "package_sha256": args.expected_sha256.lower(), "unit_sha256": digest(proposed.encode()),
-              "config_sha256": digest(config_bytes),
+              "config_sha256": digest(config_bytes), "apparmor_sha256": digest(apparmor_policy.encode()),
+              "apparmor_policy": apparmor_policy, "apparmor_profile": APPARMOR_NAME,
               "sensors": config["AIP_PROBE_SENSORS"].split(","),
               "fanotify_mount": config.get("AIP_PROBE_FANOTIFY_PATH"),
               "packet_interface": config.get("AIP_PROBE_AFPACKET_INTERFACE"),
@@ -433,7 +447,7 @@ def review_probe_unit(args):
     with output.open("xb") as stream:
         stream.write(canonical(review))
     print(json.dumps({"status": review["status"], "output": str(output),
-                      "unit_sha256": review["unit_sha256"], "config_sha256": review["config_sha256"]}))
+                      "unit_sha256": review["unit_sha256"], "config_sha256": review["config_sha256"], "apparmor_sha256": review["apparmor_sha256"]}))
 
 
 def safe_destination(root, absolute):
@@ -461,7 +475,32 @@ def installation_root(args):
     return root
 
 
-def approved_probe_profile(args, root, config, config_bytes, template):
+def apparmor_support(enabled_path=Path("/sys/module/apparmor/parameters/enabled"),
+                     profiles_path=Path("/sys/kernel/security/apparmor/profiles")):
+    parser = shutil.which("apparmor_parser")
+    if not parser:
+        fail("BLOCKED: apparmor_parser is required for full-sensor write confinement")
+    if not enabled_path.is_file() or enabled_path.read_text().strip() != "Y":
+        fail("BLOCKED: AppArmor must be enabled; systemd alone can silently ignore its profile directive")
+    if not profiles_path.is_file():
+        fail("BLOCKED: loaded AppArmor profiles cannot be inspected")
+    return parser, profiles_path.read_text().splitlines()
+
+
+def apparmor_preflight():
+    parser, profiles = apparmor_support()
+    if any(line.startswith(APPARMOR_NAME + " ") for line in profiles):
+        fail("BLOCKED: refusing to replace an already loaded AppArmor profile")
+    return parser
+
+
+def apparmor_require_enforcing():
+    _, profiles = apparmor_support()
+    if APPARMOR_NAME + " (enforce)" not in profiles:
+        fail("BLOCKED: exact full-sensor AppArmor profile is not loaded in enforce mode")
+
+
+def approved_probe_profile(args, root, config, config_bytes, template, apparmor_policy=None):
     """An explicit operator approval gate; never evidence of host/custody trust.
 
     A root operator can supply environment markers, so they only prevent an
@@ -470,8 +509,9 @@ def approved_probe_profile(args, root, config, config_bytes, template):
     """
     unit_digest = getattr(args, "approved_probe_unit_sha256", None)
     config_digest = getattr(args, "approved_probe_config_sha256", None)
+    policy_digest = getattr(args, "approved_probe_apparmor_sha256", None)
     validation = getattr(args, "disposable_runner_validation", False)
-    requested = bool(unit_digest or config_digest or validation)
+    requested = bool(unit_digest or config_digest or policy_digest or validation)
     if not requested:
         if args.role == "probe" and "fanotify" in config["AIP_PROBE_SENSORS"].split(","):
             fail("full-sensor service profile is review-only by default; use review-probe-unit and explicit approved disposable-runner installation")
@@ -482,9 +522,13 @@ def approved_probe_profile(args, root, config, config_bytes, template):
         fail("approved full-sensor profile installation requires --disposable-runner-validation")
     if args.confirm_separate_host:
         fail("disposable runner validation cannot assert separate administrative hosts")
-    if any(not re.fullmatch(r"[0-9a-fA-F]{64}", value or "") for value in (unit_digest, config_digest)):
-        fail("both independently approved probe unit and config SHA-256 digests are required")
-    proposed = proposed_probe_unit(template, config)
+    if any(not re.fullmatch(r"[0-9a-fA-F]{64}", value or "") for value in (unit_digest, config_digest, policy_digest)):
+        fail("all three independently approved probe unit, config and AppArmor SHA-256 digests are required")
+    if apparmor_policy is None:
+        apparmor_policy = (Path(__file__).parent / "aip-probe.full-sensor.apparmor.review").read_text()
+    if digest(apparmor_policy.encode()) != policy_digest.lower():
+        fail("AppArmor policy differs from the approved SHA-256")
+    proposed = proposed_probe_unit(template, config, apparmor_policy)
     if digest(proposed.encode()) != unit_digest.lower():
         fail("proposed probe unit differs from the approved SHA-256")
     if digest(config_bytes) != config_digest.lower():
@@ -504,14 +548,20 @@ def install(args):
     # a mutable configuration after its digest has been checked.
     config_bytes = Path(args.config).read_bytes()
     config = parse_config_bytes(config_bytes, args.role)
+    apparmor_policy = package.get(APPARMOR_MEMBER, (None, None))[0]
+    if getattr(args, "disposable_runner_validation", False) and apparmor_policy is None:
+        fail("full-sensor activation requires a v2 package containing its AppArmor policy")
     profile = approved_probe_profile(args, root, config, config_bytes,
-                                    package[f"systemd/aip-{args.role}.service"][0].decode())
+        package[f"systemd/aip-{args.role}.service"][0].decode(),
+        apparmor_policy.decode() if apparmor_policy is not None else None)
     validation = profile is not None
     if root == Path("/"):
         machine = {"x86_64": "x86_64", "aarch64": "aarch64"}.get(platform.machine())
         if not manifest["target"].startswith(str(machine) + "-"):
             fail("package target does not match this host")
         host_preflight(config, args.role)
+        if validation:
+            apparmor_parser = apparmor_preflight()
         if not validation and not args.confirm_separate_host:
             fail("confirm separate administrative collector/workload hosts with --confirm-separate-host")
     receipt_path = safe_destination(root, "/etc/aip/vanian-runtime-install.json")
@@ -528,6 +578,7 @@ def install(args):
     }
     if validation:
         unit = profile
+        mapping[APPARMOR_PATH] = (apparmor_policy, 0o644)
     else:
         unit = package[f"systemd/aip-{args.role}.service"][0].decode().replace(
             "/usr/local/bin/", "/opt/vanian/snifferdog/bin/")
@@ -588,11 +639,31 @@ def install(args):
         target.chmod(mode)
         if not location.endswith(".env"):
             installed[location] = digest(data)
+    if validation and root == Path("/"):
+        policy_loaded = False
+        try:
+            subprocess.run([apparmor_parser, "--add", "--skip-cache", APPARMOR_PATH], check=True, timeout=30)
+            policy_loaded = True
+            apparmor_require_enforcing()
+        except (OSError, ValueError, subprocess.SubprocessError):
+            # No daemon has started. Retain credentials/spool and roll back
+            # only the exact fresh software/config writes owned by this attempt.
+            try:
+                if policy_loaded:
+                    subprocess.run([apparmor_parser, "--remove", "--skip-cache", APPARMOR_PATH],
+                                   check=False, timeout=30)
+            finally:
+                for location in mapping:
+                    safe_destination(root, location).unlink()
+            raise
     receipt_path.write_bytes(canonical({"format": FORMAT, "role": args.role,
         "source_commit": manifest["source_commit"], "archive_sha256": args.expected_sha256.lower(),
         "installed": installed, "mode": "OBSERVER_ONLY",
         "service_profile": "APPROVED_DISPOSABLE_FULL_SENSOR" if validation else "DEFAULT",
         "unit_sha256": digest(unit.encode()), "config_sha256": digest(config_bytes),
+        "apparmor_sha256": digest(apparmor_policy) if validation else None,
+        "apparmor_profile": APPARMOR_NAME if validation else None,
+        "apparmor_enforcing_checked": validation and root == Path("/"),
         "disposable_runner_validation": validation,
         "live_installation": root == Path("/"),
         "operator_separate_host_assertion": bool(args.confirm_separate_host),
@@ -608,10 +679,15 @@ def uninstall(args):
     receipt_path = safe_destination(root, "/etc/aip/vanian-runtime-install.json")
     receipt = json.loads(receipt_path.read_text())
     role = receipt.get("role")
-    if role not in {"probe", "collector"} or receipt.get("format") != FORMAT:
+    if role not in {"probe", "collector"} or receipt.get("format") not in {FORMAT, LEGACY_FORMAT}:
         fail("invalid installation receipt")
     allowed = {f"/opt/vanian/snifferdog/bin/aip-{role}", "/opt/vanian/snifferdog/bin/aip-observe-verify",
                "/opt/vanian/snifferdog/package.py", f"/etc/systemd/system/aip-{role}.service"}
+    apparmor_installed = receipt.get("apparmor_profile") == APPARMOR_NAME
+    if apparmor_installed:
+        if role != "probe" or receipt.get("service_profile") != "APPROVED_DISPOSABLE_FULL_SENSOR":
+            fail("unexpected AppArmor ownership in installation receipt")
+        allowed.add(APPARMOR_PATH)
     if set(receipt["installed"]) != allowed:
         fail("installation receipt contains unexpected paths")
     # Refuse before deleting anything if a local administrator changed a file.
@@ -621,6 +697,9 @@ def uninstall(args):
             fail(f"local change or missing file at {location}; review before uninstall")
     if root == Path("/"):
         subprocess.run(["systemctl", "disable", "--now", f"aip-{role}.service"], check=True)
+        if apparmor_installed:
+            parser, _ = apparmor_support()
+            subprocess.run([parser, "--remove", "--skip-cache", APPARMOR_PATH], check=True, timeout=30)
     for location in receipt["installed"]:
         safe_destination(root, location).unlink()
     receipt_path.unlink()
@@ -648,6 +727,7 @@ def main():
             command.add_argument("--confirm-separate-host", action="store_true")
             command.add_argument("--approved-probe-unit-sha256", help="exact reviewed full-sensor unit digest")
             command.add_argument("--approved-probe-config-sha256", help="exact reviewed probe configuration digest")
+            command.add_argument("--approved-probe-apparmor-sha256", help="exact reviewed enforcing write-confinement policy digest")
             command.add_argument("--disposable-runner-validation", action="store_true",
                                  help="explicit full-sensor qualification only on an approved disposable GitHub runner; never separate custody")
     command = commands.add_parser("review-probe-unit", help="write an inert candidate profile; never install or start it")

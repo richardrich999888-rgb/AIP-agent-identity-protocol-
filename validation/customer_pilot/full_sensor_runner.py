@@ -205,6 +205,7 @@ class Runner:
         self.mounts = []
         self.network_created = False
         self.installation_owned = False
+        self.installation_attempted = False
         self.negative_owned = False
         self.collector = self.proxy = None
         self.anchor = None
@@ -296,6 +297,15 @@ class Runner:
                 raise Refused('tool binary does not match the verified runtime package: ' + name)
         self.report['package'] = {'archive_sha256': self.args.expected_sha256.lower(),
                                   'source_commit': manifest['source_commit']}
+        version = self.cmd(['systemctl', '--version']).stdout.decode('ascii', errors='replace').splitlines()[0]
+        if not re.match(r'^systemd [0-9]+', version):
+            raise Refused('systemd version could not be measured')
+        clock = self.cmd(['timedatectl', 'show', '--property=NTPSynchronized', '--value']).stdout.strip()
+        self.report['platform'] = {'kernel_release': platform.release(), 'machine': platform.machine(),
+            'systemd_version': re.match(r'^systemd [0-9]+', version).group(),
+            'boot_id': Path('/proc/sys/kernel/random/boot_id').read_text().strip(),
+            'controller_clock_synchronized': clock == b'yes',
+            'clock_check_is_independent_collector_proof': False}
         self.probe_user = self.account('aip-probe', str(PROBE_STATE))
         self.collector_user = self.account('aip-validation-collector', str(COLLECTOR))
         self.selected_user = self.account('aip-pilot-selected', str(WORK))
@@ -425,26 +435,33 @@ class Runner:
         self.cmd(['/usr/bin/python3', package, 'review-probe-unit', *common,
                   '--config', config, '--output', review_path])
         review = json.loads(review_path.read_text())
+        self.installation_attempted = True
         self.cmd(['/usr/bin/python3', package, 'install', *common, '--role', 'probe',
             '--config', config, '--approved-probe-unit-sha256', review['unit_sha256'],
-            '--approved-probe-config-sha256', review['config_sha256'], '--disposable-runner-validation'])
+            '--approved-probe-config-sha256', review['config_sha256'],
+            '--approved-probe-apparmor-sha256', review['apparmor_sha256'], '--disposable-runner-validation'])
         self.installation_owned = True
         if UNIT.read_bytes() != review['unit'].encode() or CONFIG.read_bytes() != config.read_bytes():
             raise Refused('installed unit/config differs from exact reviewed bytes')
         receipt = json.loads(Path('/etc/aip/vanian-runtime-install.json').read_text())
         if (receipt['unit_sha256'] != review['unit_sha256']
                 or receipt['config_sha256'] != review['config_sha256']
+                or receipt['apparmor_sha256'] != review['apparmor_sha256']
+                or not receipt['apparmor_enforcing_checked']
                 or not receipt['live_installation'] or not receipt['disposable_runner_validation']
                 or receipt['operator_separate_host_assertion']
                 or receipt['independent_administrative_custody_established']):
             raise Refused('installation receipt does not match disposable exact approval')
         self.receipts.append({'phase': label, **receipt})
         save(self.public / 'installation-receipts.json', self.receipts)
+        if Path('/etc/apparmor.d/aip-probe-full-sensor').read_text() != review['apparmor_policy']:
+            raise Refused('installed AppArmor policy differs from approved bytes')
+        (self.public / 'effective-apparmor.profile').write_text(review['apparmor_policy'])
         self.unit_text = review['unit']
         (self.public / 'effective-probe.service').write_text(self.unit_text)
         # Capture effective properties after systemd's actual parser, not only template bytes.
         effective = self.cmd(['systemctl', 'show', 'aip-probe.service',
-            '--property=User,Group,NoNewPrivileges,ProtectSystem,ProtectHome,PrivateTmp,ReadWritePaths,RestrictNamespaces,RestrictSUIDSGID,MemoryDenyWriteExecute,AmbientCapabilities,CapabilityBoundingSet,SystemCallFilter,RestrictAddressFamilies,FragmentPath'])
+            '--property=AppArmorProfile,User,Group,NoNewPrivileges,ProtectSystem,ProtectHome,PrivateTmp,ReadWritePaths,RestrictNamespaces,RestrictSUIDSGID,MemoryDenyWriteExecute,AmbientCapabilities,CapabilityBoundingSet,SystemCallFilter,RestrictAddressFamilies,FragmentPath'])
         (self.public / 'effective-systemd-properties.txt').write_bytes(effective.stdout)
         if self.cmd(['systemctl', 'is-active', 'aip-probe.service'], check=False).returncode == 0:
             raise Refused('installer unexpectedly started the probe')
@@ -453,7 +470,12 @@ class Runner:
         before = len(self.batches())
         self.cmd(['systemctl', 'start', 'aip-probe.service'])
         self.wait('actual systemd probe to attest a new batch', lambda: len(self.batches()) > before, 35)
+        self.check_probe_identity()
+
+    def check_probe_identity(self):
         main = int(self.cmd(['systemctl', 'show', 'aip-probe.service', '--property=MainPID', '--value']).stdout)
+        if Path(f'/proc/{main}/attr/current').read_text().strip() != 'aip-probe-full-sensor (enforce)':
+            raise Refused('actual probe process is not running in its enforcing AppArmor profile')
         uid = Path(f'/proc/{main}/status').read_text().split('Uid:', 1)[1].splitlines()[0].split()
         if any(int(value) != self.probe_user.pw_uid for value in uid):
             raise Refused('probe did not run under the dedicated nonroot service identity')
@@ -660,6 +682,7 @@ class Runner:
         # identity must later appear in signed evidence, never inferred from PID.
         self.cmd(['systemctl', 'start', 'aip-probe.service'])
         self.exercise('selected', 'probe-restart')
+        self.check_probe_identity()
         self.queue_at_least(len([key for key in before if key.endswith('.batch')]) + 2)
         self.snapshot_queue('probe-restart')
         self.proxy.resume()
@@ -744,10 +767,13 @@ class Runner:
             path.chmod(mode)
         target = PROBE_STATE / 'negative-mount'
         self.owned_dir(target, self.probe_user)
+        state_link = PROBE_STATE / 'outside-link'
+        state_link.symlink_to(outside)
         output = PROBE_STATE / 'privilege-check.json'
         argv = ['/usr/bin/python3', str(TOOLS / 'full_sensor_privilege_check.py'),
                 '--output', str(output), '--outside-writable', str(outside),
-                '--outside-private', str(private), '--mount-target', str(target)]
+                '--outside-private', str(private), '--mount-target', str(target),
+                '--outside-pid', str(self.workers['selected'].pid), '--state-symlink', str(state_link)]
         text = re.sub(r'(?m)^ExecStart=.*$', 'ExecStart=' + ' '.join(argv), self.unit_text)
         text = re.sub(r'(?m)^Restart=.*$', 'Restart=no', text)
         # Copy every other security directive byte-for-byte from the approved unit.
@@ -765,12 +791,16 @@ class Runner:
         result['only_unit_changes'] = ['ExecStart', 'Restart']
         save(self.public / 'privilege-check.json', result)
         (self.public / 'effective-negative.service').write_text(text)
+        if result.get('lsm_label') != 'aip-probe-full-sensor (enforce)':
+            raise Refused('negative helper did not run under the exact enforcing AppArmor profile')
         if result.get('status') != 'PASS':
             raise Refused('exact service profile allowed forbidden negative controls: ' +
                           ','.join(result.get('failed_negative_controls', [])))
         self.report['checks']['negative_privileges'] = 'PASS'
 
     def probe_diagnostics(self):
+        last_stderr = self.private / f'command-{self.step:03d}.stderr'
+        previous_error = last_stderr.read_text(errors='replace') if last_stderr.exists() else ''
         journal = self.cmd(['journalctl', '--unit=aip-probe.service', '--no-pager',
                             '--output=cat', '--lines=150'], check=False)
         # Raw daemon text remains private. Public diagnostics are an allowlist
@@ -791,7 +821,35 @@ class Runner:
             key, _, value = line.partition('=')
             if key in allowed and re.fullmatch('[A-Za-z0-9_-]{1,32}', value):
                 states[key] = value
+        kernel = self.cmd(['journalctl', '--dmesg', '--no-pager', '--output=cat', '--lines=300'], check=False)
+        denials = []
+        operations = {'open', 'file_mmap', 'file_inherit', 'file_lock', 'getattr', 'capable', 'ptrace', 'signal', 'exec', 'change_onexec', 'connect', 'create', 'sendmsg', 'recvmsg'}
+        for line in kernel.stdout.decode('utf-8', errors='replace').splitlines():
+            if 'apparmor="DENIED"' not in line or 'profile="aip-probe-full-sensor"' not in line:
+                continue
+            fields = dict(re.findall(r'([a-z_]+)="([^"]*)"', line))
+            entry = {}
+            if fields.get('operation') in operations:
+                entry['operation'] = fields['operation']
+            for key in ('requested_mask', 'denied_mask'):
+                if re.fullmatch('[a-z]{1,16}', fields.get(key, '')):
+                    entry[key] = fields[key]
+            if fields.get('capname') in {'dac_read_search', 'sys_ptrace', 'perfmon', 'net_admin', 'sys_admin', 'net_raw'}:
+                entry['capability'] = fields['capname']
+            value = fields.get('name', '')
+            for prefix, category in (('/proc/', 'procfs'), ('/sys/', 'sysfs'), ('/usr/lib/', 'library'), ('/lib/', 'library'), ('/var/lib/aip-probe/', 'probe_state'), ('/srv/aip-pilot-', 'controlled_workspace'), ('/usr/bin/python', 'negative_python'), ('/opt/vanian/', 'probe_binary')):
+                if value.startswith(prefix):
+                    entry['path_category'] = category
+                    break
+            if fields.get('info') == 'Failed name lookup - disconnected path':
+                entry['disconnected_path'] = True
+            denials.append(entry)
         save(self.public / 'probe-diagnostics.json', {
+            'apparmor_denials': denials,
+            'parser_syntax_error': 'syntax error' in previous_error.lower(),
+            'apparmor_disabled_refusal': 'AppArmor must be enabled' in previous_error,
+            'apparmor_parser_unavailable': 'apparmor_parser is required' in previous_error,
+            'preexisting_profile_refused': 'already loaded AppArmor profile' in previous_error,
             'source': 'SANITIZED_SYSTEMD_JOURNAL_RAW_RETAINED_PRIVATELY',
             'unit_states': states,
             'sensor_open_error_names': [name for name, marker in sensors.items() if marker in raw],
@@ -852,7 +910,7 @@ class Runner:
             self.lifecycle()
         except Exception as error:
             self.report['failures'].append(type(error).__name__ + ': ' + str(error))
-            if self.installation_owned:
+            if self.installation_attempted:
                 try:
                     self.probe_diagnostics()
                 except Exception as diagnostic_error:

@@ -305,6 +305,9 @@ class Packaging(unittest.TestCase):
         self.assertEqual(review["config_sha256"], PACKAGE.digest(self.probe.read_bytes()))
         self.assertEqual(review["unit_sha256"], PACKAGE.digest(review["unit"].encode()))
         self.assertEqual(review["unit"], unit)
+        self.assertEqual(review["apparmor_sha256"], PACKAGE.digest(review["apparmor_policy"].encode()))
+        self.assertIn("AppArmorProfile=aip-probe-full-sensor\n", unit)
+        self.assertIn(review["apparmor_sha256"], unit)
         with self.assertRaises(FileExistsError):
             PACKAGE.review_probe_unit(argparse.Namespace(archive=str(self.archive), expected_sha256=self.expected,
                 config=str(self.probe), output=str(output)))
@@ -315,6 +318,7 @@ class Packaging(unittest.TestCase):
         unit = PACKAGE.proposed_probe_unit((ROOT / "deploy/pilot/systemd/aip-probe.service").read_text(), config)
         args.approved_probe_unit_sha256 = PACKAGE.digest(unit.encode())
         args.approved_probe_config_sha256 = PACKAGE.digest(self.probe.read_bytes())
+        args.approved_probe_apparmor_sha256 = PACKAGE.digest((ROOT / "deploy/enterprise/linux/aip-probe.full-sensor.apparmor.review").read_bytes())
         args.disposable_runner_validation = True
         return args, unit
 
@@ -335,12 +339,18 @@ class Packaging(unittest.TestCase):
         self.assertFalse(receipt["live_installation"])
         self.assertFalse(receipt["independent_administrative_custody_established"])
         self.assertFalse(receipt["operator_separate_host_assertion"])
+        self.assertEqual(receipt["apparmor_sha256"], args.approved_probe_apparmor_sha256)
+        self.assertFalse(receipt["apparmor_enforcing_checked"])
+        policy = root / PACKAGE.APPARMOR_PATH.lstrip("/")
+        self.assertEqual(PACKAGE.digest(policy.read_bytes()), receipt["apparmor_sha256"])
         self.assertEqual(reviewed.count("MemoryMax="), 1)
         self.assertEqual(reviewed.count("SystemCallFilter="), 1)
 
-    def test_full_sensor_activation_requires_both_exact_digests_and_disposable_scope(self):
-        cases = [("approved_probe_unit_sha256", None, "both independently approved"),
-                 ("approved_probe_config_sha256", None, "both independently approved"),
+    def test_full_sensor_activation_requires_three_exact_digests_and_disposable_scope(self):
+        cases = [("approved_probe_apparmor_sha256", None, "all three independently approved"),
+                 ("approved_probe_apparmor_sha256", "00" * 32, "AppArmor policy differs"),
+                 ("approved_probe_unit_sha256", None, "all three independently approved"),
+                 ("approved_probe_config_sha256", None, "all three independently approved"),
                  ("approved_probe_unit_sha256", "00" * 32, "unit differs"),
                  ("approved_probe_config_sha256", "00" * 32, "configuration differs"),
                  ("disposable_runner_validation", False, "requires --disposable"),
@@ -405,6 +415,64 @@ class Packaging(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "all-zero placeholder"):
             PACKAGE.install(args)
         self.assertEqual(list(Path(args.root).iterdir()), [])
+
+    def test_apparmor_support_is_required_and_loaded_profile_must_enforce(self):
+        enabled, profiles = self.work / "enabled", self.work / "profiles"
+        enabled.write_text("Y\n"); profiles.write_text("")
+        with mock.patch.object(PACKAGE.shutil, "which", return_value=None):
+            with self.assertRaisesRegex(ValueError, "apparmor_parser"):
+                PACKAGE.apparmor_support(enabled, profiles)
+        with mock.patch.object(PACKAGE.shutil, "which", return_value="/usr/sbin/apparmor_parser"):
+            enabled.write_text("N\n")
+            with self.assertRaisesRegex(ValueError, "enabled"):
+                PACKAGE.apparmor_support(enabled, profiles)
+            enabled.write_text("Y\n"); profiles.unlink()
+            with self.assertRaisesRegex(ValueError, "inspected"):
+                PACKAGE.apparmor_support(enabled, profiles)
+            profiles.write_text("")
+            self.assertEqual(PACKAGE.apparmor_support(enabled, profiles)[1], [])
+        for mode in ("enforce", "complain"):
+            with mock.patch.object(PACKAGE, "apparmor_support", return_value=("parser", [PACKAGE.APPARMOR_NAME + " (" + mode + ")"])):
+                with self.assertRaisesRegex(ValueError, "already loaded"):
+                    PACKAGE.apparmor_preflight()
+        for lines in ([], [PACKAGE.APPARMOR_NAME + " (complain)"], ["other (enforce)"]):
+            with mock.patch.object(PACKAGE, "apparmor_support", return_value=("parser", lines)):
+                with self.assertRaisesRegex(ValueError, "enforce mode"):
+                    PACKAGE.apparmor_require_enforcing()
+        with mock.patch.object(PACKAGE, "apparmor_support", return_value=("parser", [PACKAGE.APPARMOR_NAME + " (enforce)"])):
+            PACKAGE.apparmor_require_enforcing()
+
+    def test_apparmor_policy_tamper_refused_and_owned_uninstall_preserves_state(self):
+        args, _ = self.approved_full_sensor_args()
+        self.install(args)
+        root = Path(args.root)
+        policy = root / PACKAGE.APPARMOR_PATH.lstrip("/")
+        original = policy.read_bytes()
+        state = root / "var/lib/aip-probe/spool"
+        state.mkdir(); (state / "preserved").write_bytes(b"original queued bytes")
+        policy.write_bytes(original + b"# locally changed\n")
+        with self.assertRaisesRegex(ValueError, "local change"):
+            PACKAGE.uninstall(args)
+        policy.write_bytes(original)
+        with contextlib.redirect_stdout(io.StringIO()):
+            PACKAGE.uninstall(args)
+        self.assertFalse(policy.exists())
+        self.assertEqual((state / "preserved").read_bytes(), b"original queued bytes")
+
+    def test_legacy_v1_package_still_verifies_but_cannot_activate_full_sensor_profile(self):
+        def legacy(members):
+            members[:] = [(entry, data) for entry, data in members if entry.name != PACKAGE.APPARMOR_MEMBER]
+            for index, (entry, data) in enumerate(members):
+                if entry.name == "manifest.json":
+                    manifest = json.loads(data); manifest["format"] = PACKAGE.LEGACY_FORMAT
+                    del manifest["files"][PACKAGE.APPARMOR_MEMBER]
+                    members[index] = entry, PACKAGE.canonical(manifest)
+        archive, digest = self.replace_tar(legacy)
+        self.assertEqual(self.verify(archive, digest)[0]["format"], PACKAGE.LEGACY_FORMAT)
+        args, _ = self.approved_full_sensor_args()
+        args.archive, args.expected_sha256 = str(archive), digest
+        with self.assertRaisesRegex(ValueError, "v2 package"):
+            PACKAGE.install(args)
 
     def test_full_sensor_scope_rejects_broad_paths_and_unspecified_interface(self):
         self.full_sensor_config()

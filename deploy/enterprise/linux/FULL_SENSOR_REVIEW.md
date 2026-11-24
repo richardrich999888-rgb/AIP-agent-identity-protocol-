@@ -1,20 +1,54 @@
 # Full-sensor service profile: review and qualification
 
-Status: **explicit disposable-runner activation is available; live installation
-and sensor qualification must be established by the new test results.** The user
+Status: **the first live full-sensor run observed all seven sensors and verified
+signed evidence, but failed the host-root write negative control. The enforcing
+AppArmor candidate below requires a fresh Linux qualification before acceptance.** The user
 approved testing this profile on a disposable GitHub Actions Linux runner on
 24 November 2026. This authorization does not approve customer deployment or
 establish separately administered collector custody.
 
 `review-probe-unit` remains inert. `package.py install` still refuses fanotify by
 default. Its new activation path requires the reviewed unit digest, the exact
-configuration digest and an explicit disposable-runner flag. It never starts a
-service automatically. The supplied unit's capability and hardening directives
-are unchanged by this activation path.
+configuration digest, the exact AppArmor policy digest and an explicit disposable-runner flag. It never starts a
+service automatically. The existing capability, seccomp and namespace restrictions remain; an enforcing
+AppArmor policy adds filesystem write confinement beyond the mount namespace.
+
+## Filesystem write boundary
+
+The original `ProtectSystem=strict` namespace did not protect a world-writable
+host file reached through `/proc/1/root`. Run 45331122159 retained that failure;
+its successful sensor and signature checks do not turn the failed privilege
+control into a pass. The negative control remains mandatory.
+
+The v2 package includes the exact AppArmor policy. The installed unit names it
+without an ignore-errors prefix and incorporates its digest. Installation
+requires AppArmor enabled, its parser available, and kernel profile inspection.
+It refuses an existing same-named profile, loads only the approved bytes with
+cache use disabled, and requires enforce mode. The runner also checks the actual
+probe and negative helper process labels, including after a disconnected restart.
+A disabled LSM, complain-mode profile, unavailable parser, or missing loaded
+profile is a refusal, never a successful qualification.
+
+The policy permits measurement reads, the existing sensor capabilities and
+socket types, and fixed inherited execution. Only service-owned paths under
+`/var/lib/aip-probe` receive write permission. It grants no unconfined execution
+or profile changes and uses no disconnected-path aliasing flag. Direct writes,
+host-root and other-process-root aliases, and a symlink from writable state to
+an outside canary must all fail while normal spool operations and all seven
+sensors continue to work. Profile bytes and their digest are retained with the
+installation receipt and public qualification evidence. Uninstall stops the
+service, unloads only its owned policy, removes software, and preserves state.
+
+This is a candidate until the original exploit and legitimate controls pass
+on Linux. Read access remains broad; filesystem write confinement does not
+establish independent collector custody or isolation of customer secrets.
+Legacy v1 packages still verify and support their default profiles; they cannot
+activate the full-sensor profile without the v2 confinement artifact.
 
 ## Concrete candidate
 
-Inspect [the complete unit](aip-probe.full-sensor.service.review) and
+Inspect [the complete unit](aip-probe.full-sensor.service.review),
+[the enforcing policy](aip-probe.full-sensor.apparmor.review), and
 [the sample configuration](full-sensor-pilot.env.review). The sample endpoint
 and all-zero transport pin are placeholders, not enrolled trust material.
 From an independently verified runtime archive, generate an equivalent review
@@ -28,7 +62,7 @@ python3 package.py review-probe-unit \
 ```
 
 The JSON records the source commit, archive digest, exact proposed unit and
-unit digest, exact configuration-byte digest, chosen sensors, mount, interface
+unit digest, exact configuration-byte and AppArmor-policy digests, chosen sensors, mount, interface
 and filter path. Generation is not approval or qualification. Existing files
 are never replaced.
 
@@ -42,6 +76,7 @@ sudo env GITHUB_ACTIONS=true RUNNER_ENVIRONMENT=github-hosted \
   --expected-sha256 "$INDEPENDENTLY_APPROVED_ARCHIVE_SHA256" \
   --approved-probe-unit-sha256 "$APPROVED_PROBE_UNIT_SHA256" \
   --approved-probe-config-sha256 "$APPROVED_PROBE_CONFIG_SHA256" \
+  --approved-probe-apparmor-sha256 "$APPROVED_PROBE_APPARMOR_SHA256" \
   --disposable-runner-validation
 ```
 
