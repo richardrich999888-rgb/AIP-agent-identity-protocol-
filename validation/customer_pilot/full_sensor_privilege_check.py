@@ -22,7 +22,7 @@ def operation(name, args):
         path = args.outside_writable
         if name == 'host_root_write': path = '/proc/1/root' + path
         if name == 'other_root_write': path = f'/proc/{args.outside_pid}/root' + path
-        if name == 'state_symlink_write': path = args.state_symlink
+        if name == 'state_symlink_write': path = '/proc/1/root' + args.state_symlink
         try:
             with open(path, 'ab', buffering=0) as stream: stream.write(b'UNEXPECTED-PROBE-WRITE\n')
             return {'allowed': True}

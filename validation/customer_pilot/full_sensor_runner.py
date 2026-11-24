@@ -832,10 +832,19 @@ class Runner:
         for line in kernel.stdout.decode('utf-8', errors='replace').splitlines():
             if 'apparmor="DENIED"' not in line or 'profile="aip-probe-full-sensor"' not in line:
                 continue
-            fields = dict(re.findall(r'([a-z_]+)="([^"]*)"', line))
+            fields = {key: quoted or bare for key, quoted, bare in
+                      re.findall(r'([a-z_]+)=(?:"([^"]*)"|([^\s]+))', line)}
             entry = {}
             if fields.get('operation') in operations:
                 entry['operation'] = fields['operation']
+            for key, values in (('family', {'inet', 'inet6', 'unix', 'netlink', 'packet'}),
+                                ('sock_type', {'stream', 'dgram', 'raw', 'seqpacket', 'rdm', 'packet'}),
+                                ('class', {'file', 'net', 'cap', 'ptrace', 'signal', 'mount', 'domain'})):
+                if fields.get(key) in values:
+                    entry[key] = fields[key]
+            protocol = fields.get('protocol', '')
+            if re.fullmatch('[0-9]{1,5}', protocol) and int(protocol) <= 65535:
+                entry['protocol'] = int(protocol)
             for key in ('requested_mask', 'denied_mask'):
                 if re.fullmatch('[a-z]{1,16}', fields.get(key, '')):
                     entry[key] = fields[key]

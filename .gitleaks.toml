@@ -616,3 +616,107 @@ paths = [
 regexes = [
     '''^\Qkey="sde21d0843736b4c9e9cba"\E$''',
 ]
+
+[[rules.allowlists]]
+description = "Published profile HMAC output from IdentityRegistry.sign; not the signing key"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qorbitaltrust-accountability/rust/ot-verifier/tests/fixtures/multisig-mission-dossier.json\E$''',
+]
+regexes = [
+    '''^\QcredentialSignature": "1f9de603e3d39a9c199c542ee49d9da3c9324f8b6b68e2f33f93916665ba3152"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Published profile HMAC output from IdentityRegistry.sign; not the signing key"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qorbitaltrust-accountability/rust/ot-verifier/tests/fixtures/post-revocation-execution.json\E$''',
+]
+regexes = [
+    '''^\QcredentialSignature": "e087b293fd5b2bb29dad74e738323922a454bf0c55f96312983d72c6b104113f"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Published profile HMAC output from IdentityRegistry.sign; not the signing key"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qorbitaltrust-accountability/rust/ot-verifier/tests/fixtures/valid-mission-dossier.json\E$''',
+]
+regexes = [
+    '''^\QcredentialSignature": "a8c66540e6d9abd4389ca69ef6bcdadc00ac75fc5bc18e947a4164dcb6b1a632"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Byte-verified public source inventory digest; exact field/value/file"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/20261028T101450Z/report.json\E$''',
+]
+regexes = [
+    '''^\QADR-KEY-CUSTODY.md": "011020d3339305d86d945972620c5ed40264ca6e52b2d9932dafebad799bd501"\E$''',
+    '''^\Qaccess.rs": "2674d23a012101202eaf817524c3945b0f846ac99fbbc2383a4df6cc5e5f3175"\E$''',
+    '''^\Qaccess_ledger.rs": "49e3547144ca76bff54dedeed880849ecfccbfa0481726bc66b07eada6656204"\E$''',
+    '''^\Qattestation-keys.md": "1d2c6f4b75862b098a2c0c83f11fcfc0b7e73594b67ae578da0b449e943e6c29"\E$''',
+    '''^\Qauth.rs": "45274e0c27fa3d9c65d5575dc0e4579684506b8b8def9e2ad1ce4612d2be8547"\E$''',
+    '''^\Qauth.rs": "8b10355f6cdaac31eb74eab6144d50d3d97b01bd94f6352cc3c19647cc48d161"\E$''',
+    '''^\Qcollector-key-provisioning.md": "8ad06bb8f0fb11f879685ad460dda00b01362e9cd5b048b7a231758b27f9a32e"\E$''',
+    '''^\Qcollector.key.wrapped": "49df151535ad70a9a2235ce447cf6d3016433ee4d4521ba18ee8c7a699f0e722"\E$''',
+    '''^\Qkey_custody.rs": "684128597bb28fcde1dde45b46b2dbe9278728168bf4ede05fcbfbd9a3ddea2e"\E$''',
+    '''^\Qkeys.example.json": "ad3d47bb5a8d35a062c23a5d7f10930fb9f81c9bae82800e0f76f877c7ca3054"\E$''',
+    '''^\Qkeys.rs": "9845c7300eb51f38670ed1fe53031c39da289c5d863f927986c603c1efddbb25"\E$''',
+    '''^\Qmetrics_api.rs": "ec65b38e965aaa7b68a856817e8dc04c464232acf066a15bcd73997cbbe16c95"\E$''',
+    '''^\Qnoise.key.json": "bf72a5b8f5dc586cdab54ab31d8962e5b995474d309b1ab5d171cd5475518b2f"\E$''',
+    '''^\Qnoise_key.rs": "11b1f9a450a7c67396ca104061017ab74002f255e614270ce30f45814d4cbc73"\E$''',
+    '''^\Qopenapi.yaml": "0727534f9e69d55d055785a4a69b8454becf5386714820fbe6420dec22e17e22"\E$''',
+    '''^\Qprobe.key.json": "14751591f8d7385bd2a8163a713eaae2aa8f7c032d0f39f65525b0bb7e1ece45"\E$''',
+    '''^\Qprobe.keygen.log": "c63cd2fd047a9f2044a0795de744cee61da4a58f01a67a4b8c1d640a42a8676a"\E$''',
+    '''^\Qtokens.rs": "7f0098dcd757c12daabd645284747cb377364cc8aa2c1c5fa241cfffeafc1d85"\E$''',
+    '''^\Qverdict_api.rs": "6ac79cb0496240b543d378674d98009141e9c5e1f71273ec4840ec6d621e830f"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Byte-verified public source inventory digest; exact field/value/file"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/20261028T102430Z/report.json\E$''',
+]
+regexes = [
+    '''^\QADR-KEY-CUSTODY.md": "011020d3339305d86d945972620c5ed40264ca6e52b2d9932dafebad799bd501"\E$''',
+    '''^\Qaccess.rs": "2674d23a012101202eaf817524c3945b0f846ac99fbbc2383a4df6cc5e5f3175"\E$''',
+    '''^\Qaccess_ledger.rs": "49e3547144ca76bff54dedeed880849ecfccbfa0481726bc66b07eada6656204"\E$''',
+    '''^\Qattestation-keys.md": "1d2c6f4b75862b098a2c0c83f11fcfc0b7e73594b67ae578da0b449e943e6c29"\E$''',
+    '''^\Qauth.rs": "45274e0c27fa3d9c65d5575dc0e4579684506b8b8def9e2ad1ce4612d2be8547"\E$''',
+    '''^\Qauth.rs": "8b10355f6cdaac31eb74eab6144d50d3d97b01bd94f6352cc3c19647cc48d161"\E$''',
+    '''^\Qcollector-key-provisioning.md": "8ad06bb8f0fb11f879685ad460dda00b01362e9cd5b048b7a231758b27f9a32e"\E$''',
+    '''^\Qcollector.key.wrapped": "49df151535ad70a9a2235ce447cf6d3016433ee4d4521ba18ee8c7a699f0e722"\E$''',
+    '''^\Qenterprise_api.rs": "c092f4f3a7e1ee5afa5b3f9c876d677d685f41bd1993fb1277ce6ac9ed156d95"\E$''',
+    '''^\Qkey_custody.rs": "684128597bb28fcde1dde45b46b2dbe9278728168bf4ede05fcbfbd9a3ddea2e"\E$''',
+    '''^\Qkeys.example.json": "ad3d47bb5a8d35a062c23a5d7f10930fb9f81c9bae82800e0f76f877c7ca3054"\E$''',
+    '''^\Qkeys.rs": "9845c7300eb51f38670ed1fe53031c39da289c5d863f927986c603c1efddbb25"\E$''',
+    '''^\Qmetrics_api.rs": "ec65b38e965aaa7b68a856817e8dc04c464232acf066a15bcd73997cbbe16c95"\E$''',
+    '''^\Qnoise.key.json": "bf72a5b8f5dc586cdab54ab31d8962e5b995474d309b1ab5d171cd5475518b2f"\E$''',
+    '''^\Qnoise_key.rs": "11b1f9a450a7c67396ca104061017ab74002f255e614270ce30f45814d4cbc73"\E$''',
+    '''^\Qopenapi.yaml": "0727534f9e69d55d055785a4a69b8454becf5386714820fbe6420dec22e17e22"\E$''',
+    '''^\Qopenapi_contract.py": "03d2d13d747a7e52a3b677e38ae37a74d4aae66d6e0406ccebbddaf6522b9c07"\E$''',
+    '''^\Qprobe.key.json": "14751591f8d7385bd2a8163a713eaae2aa8f7c032d0f39f65525b0bb7e1ece45"\E$''',
+    '''^\Qprobe.keygen.log": "c63cd2fd047a9f2044a0795de744cee61da4a58f01a67a4b8c1d640a42a8676a"\E$''',
+    '''^\Qtokens.rs": "7f0098dcd757c12daabd645284747cb377364cc8aa2c1c5fa241cfffeafc1d85"\E$''',
+    '''^\Qverdict_api.rs": "6ac79cb0496240b543d378674d98009141e9c5e1f71273ec4840ec6d621e830f"\E$''',
+]
+
+[[rules.allowlists]]
+description = "SPIRE request correlation UUID, distinct from the recorded join-token identifier"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/external/spiffe/results/sealed/server.log\E$''',
+]
+regexes = [
+    '''^\Qjoin_token request_id=e5a74963-4364-4b21-8071-0e735b87277c \E$''',
+]

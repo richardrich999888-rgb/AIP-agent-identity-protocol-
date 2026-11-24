@@ -96,7 +96,7 @@ class ScannerControls(unittest.TestCase):
         expected = set()
         for index, (path, match) in enumerate(self.entries):
             import re
-            public_value = re.findall(r"[A-Za-z0-9]{20,}", match)[-1]
+            public_value = re.findall(r"[A-Za-z0-9-]{20,}", match)[-1]
             line = contents.get(path, "").count("\n") + 1
             contents[path] = contents.get(path, "") + match.replace(public_value, replacement) + "\n"
             expected.add((path, line, "generic-api-key"))
