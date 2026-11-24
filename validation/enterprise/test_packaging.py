@@ -424,10 +424,52 @@ class Packaging(unittest.TestCase):
         links = [line for line in rules if " link " in " " + line]
         self.assertEqual(links, ["owner link subset /var/lib/aip-probe/** -> /var/lib/aip-probe/**,"])
         for line in rules:
-            if line.endswith(",") and " link " not in " " + line:
+            if line.endswith(",") and " link " not in " " + line and not line.startswith("deny "):
                 permissions = line.rsplit(" ", 1)[-1].rstrip(",")
                 if set(permissions) <= set("rwakmlx"):
                     self.assertNotIn("l", permissions, "bare link permission permits unbounded targets")
+
+    def test_disconnected_mount_paths_cannot_alias_state_write_or_exec_rules(self):
+        # Fanotify event FDs can refer to another mount namespace. Their policy
+        # names must remain under a separate, explicitly read-only prefix even
+        # when the original pathname looks like approved state or an executable.
+        policy = (ROOT / "deploy/enterprise/linux/aip-probe.full-sensor.apparmor.review").read_text()
+        rules = [line.strip() for line in policy.splitlines() if line.strip() and not line.lstrip().startswith("#")]
+        prefix = "/__aip_readonly_disconnected__/"
+        self.assertIn("attach_disconnected.path=" + prefix, rules[0])
+        self.assertNotRegex(rules[0], r"attach_disconnected(?:[, )]|\.path=/[, )])")
+        self.assertIn(prefix + "{,**} r,", rules)
+        self.assertIn("deny " + prefix + "{,**} wklmx,", rules)
+        # Every non-read file grant remains anchored outside the synthetic path.
+        for rule in rules[1:]:
+            if rule.startswith("deny ") or " link " in " " + rule or not rule.endswith(","):
+                continue
+            words = rule[:-1].split()
+            if len(words) < 2 or not words[-2].startswith("/"):
+                continue
+            if set(words[-1]) - {"r"}:
+                self.assertNotIn(prefix, words[-2])
+                self.assertNotIn(words[-2], ("/", "/**", "/*"))
+        # Neither a state-shaped nor executable-shaped disconnected name matches
+        # the only writable hierarchy or the literal inherited execution paths.
+        import fnmatch
+        for original in ("/var/lib/aip-probe/spool/batch", "/usr/bin/python3", "/opt/vanian/snifferdog/bin/aip-probe"):
+            attached = prefix + original
+            self.assertFalse(fnmatch.fnmatchcase(attached, "/var/lib/aip-probe/**"))
+            self.assertFalse(attached.startswith("/usr/bin/"))
+            self.assertFalse(attached.startswith("/opt/vanian/"))
+
+    def test_disconnected_path_kernel_minimum_refuses_old_or_unknown_releases(self):
+        enabled, profiles = self.work / "enabled", self.work / "profiles"
+        enabled.write_text("Y\n"); profiles.write_text("")
+        with mock.patch.object(PACKAGE.shutil, "which", return_value="/usr/sbin/apparmor_parser"):
+            for release in ("4.12.99", "3.19.0", "unknown", "4.13garbage", ""):
+                with self.subTest(release=release), mock.patch.object(PACKAGE.platform, "release", return_value=release):
+                    with self.assertRaisesRegex(ValueError, "kernel release >= 4.13"):
+                        PACKAGE.apparmor_support(enabled, profiles)
+            for release in ("4.13", "4.13.0", "6.8.0-101-generic", "7.0.0-generic"):
+                with self.subTest(release=release), mock.patch.object(PACKAGE.platform, "release", return_value=release):
+                    self.assertEqual(PACKAGE.apparmor_support(enabled, profiles)[1], [])
 
     def test_apparmor_support_is_required_and_loaded_profile_must_enforce(self):
         enabled, profiles = self.work / "enabled", self.work / "profiles"

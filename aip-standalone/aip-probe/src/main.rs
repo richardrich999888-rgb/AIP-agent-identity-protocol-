@@ -118,7 +118,7 @@ fn run() -> Result<(), String> {
         if window_close < window_open {
             return Err("host wall clock moved backwards during collection".into());
         }
-        let batch = sensors.collect_batch(window_open, window_close);
+        let batch = sensors.collect_batch(window_open, window_close)?;
         let batch = match &filter {
             Some(f) => f.apply(batch)?,
             None => batch,

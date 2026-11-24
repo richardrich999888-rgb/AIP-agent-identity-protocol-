@@ -866,6 +866,7 @@ class Runner:
             'preexisting_profile_refused': 'already loaded AppArmor profile' in previous_error,
             'source': 'SANITIZED_SYSTEMD_JOURNAL_RAW_RETAINED_PRIVATELY',
             'unit_states': states,
+            'fatal_read_error_names': [name for name in (*sensors, 'exec-rendezvous') if 'sensor ' + name + ' acquisition failed:' in raw],
             'sensor_open_error_names': [name for name, marker in sensors.items() if marker in raw],
             'recognized_errors': sorted({code for message, code in errors.items() if message in raw}),
             'os_error_numbers': sorted({int(number) for number in re.findall(r'os error ([0-9]{1,4})', raw)}),

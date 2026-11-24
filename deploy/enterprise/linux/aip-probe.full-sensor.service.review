@@ -24,7 +24,7 @@ RestartSec=2
 
 NoNewPrivileges=yes
 AppArmorProfile=aip-probe-full-sensor
-# AppArmor policy SHA256: 9466f2d5e6ef78e5b8c252efa3472be11eaff6468f534d174b7b572e72b37362
+# AppArmor policy SHA256: 437e272bd663e07ef11300a8a0845b827f4a4128b98879c91ee5fc73131142e7
 RestrictNamespaces=yes
 RestrictSUIDSGID=yes
 SystemCallArchitectures=native

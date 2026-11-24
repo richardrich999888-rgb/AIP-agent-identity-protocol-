@@ -52,6 +52,15 @@ Sensor ring loss before a batch is persisted remains possible
 and keeps the existing loss/uncertainty semantics. Restarting the probe creates a
 new run ID, so a collection interruption is not hidden.
 
+An unreadable or malformed sensor read is not a quiet interval. Acquisition
+refuses the incomplete batch and permanently stops that sensor run before
+serialization or queue insertion. A caller cannot retry the same sensor set to
+publish the failed window later. Previously committed queue entries remain
+intact; restart creates a new run identity, and existing collector rules refuse
+to backfill the interruption. Kernel-reported loss keeps its existing explicit
+loss semantics. This does not claim that volatile, uncommitted observations
+survive a failed acquisition.
+
 ## Collector receipts and replay
 
 A single shared writer serializes attestations, archive append and replay

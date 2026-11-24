@@ -75,7 +75,7 @@ fn fanotify_observes_a_completed_write_and_binds_it_by_pidfd() {
     std::fs::write(&path, b"a completed write").expect("write");
     let to = now_ms();
 
-    let batch = sensors.collect_batch(from, to);
+    let batch = sensors.collect_batch(from, to).expect("sensor acquisition");
     let _ = std::fs::remove_dir_all(&dir);
 
     assert!(
@@ -140,7 +140,7 @@ fn fanotify_carries_no_file_content() {
     std::fs::write(dir.join("statement.txt"), SECRET.as_bytes()).expect("write");
     let to = now_ms();
 
-    let batch = sensors.collect_batch(from, to);
+    let batch = sensors.collect_batch(from, to).expect("sensor acquisition");
     let _ = std::fs::remove_dir_all(&dir);
 
     let serialized = serde_json::to_string(&batch).expect("serialize batch");
@@ -192,7 +192,7 @@ fn the_af_packet_tap_records_headers_and_never_the_payload() {
     server.join().ok();
     let to = now_ms();
 
-    let batch = sensors.collect_batch(from, to);
+    let batch = sensors.collect_batch(from, to).expect("sensor acquisition");
 
     assert!(
         batch
@@ -271,7 +271,9 @@ fn the_file_and_wire_sensors_are_gate_independent_and_owe_no_report() {
         let _ = std::fs::remove_dir_all(&dir);
         return;
     };
-    let batch = sensors.collect_batch(now_ms(), now_ms());
+    let batch = sensors
+        .collect_batch(now_ms(), now_ms())
+        .expect("sensor acquisition");
     let _ = std::fs::remove_dir_all(&dir);
 
     assert!(

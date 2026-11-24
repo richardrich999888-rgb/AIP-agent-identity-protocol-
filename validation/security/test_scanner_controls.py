@@ -72,6 +72,30 @@ class ScannerControls(unittest.TestCase):
             contents[path] = contents.get(path, "") + match + "\n"
         self.assertEqual(len(self.scan(contents)), 0)
 
+    def test_recovered_source_bytes_prove_exact_inventory_exceptions(self):
+        root = ROOT / "validation/security"
+        meta = json.loads((root / "recovered-inventory-sources.json").read_text())
+        archive = root / meta["archive"]
+        self.assertEqual(hashlib.sha256(archive.read_bytes()).hexdigest(), meta["archive_sha256"])
+        self.assertEqual(len(meta["sources"]), 3)
+        contents = {}
+        with zipfile.ZipFile(archive) as z:
+            self.assertEqual(set(z.namelist()), {item["member"] for item in meta["sources"]})
+            for item in meta["sources"]:
+                raw = z.read(item["member"])
+                self.assertEqual(len(raw), item["bytes"])
+                self.assertEqual(hashlib.sha256(raw).hexdigest(), item["sha256"])
+                recorded = json.loads((ROOT / item["original_inventory"]).read_text())
+                for field in item["inventory_field"]:
+                    recorded = recorded[field]
+                self.assertEqual(recorded, item["sha256"])
+                match = Path(item["source_path"]).name + '\": \"' + recorded + '\"'
+                self.assertIn((item["original_inventory"], match), self.entries)
+                contents[item["member"]] = raw.decode("utf-8")
+        # Archive packaging must not conceal a credential in recovered source.
+        # Existing positive controls also exercise every added exception.
+        self.assertEqual(self.scan(contents), [])
+
     def test_credentials_same_paths_and_same_lines_still_detected(self):
         rng = random.Random(728471)
         generic = "".join(rng.choices(string.ascii_letters + string.digits, k=48))

@@ -105,13 +105,16 @@ enum ExecRendezvousStop {
     EventBudget,
     TimeBudget,
     RoundBudget,
+    SourceError,
 }
 
-/// Acquisition diagnostics only. No event payload, PID, path or evidence claim.
+/// Acquisition diagnostics only. A source error refuses the batch and stays
+/// in private daemon diagnostics; it never supplies an evidence claim.
 #[cfg(any(target_os = "linux", test))]
 #[derive(Debug)]
 struct ExecRendezvousReport {
     stop: ExecRendezvousStop,
+    source_error: Option<aip_observe::SourceError>,
     rounds: usize,
     events: [usize; 2],
     reads: [usize; 2],
@@ -129,6 +132,7 @@ fn acquire_exec_witnesses(
 ) -> ExecRendezvousReport {
     let mut report = ExecRendezvousReport {
         stop: ExecRendezvousStop::Paired,
+        source_error: None,
         rounds: 0,
         events: [0; 2],
         reads: [0; 2],
@@ -185,7 +189,12 @@ fn acquire_exec_witnesses(
                         probe.record_lost_events(1);
                         break;
                     }
-                    Err(_) => break,
+                    Err(error) => {
+                        report.stop = ExecRendezvousStop::SourceError;
+                        report.source_error = Some(error);
+                        report.elapsed = reader.elapsed();
+                        return report;
+                    }
                 }
             }
             if source == ExecSource::Sched {
@@ -261,6 +270,7 @@ fn pending_exec_witnesses_paired(events: &[aip_observe::KernelLifecycleEvent]) -
 
 /// Owns the open tracers and the batch-building probe.
 pub struct SensorSet {
+    fatal_source_error: Option<String>,
     probe: ProcfsProbe,
     batch_counter: u64,
     #[cfg(target_os = "linux")]
@@ -439,6 +449,7 @@ impl SensorSet {
         }
 
         Ok(Self {
+            fatal_source_error: None,
             probe,
             batch_counter: 0,
             process,
@@ -464,8 +475,12 @@ impl SensorSet {
 
     /// Drain the open sensors and build one batch covering `[from_ms, to_ms]`.
     /// Reported ring loss becomes counted loss on the batch; nothing is
-    /// inferred to fill a gap.
-    pub fn collect_batch(&mut self, from_ms: u64, to_ms: u64) -> ObservationBatch {
+    /// inferred to fill a gap. Other read errors permanently refuse this run;
+    /// callers must restart acquisition rather than publish an incomplete batch.
+    pub fn collect_batch(&mut self, from_ms: u64, to_ms: u64) -> Result<ObservationBatch, String> {
+        if let Some(error) = &self.fatal_source_error {
+            return Err(error.clone());
+        }
         #[cfg(target_os = "linux")]
         {
             use aip_observe::boot_clock_anchor;
@@ -474,20 +489,23 @@ impl SensorSet {
             if let Ok(anchor) = boot_clock_anchor() {
                 self.probe.declare_clock_anchor(anchor);
             }
-            // Drain one tracer into the probe: pull events until the ring is
-            // quiet (`Ok(None)`), a source error, or the per-cycle cap; then
-            // fold any reported ring loss into counted loss. A `while let Ok`
-            // ends the loop on both `Ok(None)` and `Err` — the same terminal
-            // behavior as the explicit match, without a busy spin.
+            // Only Ok(None) is a quiet source. An unreadable source cannot
+            // license a counted-zero batch or later coverage of this window.
             macro_rules! drain_into_probe {
-                ($slot:expr, $ingest:ident) => {
+                ($slot:expr, $ingest:ident, $name:literal) => {
                     if let Some(t) = $slot.as_mut() {
                         let mut n: u32 = 0;
-                        while let Ok(Some(ev)) = t.next_event(POLL_MS) {
-                            self.probe.$ingest(ev);
-                            n += 1;
-                            if n >= MAX_EVENTS_PER_DRAIN {
-                                break;
+                        loop {
+                            match t.next_event(POLL_MS) {
+                                Ok(Some(ev)) => {
+                                    self.probe.$ingest(ev);
+                                    n += 1;
+                                    if n >= MAX_EVENTS_PER_DRAIN {
+                                        break;
+                                    }
+                                }
+                                Ok(None) => break,
+                                Err(error) => return self.fail_source_read($name, error),
                             }
                         }
                         let lost = t.take_lost();
@@ -497,14 +515,11 @@ impl SensorSet {
                     }
                 };
             }
-            drain_into_probe!(self.process, ingest_sched_event);
-            drain_into_probe!(self.cgroup, ingest_cgroup_event);
-            drain_into_probe!(self.sockstate, ingest_socket_event);
-            drain_into_probe!(self.socksend, ingest_send_event);
-            // The AF_PACKET tap yields the same `ProcEvent` shape as the
-            // tracers, so it drains identically; its loss counter is the
-            // kernel's own `PACKET_STATISTICS.tp_drops`.
-            drain_into_probe!(self.wire, ingest_wire_event);
+            drain_into_probe!(self.process, ingest_sched_event, "sched");
+            drain_into_probe!(self.cgroup, ingest_cgroup_event, "cgroup");
+            drain_into_probe!(self.sockstate, ingest_socket_event, "sockstate");
+            drain_into_probe!(self.socksend, ingest_send_event, "socksend");
+            drain_into_probe!(self.wire, ingest_wire_event, "afpacket");
 
             // fanotify yields a `FileObservation` (event plus the kernel's
             // pidfd), not a bare `ProcEvent`, so it does not fit the macro.
@@ -514,11 +529,17 @@ impl SensorSet {
             // without identity — rather than guessed at from the pid.
             if let Some(w) = self.file.as_mut() {
                 let mut n: u32 = 0;
-                while let Ok(Some(obs)) = w.next_event(POLL_MS) {
-                    self.probe.ingest_file_event(obs);
-                    n += 1;
-                    if n >= MAX_EVENTS_PER_DRAIN {
-                        break;
+                loop {
+                    match w.next_event(POLL_MS) {
+                        Ok(Some(obs)) => {
+                            self.probe.ingest_file_event(obs);
+                            n += 1;
+                            if n >= MAX_EVENTS_PER_DRAIN {
+                                break;
+                            }
+                        }
+                        Ok(None) => break,
+                        Err(error) => return self.fail_source_read("fanotify", error),
                     }
                 }
                 let lost = w.take_lost();
@@ -550,7 +571,7 @@ impl SensorSet {
                             self.probe.record_lost_events(1);
                             break;
                         }
-                        Err(_) => break,
+                        Err(error) => return self.fail_source_read("connector", error),
                     }
                 }
             }
@@ -571,6 +592,9 @@ impl SensorSet {
                         started: std::time::Instant::now(),
                     },
                 );
+                if let Some(error) = report.source_error {
+                    return self.fail_source_read("exec-rendezvous", error);
+                }
                 if report.stop != ExecRendezvousStop::Paired {
                     // Bounded non-payload diagnostics, never a signed assertion
                     // that a missing event was recovered or a gap was filled.
@@ -635,8 +659,23 @@ impl SensorSet {
         }
         let _ = (from_ms, to_ms);
         self.batch_counter += 1;
-        self.probe
-            .batch(batch_id_bytes(self.batch_counter), from_ms, to_ms, vec![])
+        Ok(self
+            .probe
+            .batch(batch_id_bytes(self.batch_counter), from_ms, to_ms, vec![]))
+    }
+
+    // Poison this sensor set: a caller cannot retry the same run and turn an
+    // unobserved interval into a clean batch. The daemon exits, retaining its
+    // committed spool; a restart gets a new run ID and cannot backfill coverage.
+    #[cfg(any(target_os = "linux", test))]
+    fn fail_source_read(
+        &mut self,
+        source: &str,
+        error: aip_observe::SourceError,
+    ) -> Result<ObservationBatch, String> {
+        let message = format!("sensor {source} acquisition failed: {error}");
+        self.fatal_source_error = Some(message.clone());
+        Err(message)
     }
 }
 
@@ -1053,5 +1092,60 @@ mod tests {
         ));
         assert!(!exec_rendezvous_has_budget(0, 0, EXEC_RENDEZVOUS_TIME));
         assert!(!pending_exec_witnesses_paired(&[connector(42, 42, 100)]));
+    }
+
+    #[test]
+    fn unreadable_exec_source_is_not_a_quiet_rendezvous() {
+        for side in 0..2 {
+            let mut probe = pending_failed_ordering();
+            let originals = probe.pending_kernel_events().to_vec();
+            let mut reader = FakeExecReader::new(vec![], vec![]);
+            let error = if side == 0 {
+                aip_observe::SourceError::Unavailable("permission denied by test reader".into())
+            } else {
+                aip_observe::SourceError::Malformed("unreadable test record".into())
+            };
+            reader.queues[side].push_back(Err(error.clone()));
+            let report = acquire_exec_witnesses(&mut probe, &mut reader);
+            assert_eq!(report.stop, ExecRendezvousStop::SourceError);
+            assert_eq!(report.source_error, Some(error));
+            assert_eq!(report.events, [0, 0]);
+            assert_eq!(probe.pending_kernel_events(), originals);
+        }
+    }
+
+    #[test]
+    fn failed_acquisition_cannot_publish_or_retry_an_incomplete_run() {
+        let mut sensors = SensorSet {
+            fatal_source_error: None,
+            probe: pending_failed_ordering(),
+            batch_counter: 0,
+            #[cfg(target_os = "linux")]
+            process: None,
+            #[cfg(target_os = "linux")]
+            cgroup: None,
+            #[cfg(target_os = "linux")]
+            sockstate: None,
+            #[cfg(target_os = "linux")]
+            socksend: None,
+            #[cfg(target_os = "linux")]
+            connector: None,
+            #[cfg(target_os = "linux")]
+            file: None,
+            #[cfg(target_os = "linux")]
+            wire: None,
+        };
+        let originals = sensors.probe.pending_kernel_events().to_vec();
+        let failure = sensors
+            .fail_source_read(
+                "fanotify",
+                aip_observe::SourceError::Unavailable("permission denied".into()),
+            )
+            .unwrap_err();
+        for (from, to) in [(10, 20), (20, 30), (1000, 2000)] {
+            assert_eq!(sensors.collect_batch(from, to).unwrap_err(), failure);
+            assert_eq!(sensors.batch_counter, 0);
+            assert_eq!(sensors.probe.pending_kernel_events(), originals);
+        }
     }
 }

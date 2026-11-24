@@ -480,6 +480,13 @@ def apparmor_support(enabled_path=Path("/sys/module/apparmor/parameters/enabled"
     parser = shutil.which("apparmor_parser")
     if not parser:
         fail("BLOCKED: apparmor_parser is required for full-sensor write confinement")
+    # The disconnected-path field first appeared in Linux 4.13 and has no
+    # dedicated feature query. This conservative minimum is not qualification:
+    # loading approved bytes, enforce mode, and live negative controls remain
+    # mandatory. Unknown release formats and older/backported kernels refuse.
+    kernel = re.fullmatch(r"([0-9]+)\.([0-9]+)(?:[.-].*)?", platform.release())
+    if kernel is None or tuple(map(int, kernel.groups())) < (4, 13):
+        fail("BLOCKED: read-only disconnected-path mediation requires a parseable Linux kernel release >= 4.13")
     if not enabled_path.is_file() or enabled_path.read_text().strip() != "Y":
         fail("BLOCKED: AppArmor must be enabled; systemd alone can silently ignore its profile directive")
     if not profiles_path.is_file():

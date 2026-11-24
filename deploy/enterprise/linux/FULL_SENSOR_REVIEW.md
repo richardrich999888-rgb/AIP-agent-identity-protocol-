@@ -34,12 +34,33 @@ socket types, and fixed inherited execution. Only service-owned paths under
 `/var/lib/aip-probe` receive write permission. Atomic spool publication has an
 `owner link subset` rule with both the new link and existing target constrained
 to that same hierarchy; outside-target hardlinks remain forbidden. It grants no unconfined execution
-or profile changes and uses no disconnected-path aliasing flag. Direct writes,
+or profile changes. Direct writes,
 host-root and other-process-root aliases, and a symlink from writable state to
 an outside canary, and an outside-file hardlink into state must all fail while normal spool operations and all seven
 sensors continue to work. Profile bytes and their digest are retained with the
 installation receipt and public qualification evidence. Uninstall stops the
 service, unloads only its owned policy, removes software, and preserves state.
+
+Run 45381506440 passed all nine forbidden-operation controls and signed offline
+verification, but lacked positive fanotify events: AppArmor rejected metadata
+reads on event descriptors from another mount view. The revised policy uses
+`attach_disconnected.path=/__aip_readonly_disconnected__/` for those names, never
+bare `attach_disconnected` or attachment to `/`. The synthetic prefix grants
+read permission only and explicitly denies write, link, lock, executable
+mapping, and execution. A foreign path resembling `/var/lib/aip-probe` cannot
+match the writable state rule after prefixing. This does not add a filesystem
+mount or create a path alias to the host root.
+
+The [AppArmor 4.0 manual](https://www.apparmor.net/man/4.0/apparmor.d/)
+documents the path-specific flag; the [kernel path implementation](https://github.com/torvalds/linux/blob/v6.11/security/apparmor/path.c)
+prepends the supplied name for disconnected paths. The installer conservatively
+refuses unknown kernel release formats and releases older than Linux 4.13, when
+the serialized prefix field was introduced; backports are not qualified by this
+gate. The [parser source](https://gitlab.com/apparmor/apparmor/-/blob/apparmor-4.0/parser/parser_interface.c)
+records that no dedicated feature query exists. A version number is only a
+prerequisite. Parser or kernel loading failure remains fatal, and the actual enforcing process label, all nine
+forbidden operations, durable spool lifecycle, and seven positive sensors must
+pass on the live runner. Static policy checks alone do not qualify this change.
 
 This is a candidate until the original exploit and legitimate controls pass
 on Linux. Read access remains broad; filesystem write confinement does not

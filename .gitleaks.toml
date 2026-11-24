@@ -658,6 +658,7 @@ paths = [
     '''^\Qvalidation/enterprise/results/20261028T101450Z/report.json\E$''',
 ]
 regexes = [
+    '''^\Qenterprise_api.rs": "27b971fc1f00a54b0f81e18896c7a1fe91b410d403a897361686b871cc2c59c5"\E$''',
     '''^\QADR-KEY-CUSTODY.md": "011020d3339305d86d945972620c5ed40264ca6e52b2d9932dafebad799bd501"\E$''',
     '''^\Qaccess.rs": "2674d23a012101202eaf817524c3945b0f846ac99fbbc2383a4df6cc5e5f3175"\E$''',
     '''^\Qaccess_ledger.rs": "49e3547144ca76bff54dedeed880849ecfccbfa0481726bc66b07eada6656204"\E$''',
@@ -719,4 +720,17 @@ paths = [
 ]
 regexes = [
     '''^\Qjoin_token request_id=e5a74963-4364-4b21-8071-0e735b87277c \E$''',
+]
+
+# Exact recovered source bytes and provenance: validation/security/recovered-inventory-sources.json
+[[rules.allowlists]]
+description = "Recovered and byte-verified historical source digest; exact field/value/file"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qexamples/local-evidence-agent/results/20261102/source-hashes.json\E$''',
+]
+regexes = [
+    '''^\Qtests_api_runtime.py": "ea607ee380500ab1a3fb647984713589969b7775e087734b401aaff6410f1259"\E$''',
+    '''^\Qapi_runtime.py": "0ffa40fe1add09caa19d16c84c0410e03ffd4d8710f411e999da6db32fd1c863"\E$''',
 ]

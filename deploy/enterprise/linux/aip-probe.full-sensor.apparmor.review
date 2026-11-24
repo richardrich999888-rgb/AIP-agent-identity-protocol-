@@ -1,6 +1,6 @@
 # Enforcing profile for the explicitly approved disposable full-sensor test.
-# No default_allow, complain, unconfined, or disconnected-path aliasing flags.
-profile aip-probe-full-sensor flags=(mediate_deleted) {
+# No default_allow, complain, unconfined, or attachment to namespace root.
+profile aip-probe-full-sensor flags=(mediate_deleted, attach_disconnected.path=/__aip_readonly_disconnected__/) {
   capability dac_read_search,
   capability sys_ptrace,
   capability perfmon,
@@ -25,6 +25,10 @@ profile aip-probe-full-sensor flags=(mediate_deleted) {
   # Host measurement requires broad reads; it is not customer-data isolation.
   / r,
   /** r,
+  # Foreign-mount event FDs need metadata reads. This synthetic namespace can
+  # never inherit state writes, hardlinks, executable mappings, or execution.
+  /__aip_readonly_disconnected__/{,**} r,
+  deny /__aip_readonly_disconnected__/{,**} wklmx,
   /{usr/,}lib{,32,64}/** mr,
   /usr/bin/env ix,
   /opt/vanian/snifferdog/bin/aip-probe ix,
