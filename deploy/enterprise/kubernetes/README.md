@@ -1,77 +1,54 @@
-# Kubernetes node-sensor template — runtime unvalidated
+# Kubernetes collector template — runtime unvalidated
 
-This Helm chart is an opt-in **deployment template**, not a supported or
-validated Kubernetes release. No node runtime, cluster, image build or
-privileged installation has been exercised in this run. Both components are
-disabled by default. Enabling them requires institution-supplied immutable
-images, configuration and an explicit trust-boundary confirmation.
+This chart renders the collector only. Enabling `probe.enabled` explicitly
+fails: the previous elevated host-probe template was never runtime validated
+and has been retired. Install sensors using the reviewed
+[Linux systemd deployment](../linux/README.md), on an approved Linux host.
+The chart does not provide a Kubernetes sensor installation route.
 
-Helm 3.18.6 lint/render checks, six invalid-configuration refusals and static
-rendered-YAML assertions passed on 28 October 2026. The exact commands and
-public fixture output are retained under
-`validation/enterprise/results/HELM_20261028T103133Z/`. Rendering does not
-qualify images, node privileges, the collection pipeline or the cluster.
+The collector remains an opt-in deployment template, not a validated Kubernetes
+release. It runs as a nonroot user with the default seccomp profile, no added
+capabilities, no service-account token, and no host namespaces or host mounts.
+An institution must supply a reviewed, scanned/signed immutable image containing
+`/usr/local/bin/aip-collector`, configuration and retained storage. Rendering
+does not qualify an image, a cluster, evidence custody or kernel observation.
 
-Use this only after the Linux VM deployment passes on an approved test node.
-The images must contain `/usr/local/bin/aip-probe` or
-`/usr/local/bin/aip-collector` for the intended Linux architecture, built from
-the reviewed source commit and scanned/signed by the institution. This chart
-does not publish an image or verify its supply-chain signature.
+Place the collector in a separate administrative domain from monitored hosts,
+ideally a separate cluster/host. Namespaces, PVCs and different nodes do not
+separate a cluster administrator. Different node labels and the explicit
+`confirmSeparateAdministration` assertion are guardrails, not proof of custody.
 
-The probe needs `hostPID`, `hostNetwork`, host procfs/tracefs and scoped
-capabilities on deliberately labeled nodes. This is elevated host access,
-not a typical unprivileged workload deployment. Container security policy,
-SELinux/AppArmor, tracefs, proc connector and kernel support can prevent it
-from working. The daemon refuses unavailable configured sensors; verify
-actual open, identity binding and signed coverage before accepting the node.
-Fanotify is excluded from this chart; adding it requires an approved mount
-and `CAP_SYS_ADMIN` design, not a permissive pod flag.
-
-Place the collector in a separate administrative domain from the monitored
-nodes, ideally a separate cluster/host. Different pods, namespaces, PVCs or
-nodes do not establish separation from a cluster administrator. The chart
-requires different node-label values and an operator assertion, which are
-guardrails rather than proof of that trust boundary.
-
-Create the ConfigMaps from the validated **real daemon environment keys** in
-`deploy/pilot/*.env.example`. Do not include secrets in ConfigMaps. The probe
-configuration must refer to `/var/lib/aip-probe/transport.key.json` and pin the
-real collector Noise public key. The collector configuration must use
-`/var/lib/aip-collector` paths, a strict continuity policy and required clock
-discipline. Provision a separate Secret with `collector-passphrase` and an
-allow-list ConfigMap with `probes.json`. Enable encryption-at-rest and access
-control for Kubernetes Secrets through the institution's policy.
+Create the collector ConfigMap from the daemon environment keys in
+`deploy/pilot/collector.env.example`, using `/var/lib/aip-collector` paths, strict
+continuity and required clock discipline. Keep secrets out of ConfigMaps.
+Provision a Secret with `collector-passphrase` and a ConfigMap with `probes.json`.
+Apply institution policy for Secret access and encryption at rest.
 
 ```sh
 helm lint deploy/enterprise/kubernetes/chart
 helm template vanian-runtime deploy/enterprise/kubernetes/chart \
-  --set probe.enabled=true \
-  --set probe.image='registry.bank.internal/vanian-probe@sha256:<approved-digest>' \
-  --set probe.configMap=approved-probe-environment \
+  --set collector.enabled=true \
+  --set collector.image='registry.bank.internal/vanian-collector@sha256:<approved-digest>' \
+  --set collector.configMap=approved-collector-environment \
+  --set collector.allowListConfigMap=approved-probes \
+  --set collector.passphraseSecret=approved-collector-passphrase \
   --set confirmSeparateAdministration=true
 ```
 
-This command requires replacing the digest placeholder and preparing the
-ConfigMap; do not deploy literal examples. Default chart rendering produces
-no runtime pods. Cluster application is an institution-approved action after
-image, capability and node-policy review.
+Replace the digest placeholder and provision configuration before use. Defaults
+render no runtime pods. Cluster application requires institution image, storage
+and node-policy review. No cluster has been applied or runtime tested by these
+render checks.
 
-The collector's readiness probe only tests its transport listener. It does
-not verify signed health, coverage, authorization, evidence continuity or
-readiness of a business transaction. The sensor has no HTTP health endpoint;
-pod state likewise is not an assertion of healthy coverage. Use the signed
-health/archive checks in `../runbooks/OPERATIONS.md`, alert on silence, and
-keep the API/MCP/SDK outside the kernel observer's privilege boundary.
+Readiness tests only transport-listener reachability. Use signed health/archive
+checks in `../runbooks/OPERATIONS.md` for coverage, continuity and authorization;
+alert on silence. The collector PVC uses `helm.sh/resource-policy: keep` so
+uninstall retains keys and evidence. Independently verify storage retention,
+reclaim policy and restoration, and control adoption of retained PVCs on upgrade.
+Restrict collector ingress and host-probe egress with actual network/firewall
+controls. No automatic firewall changes are made by the chart.
 
-The collector PVC is annotated `helm.sh/resource-policy: keep` so Helm
-uninstall retains its keys and evidence. Probe host-path state also remains
-on each node. Verify the storage provider's retention/reclaim policy and
-restoration independently; do not delete retained volumes to make a new
-installation start. Reusing a retained PVC across an upgrade requires an
-explicit institution-controlled adoption/restore procedure.
-
-Restrict collector ingress and probe egress with the actual CNI/network and
-host firewall controls. Standard pod NetworkPolicies may not cover
-`hostNetwork` traffic; this chart does not pretend they do. No sensor-to-cloud
-egress, containment action, banking API intercept or automatic firewall
-mutation is configured here.
+The 28 October 2026 Helm result remains a historical static render check. Its
+original elevated manifest and four HIGH findings are preserved, unchanged, in
+the [retired evidence archive](../../../validation/enterprise/results/HELM_20261028T103133Z/RETIRED_TEMPLATE.md).
+That historical result does not qualify the retired sensor template.

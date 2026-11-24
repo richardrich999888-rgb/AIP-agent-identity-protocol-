@@ -153,9 +153,17 @@ def verified_package(path, expected):
 
 
 def parse_config(path, role):
+    return parse_config_bytes(Path(path).read_bytes(), role)
+
+
+def parse_config_bytes(raw, role):
     """A deliberately restricted EnvironmentFile subset; never source a shell."""
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        fail("configuration must be UTF-8")
     config = {}
-    for number, line in enumerate(Path(path).read_text().splitlines(), 1):
+    for number, line in enumerate(text.splitlines(), 1):
         line = line.strip()
         if not line or line.startswith("#"):
             continue
@@ -259,11 +267,16 @@ def preflight(args):
     if args.config_only:
         print("CONFIG_VALIDATED: no sensors opened; runtime capabilities not established")
         return
+    host_preflight(config, args.role)
+
+
+def host_preflight(config, role):
+    """Check the same parsed configuration that installation will retain."""
     if platform.system() != "Linux":
         fail("BLOCKED: Linux is required; no runtime validation was performed")
     if not Path("/run/systemd/system").is_dir() or shutil.which("systemctl") is None:
         fail("BLOCKED: systemd host and systemctl are required")
-    if args.role == "probe":
+    if role == "probe":
         trace_root = Path("/sys/kernel/tracing/events")
         for sensor in config["AIP_PROBE_SENSORS"].split(","):
             for tracepoint in SENSORS[sensor]:
@@ -346,11 +359,11 @@ def approved_mount(path, mountinfo="/proc/self/mountinfo"):
 
 
 def proposed_probe_unit(template, config):
-    """REVIEW ONLY: this profile is never selected by install().
+    """Generate exact bytes for review or explicitly approved runner validation.
 
-    The host-mount lookup is a candidate requiring actual kernel/systemd
-    qualification. A generated profile cannot prove effective privileges or
-    file-event coverage. Preserve existing installed defaults until approval.
+    The host-mount lookup requires actual kernel/systemd qualification. Profile
+    generation does not prove effective privileges or file-event coverage.
+    Installation selects these bytes only through the explicit digest gate.
     """
     sensors = config["AIP_PROBE_SENSORS"].split(",")
     # READ-mode procfs access checks for other UIDs require SYS_PTRACE; content
@@ -367,7 +380,7 @@ def proposed_probe_unit(template, config):
     # Template comments describe the currently installed profile, not this
     # proposal. Keep directives and place the review warning first.
     template = "\n".join(line for line in template.splitlines() if not line.lstrip().startswith("#")) + "\n"
-    unit = "# REVIEW ONLY: not installed by package.py; approval and Linux qualification pending.\n" + template.replace("/usr/local/bin/", "/opt/vanian/snifferdog/bin/")
+    unit = "# REVIEWED PROFILE: exact unit/config approval required; disposable-runner qualification only.\n" + template.replace("/usr/local/bin/", "/opt/vanian/snifferdog/bin/")
     unit = re.sub(r"(?m)^(AmbientCapabilities|CapabilityBoundingSet)=.*$",
                   lambda match: match.group(1) + "=" + " ".join(capabilities), unit)
     families = ["AF_INET", "AF_INET6"]
@@ -399,11 +412,15 @@ def proposed_probe_unit(template, config):
 def review_probe_unit(args):
     """Create an inert review artifact. No service, capability or mount is changed."""
     manifest, package = verified_package(args.archive, args.expected_sha256)
-    config = parse_config(args.config, "probe")
+    config_bytes = Path(args.config).read_bytes()
+    config = parse_config_bytes(config_bytes, "probe")
     proposed = proposed_probe_unit(package["systemd/aip-probe.service"][0].decode(), config)
-    review = {"format": "vanian-probe-unit-review-v1", "status": "NEEDS_SECURITY_PROFILE_APPROVAL",
-              "installable_by_this_tool": False, "source_commit": manifest["source_commit"],
+    review = {"format": "vanian-probe-unit-review-v1", "status": "NEEDS_EXACT_DIGEST_APPROVAL",
+              "installable_by_this_tool": False,
+              "explicit_activation_scope": "APPROVED_DISPOSABLE_RUNNER_VALIDATION_ONLY",
+              "source_commit": manifest["source_commit"],
               "package_sha256": args.expected_sha256.lower(), "unit_sha256": digest(proposed.encode()),
+              "config_sha256": digest(config_bytes),
               "sensors": config["AIP_PROBE_SENSORS"].split(","),
               "fanotify_mount": config.get("AIP_PROBE_FANOTIFY_PATH"),
               "packet_interface": config.get("AIP_PROBE_AFPACKET_INTERFACE"),
@@ -415,7 +432,8 @@ def review_probe_unit(args):
     output = Path(args.output)
     with output.open("xb") as stream:
         stream.write(canonical(review))
-    print(json.dumps({"status": review["status"], "output": str(output), "unit_sha256": review["unit_sha256"]}))
+    print(json.dumps({"status": review["status"], "output": str(output),
+                      "unit_sha256": review["unit_sha256"], "config_sha256": review["config_sha256"]}))
 
 
 def safe_destination(root, absolute):
@@ -443,18 +461,58 @@ def installation_root(args):
     return root
 
 
+def approved_probe_profile(args, root, config, config_bytes, template):
+    """An explicit operator approval gate; never evidence of host/custody trust.
+
+    A root operator can supply environment markers, so they only prevent an
+    accidental run outside the declared disposable Actions context. They are
+    not authentication or independently verified runner attestation.
+    """
+    unit_digest = getattr(args, "approved_probe_unit_sha256", None)
+    config_digest = getattr(args, "approved_probe_config_sha256", None)
+    validation = getattr(args, "disposable_runner_validation", False)
+    requested = bool(unit_digest or config_digest or validation)
+    if not requested:
+        if args.role == "probe" and "fanotify" in config["AIP_PROBE_SENSORS"].split(","):
+            fail("full-sensor service profile is review-only by default; use review-probe-unit and explicit approved disposable-runner installation")
+        return None
+    if args.role != "probe":
+        fail("approved full-sensor validation applies only to the probe role")
+    if not validation:
+        fail("approved full-sensor profile installation requires --disposable-runner-validation")
+    if args.confirm_separate_host:
+        fail("disposable runner validation cannot assert separate administrative hosts")
+    if any(not re.fullmatch(r"[0-9a-fA-F]{64}", value or "") for value in (unit_digest, config_digest)):
+        fail("both independently approved probe unit and config SHA-256 digests are required")
+    proposed = proposed_probe_unit(template, config)
+    if digest(proposed.encode()) != unit_digest.lower():
+        fail("proposed probe unit differs from the approved SHA-256")
+    if digest(config_bytes) != config_digest.lower():
+        fail("probe configuration differs from the approved SHA-256")
+    if config["AIP_PROBE_COLLECTOR_NOISE_PUBKEY"] == "0" * 64:
+        fail("approved profile requires an enrolled collector Noise pin, not an all-zero placeholder")
+    if root == Path("/") and (os.environ.get("GITHUB_ACTIONS") != "true"
+                              or os.environ.get("RUNNER_ENVIRONMENT") != "github-hosted"):
+        fail("live full-sensor qualification requires declared disposable GitHub-hosted Actions context")
+    return proposed
+
+
 def install(args):
     manifest, package = verified_package(args.archive, args.expected_sha256)
     root = installation_root(args)
-    config = parse_config(args.config, args.role)
-    if args.role == "probe" and "fanotify" in config["AIP_PROBE_SENSORS"].split(","):
-        fail("full-sensor service profile is review-only pending security approval and Linux qualification; use review-probe-unit")
+    # Freeze approval, parsing and installation to the same bytes. Do not reread
+    # a mutable configuration after its digest has been checked.
+    config_bytes = Path(args.config).read_bytes()
+    config = parse_config_bytes(config_bytes, args.role)
+    profile = approved_probe_profile(args, root, config, config_bytes,
+                                    package[f"systemd/aip-{args.role}.service"][0].decode())
+    validation = profile is not None
     if root == Path("/"):
         machine = {"x86_64": "x86_64", "aarch64": "aarch64"}.get(platform.machine())
         if not manifest["target"].startswith(str(machine) + "-"):
             fail("package target does not match this host")
-        preflight(argparse.Namespace(config=args.config, role=args.role, config_only=False))
-        if not args.confirm_separate_host:
+        host_preflight(config, args.role)
+        if not validation and not args.confirm_separate_host:
             fail("confirm separate administrative collector/workload hosts with --confirm-separate-host")
     receipt_path = safe_destination(root, "/etc/aip/vanian-runtime-install.json")
     if receipt_path.exists():
@@ -468,32 +526,35 @@ def install(args):
         "/opt/vanian/snifferdog/bin/aip-observe-verify": package["bin/aip-observe-verify"],
         "/opt/vanian/snifferdog/package.py": package["package.py"],
     }
-    unit = package[f"systemd/aip-{args.role}.service"][0].decode().replace(
-        "/usr/local/bin/", "/opt/vanian/snifferdog/bin/")
-    # Bound daemon resource use; sensor availability/coverage remain runtime facts.
-    unit = unit.replace("[Service]\n", "[Service]\nMemoryMax=512M\nTasksMax=128\nLimitNOFILE=8192\nCPUQuota=100%\nUMask=0077\n")
-    if args.role == "collector":
-        unit = unit.replace("LoadCredential=collector-passphrase\n",
-                            "LoadCredential=collector-passphrase:/etc/aip/collector-passphrase\n")
+    if validation:
+        unit = profile
     else:
-        sensors = config["AIP_PROBE_SENSORS"].split(",")
-        capabilities = []
-        if any(SENSORS[sensor] for sensor in sensors):
-            capabilities.append("CAP_PERFMON")
-        if "connector" in sensors:
-            capabilities.append("CAP_NET_ADMIN")
-        if "afpacket" in sensors:
-            capabilities.append("CAP_NET_RAW")
-        unit = re.sub(r"(?m)^(AmbientCapabilities|CapabilityBoundingSet)=.*$",
-                      lambda match: match.group(1) + "=" + " ".join(capabilities), unit)
+        unit = package[f"systemd/aip-{args.role}.service"][0].decode().replace(
+            "/usr/local/bin/", "/opt/vanian/snifferdog/bin/")
+        # Bound daemon resource use; sensor availability/coverage remain runtime facts.
+        unit = unit.replace("[Service]\n", "[Service]\nMemoryMax=512M\nTasksMax=128\nLimitNOFILE=8192\nCPUQuota=100%\nUMask=0077\n")
+        if args.role == "collector":
+            unit = unit.replace("LoadCredential=collector-passphrase\n",
+                                "LoadCredential=collector-passphrase:/etc/aip/collector-passphrase\n")
+        else:
+            sensors = config["AIP_PROBE_SENSORS"].split(",")
+            capabilities = []
+            if any(SENSORS[sensor] for sensor in sensors):
+                capabilities.append("CAP_PERFMON")
+            if "connector" in sensors:
+                capabilities.append("CAP_NET_ADMIN")
+            if "afpacket" in sensors:
+                capabilities.append("CAP_NET_RAW")
+            unit = re.sub(r"(?m)^(AmbientCapabilities|CapabilityBoundingSet)=.*$",
+                          lambda match: match.group(1) + "=" + " ".join(capabilities), unit)
     mapping[f"/etc/systemd/system/aip-{args.role}.service"] = (unit.encode(), 0o644)
     config_path = f"/etc/aip/{args.role}.env"
     previous_config = safe_destination(root, config_path)
     if previous_config.exists():
-        if previous_config.read_bytes() != Path(args.config).read_bytes():
+        if previous_config.read_bytes() != config_bytes:
             fail("existing configuration differs; retain and review it before installation")
     else:
-        mapping[config_path] = (Path(args.config).read_bytes(), 0o600)
+        mapping[config_path] = (config_bytes, 0o600)
     # All target checks precede writes. No extraction or arbitrary package path
     # is ever passed to a shell or used as a destination.
     for location in mapping:
@@ -529,7 +590,13 @@ def install(args):
             installed[location] = digest(data)
     receipt_path.write_bytes(canonical({"format": FORMAT, "role": args.role,
         "source_commit": manifest["source_commit"], "archive_sha256": args.expected_sha256.lower(),
-        "installed": installed, "mode": "OBSERVER_ONLY"}))
+        "installed": installed, "mode": "OBSERVER_ONLY",
+        "service_profile": "APPROVED_DISPOSABLE_FULL_SENSOR" if validation else "DEFAULT",
+        "unit_sha256": digest(unit.encode()), "config_sha256": digest(config_bytes),
+        "disposable_runner_validation": validation,
+        "live_installation": root == Path("/"),
+        "operator_separate_host_assertion": bool(args.confirm_separate_host),
+        "independent_administrative_custody_established": False}))
     receipt_path.chmod(0o600)
     if root == Path("/"):
         subprocess.run(["systemctl", "daemon-reload"], check=True)
@@ -579,6 +646,10 @@ def main():
             command.add_argument("--config", required=True)
             command.add_argument("--root", default="/", help="existing staging directory for packaging tests only")
             command.add_argument("--confirm-separate-host", action="store_true")
+            command.add_argument("--approved-probe-unit-sha256", help="exact reviewed full-sensor unit digest")
+            command.add_argument("--approved-probe-config-sha256", help="exact reviewed probe configuration digest")
+            command.add_argument("--disposable-runner-validation", action="store_true",
+                                 help="explicit full-sensor qualification only on an approved disposable GitHub runner; never separate custody")
     command = commands.add_parser("review-probe-unit", help="write an inert candidate profile; never install or start it")
     command.add_argument("--archive", required=True)
     command.add_argument("--expected-sha256", required=True)

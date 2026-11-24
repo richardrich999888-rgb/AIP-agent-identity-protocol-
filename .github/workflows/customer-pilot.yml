@@ -1,0 +1,116 @@
+name: Customer pilot full-sensor qualification
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'aip-standalone/aip-probe/**'
+      - 'aip-standalone/aip-collector/**'
+      - 'aip-standalone/aip-observe/**'
+      - 'aip-standalone/aip-observe-verify/**'
+      - 'deploy/enterprise/linux/**'
+      - 'validation/customer_pilot/**'
+      - '.github/workflows/customer-pilot.yml'
+permissions:
+  contents: read
+jobs:
+  full-sensor-service:
+    # User approval on 2026-11-24 covers disposable GitHub-hosted testing in PR #8.
+    # Forks and other PRs cannot trigger this privileged qualification job.
+    if: github.event_name == 'workflow_dispatch' || (github.event.pull_request.number == 8 && github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+      - name: Installer controls and helper syntax
+        run: |
+          python -B validation/enterprise/test_packaging.py
+          python -m py_compile validation/customer_pilot/full_sensor_runner.py validation/customer_pilot/full_sensor_workload.py validation/customer_pilot/full_sensor_privilege_check.py
+      - name: Prepare the approved disposable host
+        run: |
+          test "$RUNNER_ENVIRONMENT" = github-hosted
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq chrony iproute2 libcap2-bin util-linux
+          sudo systemctl restart chrony
+          sudo chronyc waitsync 30 0.1 0.0 2
+          test "$(timedatectl show --property=NTPSynchronized --value)" = yes
+      - name: Build exact current runtime and verified package
+        run: |
+          cargo build --locked -p aip-probe --bin aip-probe -p aip-collector --bin aip-collector -p aip-observe-verify --bin aip-observe-verify
+          python deploy/enterprise/linux/package.py build --bin-dir target/debug --target x86_64-unknown-linux-gnu --source-commit "$(git rev-parse HEAD)" --output "$RUNNER_TEMP/pilot-runtime.tar"
+          sha256sum "$RUNNER_TEMP/pilot-runtime.tar" > "$RUNNER_TEMP/pilot-runtime.sha256"
+      - name: Install and test the actual systemd profile
+        id: qualification
+        run: |
+          sudo env "PATH=$PATH" "GITHUB_ACTIONS=$GITHUB_ACTIONS" "RUNNER_ENVIRONMENT=$RUNNER_ENVIRONMENT" \
+            python3 -B validation/customer_pilot/full_sensor_runner.py \
+            --tools target/debug --archive "$RUNNER_TEMP/pilot-runtime.tar" \
+            --expected-sha256 "$(cut -d ' ' -f 1 "$RUNNER_TEMP/pilot-runtime.sha256")" \
+            --out "$RUNNER_TEMP/full-sensor-validation" --github-output "$GITHUB_OUTPUT"
+      - name: Retain current verifier for independent offline replay
+        if: always() && steps.qualification.outputs.public_ready == 'true'
+        run: |
+          if [ -f "$RUNNER_TEMP/full-sensor-validation/public/result.json" ]; then
+            sudo install -m 0644 target/debug/aip-observe-verify "$RUNNER_TEMP/full-sensor-validation/public/aip-observe-verify"
+            sha256sum target/debug/aip-observe-verify | awk '{print $1}' > "$RUNNER_TEMP/pilot-verifier.sha256"
+            sudo install -m 0444 "$RUNNER_TEMP/pilot-verifier.sha256" "$RUNNER_TEMP/full-sensor-validation/public/verifier.sha256"
+            echo "PILOT_PUBLIC_READY=true" >> "$GITHUB_ENV"
+          fi
+      - name: Preserve public evidence and actual failures
+        if: always() && env.PILOT_PUBLIC_READY == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: full-sensor-public-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/full-sensor-validation/public/
+          retention-days: 30
+          if-no-files-found: error
+  offline-verification:
+    needs: full-sensor-service
+    if: always() && needs.full-sensor-service.result != 'skipped'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: full-sensor-public-${{ github.run_id }}-${{ github.run_attempt }}
+          path: public
+      - name: Verify actual signed archives with networking disabled
+        run: |
+          python3 - <<'PY'
+          import hashlib,json,pathlib,subprocess
+          p=pathlib.Path('public').resolve()
+          binary=p/'aip-observe-verify'
+          assert hashlib.sha256(binary.read_bytes()).hexdigest()==(p/'verifier.sha256').read_text().strip()
+          binary.chmod(0o755)
+          subprocess.run(['docker','pull','ubuntu:24.04'],check=True)
+          image=subprocess.check_output(['docker','image','inspect','--format','{{.Id}}','ubuntu:24.04'],text=True).strip()
+          profiles={}
+          for name,prefix in [('final',''),('baseline','baseline/')]:
+              directory=p/prefix
+              anchor=json.loads((directory/'anchor.json').read_text())
+              checkpoint=json.loads((directory/'checkpoint.json').read_text())
+              for filename in ('attested.archive.jsonl','health.archive.jsonl'):
+                  assert hashlib.sha256((directory/filename).read_bytes()).hexdigest()==checkpoint['sha256'][filename]
+              command=['docker','run','--rm','--network','none','--read-only','--cap-drop','ALL','--security-opt','no-new-privileges','--user','65534:65534','--mount',f'type=bind,src={p},dst=/evidence,readonly','--entrypoint','/evidence/aip-observe-verify',image,'--observer-id',anchor['observer_id'],'--key-version',str(anchor['key_version']),'--pubkey',anchor['public_key'],'--batches','/evidence/'+prefix+'attested.archive.jsonl','--health','/evidence/'+prefix+'health.archive.jsonl','--json']
+              completed=subprocess.run(command,capture_output=True,text=True,timeout=120)
+              assert completed.returncode==0,name+': network-disabled evidence verification failed'
+              report=json.loads(completed.stdout); assert not report['findings']
+              assert report['batches']['records']>0 and report['health']['records']>0
+              profiles[name]=report
+          pathlib.Path('offline-verification.json').write_text(json.dumps({'status':'PASS','network':'none','runtime_image_id':image,'profiles':profiles,'separate_collector_administration':False},indent=2)+'\n')
+          print(json.dumps({'status':'PASS','profiles':{k:{'batches':v['batches']['records'],'health':v['health']['records']} for k,v in profiles.items()}}))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: full-sensor-offline-${{ github.run_id }}-${{ github.run_attempt }}
+          path: offline-verification.json
+          if-no-files-found: ignore
+          retention-days: 30

@@ -28,10 +28,10 @@ requirements are discovered on the actual node. `socksend` requires the
 network namespace. Perf sensors require readable tracefs plus `CAP_PERFMON`
 or equivalent host policy. AF_PACKET requires `CAP_NET_RAW`.
 
-The installer trims the pilot unit's capabilities to the configured sensors.
-It refuses `fanotify`: that sensor requires `CAP_SYS_ADMIN`, a host-mount view
-and an institution-reviewed systemd override, which this package does not
-silently grant. Selecting an unavailable sensor makes the real daemon fail
+The installer trims the default unit's capabilities to the configured sensors.
+It refuses `fanotify` by default: that sensor requires `CAP_SYS_ADMIN` and a
+host-mount view. An explicit digest-bound full-sensor path is available only for
+approved disposable-runner qualification; it does not authorize customer use. Selecting an unavailable sensor makes the real daemon fail
 startup. A successful file preflight does not prove sensor availability,
 binding completeness or healthy observation coverage.
 
@@ -45,12 +45,15 @@ schema validation to the installed `aip-probe validate-filter` command. Before
 the binary is installed it reports `FILTER_SCHEMA_DEFERRED`; rerun preflight
 after installation and check actual service-user readability before startup.
 
-A concrete **inactive** full-sensor candidate and its qualification procedure
-are in [FULL_SENSOR_REVIEW.md](FULL_SENSOR_REVIEW.md). The review command
-writes the proposed unit and its digest without installing or starting it.
-Automatic approval review rejected activation of the proposed privilege
-expansion; explicit disposable-runner approval and real Linux qualification
-remain pending. The installed default still refuses fanotify.
+The full-sensor profile and its qualification procedure are in
+[FULL_SENSOR_REVIEW.md](FULL_SENSOR_REVIEW.md). The user approved disposable
+GitHub Actions testing on 24 November 2026. `review-probe-unit` writes the exact
+unit/configuration digests without installing or starting anything. Installation
+requires both digests and `--disposable-runner-validation`; it installs the exact
+reviewed bytes and leaves service startup to the acceptance harness. The
+validation receipt explicitly makes no independent-custody claim. Customer
+approval and actual host qualification remain separate gates. The default
+installation still refuses fanotify.
 
 ## Build a verifiable package
 

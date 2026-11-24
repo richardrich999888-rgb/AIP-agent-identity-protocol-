@@ -1,79 +1,13 @@
-{{- if or .Values.probe.enabled .Values.collector.enabled }}
+{{- if .Values.probe.enabled }}
+{{- fail "Kubernetes host probe deployment is unavailable: the elevated node-sensor template was not runtime validated; use the reviewed Linux systemd deployment" }}
+{{- end }}
+{{- if .Values.collector.enabled }}
 {{- if not .Values.confirmSeparateAdministration }}
 {{- fail "confirmSeparateAdministration is required; namespaces/pods alone do not separate administrators" }}
 {{- end }}
 {{- if eq .Values.probe.nodeLabel .Values.collector.nodeLabel }}
 {{- fail "probe and collector must target distinct, separately administered nodes" }}
 {{- end }}
-{{- end }}
-{{- if .Values.probe.enabled }}
-{{- if not (regexMatch "^[^@ ]+@sha256:[a-f0-9]{64}$" .Values.probe.image) }}
-{{- fail "probe.image must use an institution-approved immutable sha256 digest" }}
-{{- end }}
-apiVersion: apps/v1
-kind: DaemonSet
-metadata:
-  name: {{ .Release.Name }}-probe
-  labels:
-    app.kubernetes.io/component: observer-only-probe
-spec:
-  selector:
-    matchLabels:
-      app: {{ .Release.Name }}-probe
-  template:
-    metadata:
-      labels:
-        app: {{ .Release.Name }}-probe
-      annotations:
-        vanian.example/validation: unvalidated-template
-    spec:
-      automountServiceAccountToken: false
-      hostPID: true
-      hostNetwork: true
-      dnsPolicy: ClusterFirstWithHostNet
-      nodeSelector:
-        kubernetes.io/os: linux
-        vanian.example/runtime-role: {{ .Values.probe.nodeLabel | quote }}
-      containers:
-        - name: probe
-          image: {{ .Values.probe.image | quote }}
-          command: ["/usr/local/bin/aip-probe"]
-          envFrom:
-            - configMapRef:
-                name: {{ required "probe.configMap is required" .Values.probe.configMap | quote }}
-          env:
-            - name: AIP_PROBE_SENSORS
-              value: sched,cgroup,sockstate,connector
-            - name: AIP_PROBE_KEY_PATH
-              value: /var/lib/aip-probe/transport.key.json
-          securityContext:
-            runAsUser: 0
-            allowPrivilegeEscalation: false
-            readOnlyRootFilesystem: true
-            privileged: false
-            capabilities:
-              drop: ["ALL"]
-              add: ["PERFMON", "NET_ADMIN"]
-          resources:
-            requests: {cpu: 100m, memory: 128Mi}
-            limits: {cpu: "1", memory: 512Mi}
-          volumeMounts:
-            - {name: tracefs, mountPath: /sys/kernel/tracing, readOnly: true}
-            - {name: procfs, mountPath: /proc, readOnly: true}
-            - {name: cgroups, mountPath: /sys/fs/cgroup, readOnly: true}
-            - {name: state, mountPath: /var/lib/aip-probe}
-      volumes:
-        - name: tracefs
-          hostPath: {path: /sys/kernel/tracing, type: Directory}
-        - name: procfs
-          hostPath: {path: /proc, type: Directory}
-        - name: cgroups
-          hostPath: {path: /sys/fs/cgroup, type: Directory}
-        - name: state
-          hostPath:
-            path: {{ .Values.probe.statePath | quote }}
-            type: DirectoryOrCreate
----
 {{- end }}
 {{- if .Values.collector.enabled }}
 {{- if not (regexMatch "^[^@ ]+@sha256:[a-f0-9]{64}$" .Values.collector.image) }}
@@ -117,6 +51,9 @@ spec:
         kubernetes.io/os: linux
         vanian.example/runtime-role: {{ .Values.collector.nodeLabel | quote }}
       securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
         runAsUser: 10001
         runAsGroup: 10001
         fsGroup: 10001

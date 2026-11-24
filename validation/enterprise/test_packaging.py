@@ -300,12 +300,111 @@ class Packaging(unittest.TestCase):
         run.assert_not_called()
         review = json.loads(output.read_text())
         self.assertFalse(review["installable_by_this_tool"])
-        self.assertEqual(review["status"], "NEEDS_SECURITY_PROFILE_APPROVAL")
+        self.assertEqual(review["explicit_activation_scope"], "APPROVED_DISPOSABLE_RUNNER_VALIDATION_ONLY")
+        self.assertEqual(review["status"], "NEEDS_EXACT_DIGEST_APPROVAL")
+        self.assertEqual(review["config_sha256"], PACKAGE.digest(self.probe.read_bytes()))
         self.assertEqual(review["unit_sha256"], PACKAGE.digest(review["unit"].encode()))
         self.assertEqual(review["unit"], unit)
         with self.assertRaises(FileExistsError):
             PACKAGE.review_probe_unit(argparse.Namespace(archive=str(self.archive), expected_sha256=self.expected,
                 config=str(self.probe), output=str(output)))
+
+    def approved_full_sensor_args(self):
+        config = self.full_sensor_config()
+        args = self.args()
+        unit = PACKAGE.proposed_probe_unit((ROOT / "deploy/pilot/systemd/aip-probe.service").read_text(), config)
+        args.approved_probe_unit_sha256 = PACKAGE.digest(unit.encode())
+        args.approved_probe_config_sha256 = PACKAGE.digest(self.probe.read_bytes())
+        args.disposable_runner_validation = True
+        return args, unit
+
+    def test_approved_full_sensor_staging_installs_exact_reviewed_bytes_without_starting(self):
+        args, reviewed = self.approved_full_sensor_args()
+        original_config = self.probe.read_bytes()
+        with mock.patch.object(PACKAGE.subprocess, "run") as run:
+            self.install(args)
+        run.assert_not_called()
+        root = Path(args.root)
+        self.assertEqual((root / "etc/systemd/system/aip-probe.service").read_bytes(), reviewed.encode())
+        self.assertEqual((root / "etc/aip/probe.env").read_bytes(), original_config)
+        receipt = json.loads((root / "etc/aip/vanian-runtime-install.json").read_text())
+        self.assertEqual(receipt["unit_sha256"], args.approved_probe_unit_sha256)
+        self.assertEqual(receipt["config_sha256"], args.approved_probe_config_sha256)
+        self.assertEqual(receipt["service_profile"], "APPROVED_DISPOSABLE_FULL_SENSOR")
+        self.assertTrue(receipt["disposable_runner_validation"])
+        self.assertFalse(receipt["live_installation"])
+        self.assertFalse(receipt["independent_administrative_custody_established"])
+        self.assertFalse(receipt["operator_separate_host_assertion"])
+        self.assertEqual(reviewed.count("MemoryMax="), 1)
+        self.assertEqual(reviewed.count("SystemCallFilter="), 1)
+
+    def test_full_sensor_activation_requires_both_exact_digests_and_disposable_scope(self):
+        cases = [("approved_probe_unit_sha256", None, "both independently approved"),
+                 ("approved_probe_config_sha256", None, "both independently approved"),
+                 ("approved_probe_unit_sha256", "00" * 32, "unit differs"),
+                 ("approved_probe_config_sha256", "00" * 32, "configuration differs"),
+                 ("disposable_runner_validation", False, "requires --disposable"),
+                 ("confirm_separate_host", True, "cannot assert separate")]
+        original = self.probe.read_text()
+        for attribute, value, error in cases:
+            with self.subTest(attribute=attribute, value=value):
+                self.probe.write_text(original)
+                args, _ = self.approved_full_sensor_args()
+                setattr(args, attribute, value)
+                with mock.patch.object(PACKAGE.subprocess, "run") as run:
+                    with self.assertRaisesRegex(ValueError, error):
+                        PACKAGE.install(args)
+                run.assert_not_called()
+                self.assertEqual(list(Path(args.root).iterdir()), [])
+
+    def test_config_approval_covers_endpoint_filter_and_limits_not_only_unit_bytes(self):
+        args, _ = self.approved_full_sensor_args()
+        original = self.probe.read_text()
+        for old, new in [("collector.bank.example", "elsewhere.example"),
+                         ("/etc/aip/agent-filter.json", "/etc/aip/different-agent.json"),
+                         ("SPOOL_MAX_BATCHES=10000", "SPOOL_MAX_BATCHES=1")]:
+            self.probe.write_text(original.replace(old, new))
+            with self.subTest(new=new), self.assertRaisesRegex(ValueError, "configuration differs"):
+                PACKAGE.install(args)
+            self.assertEqual(list(Path(args.root).iterdir()), [])
+
+    def test_approved_config_is_not_reread_after_approval(self):
+        args, reviewed = self.approved_full_sensor_args()
+        original = self.probe.read_bytes()
+        approve = PACKAGE.approved_probe_profile
+        def mutate_after_approval(*values):
+            selected = approve(*values)
+            self.probe.write_bytes(original.replace(b"collector.bank.example", b"changed.example"))
+            return selected
+        with mock.patch.object(PACKAGE, "approved_probe_profile", side_effect=mutate_after_approval):
+            self.install(args)
+        root = Path(args.root)
+        self.assertEqual((root / "etc/aip/probe.env").read_bytes(), original)
+        self.assertEqual((root / "etc/systemd/system/aip-probe.service").read_text(), reviewed)
+
+    def test_live_profile_requires_declared_github_hosted_context_without_claiming_attestation(self):
+        args, reviewed = self.approved_full_sensor_args()
+        raw = self.probe.read_bytes(); config = PACKAGE.parse_config_bytes(raw, "probe")
+        template = (ROOT / "deploy/pilot/systemd/aip-probe.service").read_text()
+        for context in ({}, {"GITHUB_ACTIONS": "true", "RUNNER_ENVIRONMENT": "self-hosted"},
+                        {"GITHUB_ACTIONS": "false", "RUNNER_ENVIRONMENT": "github-hosted"}):
+            with self.subTest(context=context), mock.patch.dict(PACKAGE.os.environ, context, clear=True):
+                with self.assertRaisesRegex(ValueError, "declared disposable"):
+                    PACKAGE.approved_probe_profile(args, Path("/"), config, raw, template)
+        with mock.patch.dict(PACKAGE.os.environ, {"GITHUB_ACTIONS": "true", "RUNNER_ENVIRONMENT": "github-hosted"}, clear=True):
+            self.assertEqual(PACKAGE.approved_probe_profile(args, Path("/"), config, raw, template), reviewed)
+
+    def test_full_sensor_activation_rejects_collector_role_and_placeholder_pin(self):
+        args, _ = self.approved_full_sensor_args()
+        args.role = "collector"; args.config = str(self.collector)
+        with self.assertRaisesRegex(ValueError, "only to the probe"):
+            PACKAGE.install(args)
+        args.role = "probe"; args.config = str(self.probe)
+        self.probe.write_text(self.probe.read_text().replace("ab" * 32, "0" * 64))
+        args.approved_probe_config_sha256 = PACKAGE.digest(self.probe.read_bytes())
+        with self.assertRaisesRegex(ValueError, "all-zero placeholder"):
+            PACKAGE.install(args)
+        self.assertEqual(list(Path(args.root).iterdir()), [])
 
     def test_full_sensor_scope_rejects_broad_paths_and_unspecified_interface(self):
         self.full_sensor_config()

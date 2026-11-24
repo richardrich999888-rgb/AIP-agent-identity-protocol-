@@ -1,15 +1,16 @@
 # Full-sensor service profile: review and qualification
 
-Status: **inactive proposal; full-sensor service installation and independent
-collector qualification have not run.** `package.py install` still refuses a
-probe configuration containing `fanotify`. `review-probe-unit` writes a review
-artifact and never changes a service, capability, mount or running process.
+Status: **explicit disposable-runner activation is available; live installation
+and sensor qualification must be established by the new test results.** The user
+approved testing this profile on a disposable GitHub Actions Linux runner on
+24 November 2026. This authorization does not approve customer deployment or
+establish separately administered collector custody.
 
-Automatic approval review rejected the earlier proposed service privilege
-expansion and host mount access. Explicit approval for disposable-runner
-qualification is pending. That approval would cover the test runner only;
-customer installation and separately administered collector access remain
-separate deployment requirements.
+`review-probe-unit` remains inert. `package.py install` still refuses fanotify by
+default. Its new activation path requires the reviewed unit digest, the exact
+configuration digest and an explicit disposable-runner flag. It never starts a
+service automatically. The supplied unit's capability and hardening directives
+are unchanged by this activation path.
 
 ## Concrete candidate
 
@@ -27,8 +28,37 @@ python3 package.py review-probe-unit \
 ```
 
 The JSON records the source commit, archive digest, exact proposed unit and
-unit digest, chosen sensors, mount, interface and filter path. Generation is
-not approval or qualification. Existing files are never replaced.
+unit digest, exact configuration-byte digest, chosen sensors, mount, interface
+and filter path. Generation is not approval or qualification. Existing files
+are never replaced.
+
+For the approved disposable validation only, install the probe using digests
+from that reviewed record and the independently approved archive digest:
+
+```sh
+sudo env GITHUB_ACTIONS=true RUNNER_ENVIRONMENT=github-hosted \
+  python3 package.py install --role probe --config probe.env \
+  --archive vanian-runtime-x86_64-linux.tar \
+  --expected-sha256 "$INDEPENDENTLY_APPROVED_ARCHIVE_SHA256" \
+  --approved-probe-unit-sha256 "$APPROVED_PROBE_UNIT_SHA256" \
+  --approved-probe-config-sha256 "$APPROVED_PROBE_CONFIG_SHA256" \
+  --disposable-runner-validation
+```
+
+The workflow must actually be running on the approved disposable GitHub-hosted
+Linux VM. The two environment markers prevent accidental context mismatch;
+a root operator can supply them, so they are not authentication or hardware
+attestation. Do not use this mode for customer deployment. It conflicts with
+`--confirm-separate-host`, and its receipt explicitly records that independent
+administrative custody has not been established. A staged installation records
+that it is not a live host installation.
+
+The supplied configuration must carry the actual enrolled collector Noise key;
+an all-zero sample pin is refused. The installer reads configuration bytes once,
+checks the approved digest, and installs those exact bytes with the exact
+reviewed unit. A changed destination, filter, limit or other configuration byte
+invalidates that approval even if it would not change the unit text. The archive
+digest and source identity are retained in the same installation receipt.
 
 The candidate uses the dedicated `aip-probe` account, requires an explicit
 interface and a dedicated workload mount, retains the current filesystem
@@ -90,11 +120,10 @@ Unassignable events, including packet events without a measured process
 binding, are withheld and counted. A scoped archive does not assert
 host-wide coverage or prove that unobserved actions did not happen.
 
-## Required Linux lifecycle qualification after approval
+## Required Linux lifecycle qualification
 
-This procedure is an acceptance specification, not an executable approval
-bypass. The installer must first gain an explicitly reviewed activation path;
-manually copying the candidate unit would bypass its current refusal.
+This procedure is an acceptance specification. Use the explicit reviewed
+activation path above; manually copying the unit bypasses its digest checks.
 Preserve each failed attempt and its original evidence. Do not edit archives,
 rewrite queued records, remove continuity files or relax clock checks to make
 a step pass.
