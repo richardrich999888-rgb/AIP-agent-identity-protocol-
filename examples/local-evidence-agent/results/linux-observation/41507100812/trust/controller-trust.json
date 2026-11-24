@@ -1,0 +1,55 @@
+{
+  "schema": "vanian-local-qa-controller-trust-v1",
+  "publication_role": "PUBLIC_ANCHORS_CHECKPOINT_AND_HASHES_NO_SECRETS",
+  "run_id": "local-qa-b92544214896275b357d9b13",
+  "source_commit": "d1737bbe08d04111d2e2cee43eab1dc1e419a54a",
+  "public_files": {
+    "agent-events.jsonl": "2ab5099339b49a6b1a1191480cbf4933d3df1dfce8e9acce00a82285a73d701e",
+    "answers/case-1.json": "1036d703529ef443968abb34da485e0bc40679b0ecd36385f8d2e13f2540ea59",
+    "answers/case-2.json": "87997787128f9218a989cf33e2371e890f434563f6ae19f78e3dfaedd69e9e17",
+    "answers/case-3.json": "53b2c4d2faff330345541b3e112fb0603f879e8585cd3d7e8ffc40f07c6cd109",
+    "answers/case-4.json": "6dd445cdf29c61f96fbd45c374d5d54b42b62dfe71d22588c1066cf4c97ed962",
+    "attested.archive.jsonl": "faef0be8c209135db37848458498528e5caf0bab148f8d29a31b2ff6ddd66855",
+    "audit-status.json": "723fde4cc4d422a2965c7f5b14e53dcb8bc4b21cd2150ae9522eccb60433829b",
+    "auditd.log": "2d682b50f5529880e1a0cc315b6e543c2d1871c612dbe2d8e00ebb2195e3cb9c",
+    "corroboration.json": "f07b20d9dbc21f83c9f34d4ee616e39720570f9a1895c1d5227fd76890212789",
+    "fanotify-watch.json": "8f64fac9637a73849127d4e14746699f459872d31f21c48657915e77e65e46fd",
+    "health.archive.jsonl": "3f3a8338567d93a46ca0cc8e923c1ad852ef1d9b12f7e65571a637c5fe40c18f",
+    "historical-api-inputs.json": "189e81bbc4d2514e56af1767e808fa5eb71f8fe1cd68bdecda6725793b494481",
+    "launch.json": "c809e7a0cdc2c3fda92f6effa8bd73dfaf2e266afb7d2b73df3b077e3f193d1b",
+    "model-context.json": "f8f4fac9ecae365b1932e632f0e3bb7b0d513dcc963f7da01f1737dd6622fdd6",
+    "model-identity.json": "702af38709befbd404cacd291fe6d57de7ae21bf20188c444428a9f9155a3e0a",
+    "model-service.json": "9e604fe9c6f718f11398b86e8b8525276e3d4b030da7646bb92598452657068e",
+    "network-isolation.json": "73caaa5abe2d9181d6043f0a9750ff730eb324f4a4ec62216eb111dd45642f82",
+    "observation-summary.json": "a78ff6bc65b902f661772ec86bcfb7b9c73c7f4d692a414ba0660286c2a5d1b6",
+    "output-file-observation-gate.json": "792862333af38eab375b0d0532e967fbb7967ee0fc3cb9f5378d6e99cb514ec1",
+    "resource-limits.json": "2beb30f7f0c03cb0a74a0567f1227c7b24075229db189cc9fc84c2acae5e171a",
+    "run-manifest.json": "4811e1e9deb66973b1678ce774af0ea0fbd93ff86adbeeda4cd5688f1531cbd0",
+    "runtime-access.json": "59b57b95e7005122055e538f3ca9a82da20b2c5512f36c1079cb80eaee6083e0",
+    "source-hashes.json": "bc8287202ae9925e6059c3aa8564bc7a74b00e2ae90f11fd831c2e9620f08f23",
+    "tamper.json": "a19a6644fe05466faec296b5e4fb3147d5d7191c82e707aa292e4537485179f4",
+    "task-manifest.json": "caeb6845e60245ba6c2f954e00471db30051504aaac91fa5282e34b2cf072ee8",
+    "task-output-manifest.json": "63786019f0c3965a2968f19ebd547cdaf4ff4ec69590377fe4acfcce6830c03c",
+    "verification.json": "491a456313a0a5fa6b96a7965fe0bfb2f24c0280938d428b5e2a318530eebbea"
+  },
+  "observer_anchor": {
+    "observer_id": "collector.local.qa",
+    "key_version": 1,
+    "public_key": "521b3b7f2603319dfd3c2654b3d5d2be1c79cf11a3e8b53581acc3ae7921626d"
+  },
+  "checkpoint": {
+    "sha256": {
+      "attested.archive.jsonl": "faef0be8c209135db37848458498528e5caf0bab148f8d29a31b2ff6ddd66855",
+      "health.archive.jsonl": "3f3a8338567d93a46ca0cc8e923c1ad852ef1d9b12f7e65571a637c5fe40c18f"
+    }
+  },
+  "task_manifest_sha256": "caeb6845e60245ba6c2f954e00471db30051504aaac91fa5282e34b2cf072ee8",
+  "launch_sha256": "c809e7a0cdc2c3fda92f6effa8bd73dfaf2e266afb7d2b73df3b077e3f193d1b",
+  "task_interval": {
+    "from_ms": 1793646703846,
+    "to_ms": 1793646765158
+  },
+  "collector_custody": "LOCAL_ISOLATION_SHARED_KERNEL_AND_ROOT",
+  "separate_administrative_custody": "NOT_ESTABLISHED",
+  "qa_output_authority": "ROOT_CONTROLLER_APPLICATION_CORRELATION_NOT_SIGNED_ACTION_PROOF"
+}

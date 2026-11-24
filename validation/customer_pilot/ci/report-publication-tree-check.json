@@ -1,0 +1,29 @@
+{
+  "scanner": "gitleaks",
+  "version": "8.24.3",
+  "runtime_source": "c683134c59b50950e4eab176d37292683c61930d",
+  "classification": "LOCAL_REPORT_PUBLICATION_SNAPSHOT_CHECK",
+  "checked_at_utc": "2026-11-24T16:27:48.074358+00:00",
+  "scope": {
+    "tracked_working_files": 3887,
+    "added_publication_files": 0,
+    "addition_prefixes": [
+      "validation/customer_pilot/ci/",
+      "validation/customer_pilot/evidence/",
+      "validation/customer_pilot/historical/"
+    ],
+    "description": "Git-tracked working files plus only customer_pilot ci/evidence/historical additions. This local dirty documentation/evidence snapshot is distinct from the immutable c683134 GitHub CI checkout. Other untracked and ignored local files are not publication inputs.",
+    "staged_publication_paths": 33,
+    "scanned_working_files_match_index": true
+  },
+  "config_sha256": "5e093771471683daa7d2348c13413f0bbf82f52009b54887baa46a561404f655",
+  "scanner_binary_sha256": "af9afd0ae3a0ff6d7f08c4ec4e28686b7e4de6962fe1eadecc497d15cdf731e2",
+  "input_manifest_sha256": "583bafc3f260cd97a239b65a0bb497d9489c69bdacc4ec5acda98bb5b4f09027",
+  "exit_code": 0,
+  "findings": 0,
+  "counts_by_rule": {},
+  "locations": [],
+  "new_exceptions_added": false,
+  "input_manifest_excludes_this_receipt": true,
+  "receipt_included_in_final_scan": true
+}

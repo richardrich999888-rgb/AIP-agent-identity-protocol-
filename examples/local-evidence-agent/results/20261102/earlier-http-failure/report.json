@@ -1,0 +1,54 @@
+{
+  "classification": "GENUINE_LOCAL_HF_MODEL_LANGCHAIN_LANGGRAPH_AIP_API_TEST",
+  "status": "FAIL",
+  "cases": [
+    {
+      "case": 1,
+      "profile": "same-run",
+      "status": "PASS",
+      "seconds": 5.252,
+      "answer": "The run verifies that the archive signatures and retained checkpoints are verified, the signed authorization and signed gateway receipt are verified, and the signed reconciler verdict is verified. However, the kernel application action is CannotProve due to ActionEvidenceUnavailable, and the full authorization window coverage is not covered due to WindowNotCovered.",
+      "sha256": "8d3b85f393057980b154407ee660185ff90383355e59be8efd2da5870677b189",
+      "model_requests": 2,
+      "api_reads": 3
+    },
+    {
+      "case": 2,
+      "status": "FAIL",
+      "http_status": 422,
+      "seconds": 2.531
+    },
+    {
+      "case": 3,
+      "status": "FAIL",
+      "http_status": 422,
+      "seconds": 2.85
+    },
+    {
+      "case": 4,
+      "status": "FAIL",
+      "http_status": 422,
+      "seconds": 2.43
+    }
+  ],
+  "http_boundaries": [
+    {
+      "check": "foreign_origin",
+      "http_status": 403,
+      "status": "PASS"
+    },
+    {
+      "check": "wrong_session",
+      "http_status": 403,
+      "status": "PASS"
+    },
+    {
+      "check": "unknown_fields",
+      "http_status": 400,
+      "status": "PASS"
+    }
+  ],
+  "kernel_capture": "NOT_RUN_ON_MAC",
+  "evidence_scope": "Historical Linux capture reread and reverified through real local API",
+  "semantic_scope": "Required evidence labels plus human review of retained answers; no general model-quality guarantee"
+}

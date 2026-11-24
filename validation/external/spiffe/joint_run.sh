@@ -65,10 +65,7 @@ ok "binaries built — A ${SHA_A:0:12}...  B ${SHA_B:0:12}..."
 step "Start AIP (probe holds no key; collector off-process holds the only key)"
 APORT=$(python3 -c "import socket;s=socket.socket();s.bind(('127.0.0.1',0));print(s.getsockname()[1]);s.close()")
 mkdir -p "$W/state"; echo -n "joint-pass" > "$W/pass"
-env AIP_PROBE_ID=probe.joint AIP_PROBE_COLLECTOR_ENDPOINT="127.0.0.1:1" \
-    AIP_PROBE_COLLECTOR_NOISE_PUBKEY="$(printf '0%.0s' $(seq 1 64))" \
-    AIP_PROBE_KEY_PATH="$W/probe.key.json" AIP_PROBE_SENSORS=sched \
-    timeout 4 "$REPO/target/debug/aip-probe" > "$W/probe.keygen.log" 2>&1
+"$REPO/target/debug/aip-probe" init-transport-key "$W/probe.key.json" > "$W/probe.keygen.log" 2>&1
 PPUB=$(python3 -c "import json;print(json.load(open('$W/probe.key.json'))['public_hex'])")
 printf '[{"probe_id":"probe.joint","transport_pubkey_hex":"%s"}]\n' "$PPUB" > "$W/probes.json"
 env AIP_COLLECTOR_OBSERVER_ID=collector.joint AIP_COLLECTOR_KEY_VERSION=1 \
@@ -85,7 +82,8 @@ env AIP_PROBE_ID=probe.joint AIP_PROBE_COLLECTOR_ENDPOINT="127.0.0.1:$APORT" \
     AIP_PROBE_SENSORS=sched AIP_PROBE_BATCH_INTERVAL_MS=1000 \
     "$REPO/target/debug/aip-probe" > "$W/probe.log" 2>&1 &
 PROBE=$!
-sleep 3; grep -q "connected" "$W/probe.log" || { cat "$W/probe.log"; die "probe never connected"; }
+source "$REPO/validation/pilot_e2e/wait_probe_ack.sh" || die "probe readiness helper unavailable"
+wait_probe_ack "$PROBE" "$W/probe.log" || { cat "$W/probe.log"; die "probe did not receive a durable collector ACK within 30 seconds"; }
 ok "AIP up: probe -> collector over the confidential transport"
 
 step "Start SPIRE (unix attestor, discover_workload_path = true)"

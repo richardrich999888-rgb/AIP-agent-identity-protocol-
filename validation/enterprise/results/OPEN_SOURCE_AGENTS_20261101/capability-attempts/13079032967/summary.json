@@ -1,0 +1,29 @@
+{
+  "framework": "deerflow",
+  "run_id": 41294812019,
+  "artifact_id": 13079032967,
+  "artifact_sha256": "b75029c5085f75446171c7a46ee50a233925f2d8960b228ef02f4bc7d1be0427",
+  "original_zip_digest_matches_github": true,
+  "source_commit": "c379f75e16442476517f5eafca2da884b4202ed4",
+  "actual_stage": "SEPARATE_REAL_FRAMEWORK_TOOL_CAPABILITY_STAGE",
+  "capability_status": "FAIL",
+  "actual_framework_stage_model_requests": 0,
+  "pre_capability_policy_generation_requests": 1,
+  "failure_type": "OSError",
+  "business_task_execution": "NOT_STARTED",
+  "business_task_acceptance": "NOT_ESTABLISHED",
+  "business_kernel_archive_and_checkpoint": "NOT_PRODUCED",
+  "business_offline_verification": "NOT_APPLICABLE_NO_BUSINESS_ARCHIVE",
+  "actual_32768_service_context_preflight": "PASS_REQUIRED_INSIDE_SUCCESSFUL_NETWORK_POLICY",
+  "post_framework_served_context": "NOT_REACHED",
+  "native_framework_tool_roundtrip": "NOT_ESTABLISHED",
+  "journal_records": 2,
+  "journal_kind_counts": {
+    "configuration_verified": 1,
+    "capability_failed": 1
+  },
+  "cleanup_errors": [],
+  "model_quality_cause": "NOT_ESTABLISHED",
+  "exception_detail_or_traceback": "NOT_RETAINED_IN_ORIGINAL_CAPABILITY_REPORT",
+  "diagnostic_authority": "SELF_REPORTED application diagnostics, not independent kernel evidence"
+}

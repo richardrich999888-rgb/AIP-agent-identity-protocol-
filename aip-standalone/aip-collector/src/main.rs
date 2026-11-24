@@ -129,6 +129,10 @@ fn run() -> Result<(), String> {
         }
     };
 
+    // A queued pre-start batch can be retained and verified as history, but
+    // cannot retroactively cover the collector's interruption.
+    rt.signer_mut().begin_live_coverage_epoch(now_ms());
+
     // Register the allowed probes. This tightens the collector's probe policy to
     // RegisteredOnly, so a batch may only claim mechanisms a registered probe
     // was provisioned for.
@@ -145,6 +149,10 @@ fn run() -> Result<(), String> {
 
     let runtime = Arc::new(Mutex::new(rt));
     let authority = Arc::new(allow);
+    let mut archive_sink = RuntimeSink::with_archive(runtime.clone(), &cfg.attested_archive_path);
+    archive_sink
+        .initialize_archive()
+        .map_err(|e| format!("durable replay archive: {e}"))?;
 
     // R9: the link is confidential, unconditionally. Every probe pins this
     // public key; announce it at every start so an operator can find it
@@ -175,16 +183,14 @@ fn run() -> Result<(), String> {
     for conn in listener.incoming() {
         match conn {
             Ok(stream) => {
-                let runtime = runtime.clone();
+                let mut sink = archive_sink.clone();
                 let authority = authority.clone();
                 let noise_key = noise_key.clone();
-                let archive_path = cfg.attested_archive_path.clone();
                 std::thread::spawn(move || {
                     let peer = stream
                         .peer_addr()
                         .map(|a| a.to_string())
                         .unwrap_or_else(|_| "<unknown>".into());
-                    let mut sink = RuntimeSink::with_archive(runtime, &archive_path);
                     match serve_connection_confidential(
                         stream,
                         READ_TIMEOUT,

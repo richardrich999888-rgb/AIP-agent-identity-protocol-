@@ -1,0 +1,94 @@
+{
+  "schema": "vanian-local-qa-observed-demo-acceptance-v1",
+  "status": "PASS_FOR_GENUINE_LOCAL_QA_LINUX_OBSERVATION_AND_OFFLINE_VERIFICATION",
+  "source_commit": "bce0037d6ca5eb1b85a9f2d242f4b2650dd2e6d9",
+  "workflow_run_id": 41508547378,
+  "run_id": "local-qa-5008dbe8caa91aa859736d61",
+  "capture_job_id": 125494055489,
+  "offline_job_id": 125497343733,
+  "linux_execution": "PASS",
+  "linux_network_disabled_verification": "PASS",
+  "mac_offline_verification": "PASS",
+  "linux_and_mac_verification_objects_equal": true,
+  "actual_questions_passed": 4,
+  "model_requests": 8,
+  "reader_api_gets": 12,
+  "signed_batches": 93,
+  "signed_health_records": 6,
+  "archive_kernel_events": 3372,
+  "agent_bound_events": 56,
+  "agent_event_kinds": {
+    "ProcessExec": 1,
+    "Exec": 1,
+    "SocketState": 20,
+    "SocketSend": 28,
+    "FileEvent": 5,
+    "Exit": 1
+  },
+  "task": {
+    "from_ms": 1793647267118,
+    "to_ms": 1793647328684,
+    "exit_code": 0
+  },
+  "all_six_sensor_types_cover_entire_task": true,
+  "audit_exec_agreements": 1,
+  "output_file_paths_bound_to_agent": 4,
+  "tamper_cases_rejected_by_full_checkpoint_contract": 7,
+  "linux_component_suite": {
+    "run": 81,
+    "passed": 80,
+    "failed": 0,
+    "skipped": 1,
+    "skip": "Mac prepared-asset reuse requires local Mac assets; real Linux inference ran separately"
+  },
+  "mac_component_suite": {
+    "run": 81,
+    "passed": 81,
+    "failed": 0,
+    "skipped": 0
+  },
+  "pr_source_ci": {
+    "total": 22,
+    "passed": 17,
+    "failed": 2,
+    "guarded_skips": 3,
+    "pending": 0,
+    "strict_result": "FAIL"
+  },
+  "security": {
+    "gitleaks_findings": 217,
+    "trivy_findings": 4,
+    "exact_result_objects_equal_prior_baseline": true,
+    "new_waivers": false
+  },
+  "current_task_scope": "This bounded LangChain/LangGraph/Qwen evidence assistant only",
+  "other_open_source_business_integrations": "NOT_VALIDATED_BY_THIS_RUN",
+  "independent_administrative_collector_custody": "NOT_ESTABLISHED",
+  "application_action_proof": "NOT_SUPPLIED_BY_OBSERVATION_ONLY_CAPTURE",
+  "fresh_observation_api_admission": "NOT_REQUESTED_OR_CLAIMED",
+  "production_or_customer_acceptance": "NOT_CLAIMED",
+  "demo_url": "http://127.0.0.1:18765/",
+  "original_artifact_zip_sha256": {
+    "original-observations.zip": "b6cef1a3e7ec0b6fa6e7d26d49086690e624481e8c8782ad0a835fffb1312b41",
+    "original-controller-trust.zip": "7b13f7fc3b8f0b7bd1081c6b6b836117f3c14258b44bce2a79ca284d95ac12c9",
+    "original-offline-verification.zip": "30b3af4945687e93e2068d5f091a4a0aef3f5ef3b7173da78d35c76fe6649ea8"
+  },
+  "rust_ci": {
+    "debug": {
+      "passed": 3268,
+      "failed": 0,
+      "ignored": 7
+    },
+    "release": {
+      "passed": 3270,
+      "failed": 0,
+      "ignored": 5
+    },
+    "doctests_per_profile": {
+      "passed": 2,
+      "failed": 0,
+      "ignored": 2
+    },
+    "focused_discrepancy_release_repetitions_passed": 20
+  }
+}

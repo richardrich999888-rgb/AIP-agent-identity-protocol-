@@ -1,0 +1,29 @@
+{
+  "classification": "LOCAL_TYPED_CALLBACK_FIXTURE_REPRODUCTION_NO_AGENT_MODEL_NETWORK_OR_REAL_UPSTREAM",
+  "original_repository_source": "e4cd07d906ed2c5661e7909e2c02559e100b26bf",
+  "contextforge_repository": "https://github.com/IBM/mcp-context-forge",
+  "contextforge_revision": "ff6a566a4b5c098093db90bbb4d5df483e108026",
+  "cpex_version": "0.1.4",
+  "host": "macOS-26.4.1-arm64-arm-64bit",
+  "source_sha256": {
+    "result.json": "6f959b288ca26622c5b71acb805bbe10b2b41dc7d09000e19cfd8b1d33d5d76a",
+    "reproduce.py": "b963dcd7187d5007172764d8fb84a194e7539d390a8b42dbba73d12b2c50f615",
+    "original-plugin/vanian_contextforge.py": "bc29e99f38e865fef5116afaa3127cc9416d1cadb250a9b28357d5e9c11d9fed",
+    "original-plugin/test_authorization_policy.py": "2b77c155397abb39acf3bb1ea761fa7d6cd408fca67a1d41d7bfbd6bf7cc2eef"
+  },
+  "pinned_dependency_source_sha256": {
+    "uv.lock": "76ef83096d34d7a95aca91407cbf085c3da1e0c937616d86da393b9549117f0c",
+    "mcpgateway/services/tool_service.py": "13b78e5666990624425d45426530246afe141053414ef7cf630d98301b664279",
+    "mcpgateway/plugins/gateway_plugin_manager.py": "211203a3aa94ef6e42785c105bbc5b80bb8e97b669eeae70ad154b53899c6384",
+    ".venv/lib/python3.12/site-packages/cpex/framework/manager.py": "86c1ea8ddb623f9412bc1a8a63b96942fee8b8328a2e74b5ea49cbefbd402fa6",
+    ".venv/lib/python3.12/site-packages/cpex/framework/base.py": "3292029a57ce1f05f7a5a797ad6052a261c90d1a46a9c869bbc7a83b42a06f2f",
+    ".venv/lib/python3.12/site-packages/cpex/framework/models.py": "14196c51f57ed90ebe777ce439b7e7410f7f8f938220a5f8b639827d9869f48a",
+    ".venv/lib/python3.12/site-packages/cpex/framework/memory.py": "25db76c582e921c4f9e6ddec10571d913bcc4cdb33a4e2f4eb1b8e495ef96a5c"
+  },
+  "limitations": [
+    "Exact real CPEX classes and Rust signers operate only on controlled callback and authorization fixtures.",
+    "Manager replacement is explicit; the original failed Linux run did not retain proof of an actual TTL crossing.",
+    "The final case uses a temporary fixture-only global-state bridge. It is not the committed production implementation.",
+    "No original live receipt or reconciliation is recreated."
+  ]
+}

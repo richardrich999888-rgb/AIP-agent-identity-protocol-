@@ -1,0 +1,16 @@
+{
+  "schema": "vanian-local-qa-output-manifest-v1",
+  "run_id": "local-qa-b92544214896275b357d9b13",
+  "source_commit": "d1737bbe08d04111d2e2cee43eab1dc1e419a54a",
+  "answer_files": {
+    "answers/case-1.json": "1036d703529ef443968abb34da485e0bc40679b0ecd36385f8d2e13f2540ea59",
+    "answers/case-2.json": "87997787128f9218a989cf33e2371e890f434563f6ae19f78e3dfaedd69e9e17",
+    "answers/case-3.json": "53b2c4d2faff330345541b3e112fb0603f879e8585cd3d7e8ffc40f07c6cd109",
+    "answers/case-4.json": "6dd445cdf29c61f96fbd45c374d5d54b42b62dfe71d22588c1066cf4c97ed962"
+  },
+  "task_manifest_sha256": "caeb6845e60245ba6c2f954e00471db30051504aaac91fa5282e34b2cf072ee8",
+  "launch_sha256": "c809e7a0cdc2c3fda92f6effa8bd73dfaf2e266afb7d2b73df3b077e3f193d1b",
+  "result_scope": "ROOT_CONTROLLER_APPLICATION_CORRELATION",
+  "signed_by_collector": false,
+  "limit": "Hashes associate controller-collected QA files with this process run; kernel observations do not sign answer contents or prove application semantics."
+}

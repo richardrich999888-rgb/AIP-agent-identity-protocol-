@@ -1,0 +1,53 @@
+{
+  "collector": {
+    "binary_hash_authority": "Derived from the hash-verified official release archives, without modifying binary bytes",
+    "distribution": "otelcol-contrib",
+    "hash_authority": "Official GitHub release asset SHA256 digests",
+    "platforms": {
+      "Darwin-arm64": {
+        "binary_bytes": 369578818,
+        "binary_sha256": "4d60abcd101c768268f885e3c42a5d2ca083d9d7461c68c6c77dc044371aa0c5",
+        "bytes": 98481373,
+        "filename": "otelcol-contrib_0.164.0_darwin_arm64.tar.gz",
+        "sha256": "af6a0c56886e3cc36ccebe849fa167bad2bc47a97a48fd8497a0d6f93d0cf73a",
+        "url": "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.164.0/otelcol-contrib_0.164.0_darwin_arm64.tar.gz"
+      },
+      "Linux-x86_64": {
+        "binary_bytes": 420298914,
+        "binary_sha256": "57911a9d902cfe2c287dac09fcee4b054630b4ec248fa190a3115d860a32f81f",
+        "bytes": 115591854,
+        "filename": "otelcol-contrib_0.164.0_linux_amd64.tar.gz",
+        "sha256": "f0c1ce9f661399beb4a58b711924716e08ea70c3802db0715fcfde3cbbada2d4",
+        "url": "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/download/v0.164.0/otelcol-contrib_0.164.0_linux_amd64.tar.gz"
+      }
+    },
+    "release": "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.164.0",
+    "release_published_at": "2026-10-26T23:46:44Z",
+    "version": "0.164.0"
+  },
+  "schema": "aip-controller-otel-pins-v1",
+  "scope": "ROOT_CONTROLLER_APPLICATION_TELEMETRY; isolated SDK; loopback receiver and local file exporter only",
+  "sdk": {
+    "packages": {
+      "certifi": "2026.10.23",
+      "charset-normalizer": "3.5.2",
+      "googleapis-common-protos": "1.76.0",
+      "idna": "3.20",
+      "opentelemetry-api": "1.45.2",
+      "opentelemetry-exporter-http-transport": "0.66b2",
+      "opentelemetry-exporter-otlp-common": "0.66b2",
+      "opentelemetry-exporter-otlp-proto-common": "1.45.2",
+      "opentelemetry-exporter-otlp-proto-http": "1.45.2",
+      "opentelemetry-proto": "1.45.2",
+      "opentelemetry-sdk": "1.45.2",
+      "opentelemetry-semantic-conventions": "0.66b2",
+      "protobuf": "7.36.2",
+      "requests": "2.34.2",
+      "typing_extensions": "4.16.0",
+      "urllib3": "2.8.0"
+    },
+    "requirements_sha256": "8414d104f5db15d262a6453d00cc5da414c03d1cce7fabdf3b540f98211a1935",
+    "source": "https://pypi.org/project/opentelemetry-sdk/1.45.2/",
+    "version": "1.45.2"
+  }
+}

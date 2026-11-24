@@ -1,0 +1,55 @@
+{
+  "source_head": "32619a16b102d14d9cca667699a3b64394ca644f",
+  "run_id": 44916522750,
+  "job_id": 136883203720,
+  "artifact_id": 14712326806,
+  "conclusion": "success",
+  "vulnerability_count": 0,
+  "existing_ignore": [
+    "RUSTSEC-2026-0097"
+  ],
+  "database": {
+    "advisory-count": 1555,
+    "last-commit": "55e1c3dfbd834237a05bbbf7b50ba3b5be27b662",
+    "last-updated": "2026-11-21T10:28:03+01:00"
+  },
+  "warnings": {
+    "unmaintained": [
+      {
+        "id": "RUSTSEC-2026-0543",
+        "title": "chrono is unmaintained",
+        "package": "chrono",
+        "version": "0.4.45",
+        "url": "https://rustsec.org/advisories/RUSTSEC-2026-0543.html",
+        "patched": [],
+        "unaffected": []
+      }
+    ],
+    "unsound": [
+      {
+        "id": "RUSTSEC-2026-0486",
+        "title": "xattr functions mark unwritten bytes as initialized when given a zero-length buffer",
+        "package": "rustix",
+        "version": "1.1.5",
+        "url": "https://rustsec.org/advisories/RUSTSEC-2026-0486.html",
+        "patched": [
+          ">=1.1.6"
+        ],
+        "unaffected": [
+          "<1.0.0"
+        ]
+      }
+    ]
+  },
+  "cargo_deny": {
+    "run_id": 44916522570,
+    "job_id": 136883203228,
+    "conclusion": "failure",
+    "reason": "chrono 0.4.45 unmaintained (RUSTSEC-2026-0543)",
+    "dependency": "chrono 0.4.45 <- airon-aip 0.2.0",
+    "remaining_categories": "bans, licenses, sources passed"
+  },
+  "waivers_added": false,
+  "upgrades_applied": false,
+  "source_cargo_lock_sha256": "987c80cd8dbc0fffea4c57023a5b9592771d21ce051fc4b207caf6bafa192e13"
+}

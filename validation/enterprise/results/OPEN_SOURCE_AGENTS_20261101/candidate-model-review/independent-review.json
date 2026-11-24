@@ -1,0 +1,80 @@
+{
+  "classification": "INDEPENDENT_READ_ONLY_SOURCE_AND_CANDIDATE_ARITHMETIC_REVIEW",
+  "native_source_commit": "93e599dfed89b24d6671c4dc924b390cbed32bde",
+  "candidate_runtime_source_commit": "1968d458487bc921a22bf91c71a1156781a753dd",
+  "result": "PASS_NO_CONCRETE_SECURITY_OR_EVIDENCE_REGRESSION_FOUND",
+  "source_checks": [
+    "Pinned OpenHands LocalConversation close() API used; no unsupported context manager. Primary run failure survives cleanup fault; cleanup-only fault cannot become pass.",
+    "Direct capability reproduces existing writable runtime directories/DeerFlow cwd before actual imports; no extra host access or privilege.",
+    "Native initialization smoke makes no model prompt and explicitly leaves lazy graph/agent turn unexercised.",
+    "Safe failure details export bounded approved source locations/errno, no exception text, locals, argv, config, headers or credentials.",
+    "Final response gate now requires exact integer outside challenge ID for Agent Zero too.",
+    "Qwen3 exact manifest/all-blob + explicit weight digest/size checks retained; default model and native D/O profile remain unchanged; Qwen3 CLI rejected for D/O before provisioning.",
+    "New opt-in candidate actual /api/ps 8192 context gates before/after capability and workload; capability/tool/file/final response/model-service request gates still required.",
+    "Existing 5GiB/2CPU model bound,240s capability/900s task limits, read-only/credential/network isolation and evidence predicates unchanged."
+  ],
+  "focused_control_tests": {
+    "python": "/opt/homebrew/bin/python3.12",
+    "native_frameworks_passed": 10,
+    "agent_zero_profiles_passed": 14,
+    "Linux_upstream_execution_or_model_capability_claimed": false,
+    "initial_invalid_test_attempt": "System Python3.9 lacked required hashlib.file_digest and discovery path; rerun on supportedPython3.12 passed. No source repair made."
+  },
+  "candidate_calculations": [
+    {
+      "model": "Qwen3-4B-Instruct-2507",
+      "manifest_path": "/private/tmp/snifferdog-candidate-model-review/qwen3-4b-instruct-2507-q4_K_M.manifest.json",
+      "manifest_sha256": "0edcdef34593eac1aa2be9c7d06c432dcf81945adca5eca2f27662c18f168ba0",
+      "architecture_config_path": "/private/tmp/snifferdog-candidate-model-review/independent-qwen3-primary-config.json",
+      "architecture_config_sha256": "5beea1a4a34c62782bfb2f911c606741a3bab8f92d80a118fa053c28af12e8ba",
+      "layers": 36,
+      "KV_heads": 8,
+      "head_dimension": 128,
+      "context_tokens": 8192,
+      "cache_bytes_per_element_assumed": 2,
+      "formula": "layers * 2(K+V) * KV_heads * head_dim * context * 2bytes",
+      "KV_bytes": 1207959552,
+      "KV_GiB": 1.125,
+      "weight_bytes_as_declared_in_manifest": 2497280480,
+      "weight_GiB": 2.325773686170578,
+      "weight_blob_SHA256_DECLARED_NOT_LOCALLY_HASHED": "85e4a5b7b8ef0e48af0e8658f5aaab9c2324c76c1641493f4d1e25fce54b18b9",
+      "sum_weight_KV_bytes": 3705240032,
+      "sum_weight_KV_GiB": 3.450773686170578,
+      "headroom_of_5GiB_before_other_overhead_bytes": 1663469088,
+      "headroom_of_5GiB_before_other_overhead_GiB": 1.549226313829422
+    },
+    {
+      "model": "Qwen2.5-Coder-7B-Instruct",
+      "manifest_path": "/private/tmp/snifferdog-candidate-model-review/qwen25-coder-7b-instruct-q4_K_M.manifest.json",
+      "manifest_sha256": "dae161e27b0e90dd1856c8bb3209201fd6736d8eb66298e75ed87571486f4364",
+      "architecture_config_path": "/private/tmp/snifferdog-candidate-model-review/independent-qwen25-coder-7b-primary-config.json",
+      "architecture_config_sha256": "c0242402ad6a13b331ea320feea8c7e3776ffb7a4eff0757b9cd667e116d9a28",
+      "layers": 28,
+      "KV_heads": 4,
+      "head_dimension": 128,
+      "context_tokens": 8192,
+      "cache_bytes_per_element_assumed": 2,
+      "formula": "layers * 2(K+V) * KV_heads * head_dim * context * 2bytes",
+      "KV_bytes": 469762048,
+      "KV_GiB": 0.4375,
+      "weight_bytes_as_declared_in_manifest": 4683074048,
+      "weight_GiB": 4.361452579498291,
+      "weight_blob_SHA256_DECLARED_NOT_LOCALLY_HASHED": "60e05f2100071479f596b964f89f510f057ce397ea22f2833a0cfe029bfc2463",
+      "sum_weight_KV_bytes": 5152836096,
+      "sum_weight_KV_GiB": 4.798952579498291,
+      "headroom_of_5GiB_before_other_overhead_bytes": 215873024,
+      "headroom_of_5GiB_before_other_overhead_GiB": 0.20104742050170898
+    }
+  ],
+  "primary_sources": [
+    "https://huggingface.co/Qwen/Qwen3-4B-Instruct-2507/blob/cdbee75f17c01a7cc42f958dc650907174af0554/config.json",
+    "https://huggingface.co/Qwen/Qwen2.5-Coder-7B-Instruct/raw/main/config.json",
+    "https://registry.ollama.ai/v2/library/qwen3/manifests/4b-instruct-2507-q4_K_M"
+  ],
+  "limits": [
+    "Arithmetic assumes one8192-token FP16/BF16-size K+V cache and declared quantized weight size; allocator/scratch/runtime/peaks and CPU latency are not measured.",
+    "No weight blob downloaded or inference run during this review. Runtime must still hash actual large blobs and establish exact service context/tool capability.",
+    "Pinned public configuration metadata supports the arithmetic; it is not actual loaded GGUF architecture/capacity proof.",
+    "Native callback/model/service diagnostics are unsigned and do not replace Sniffer signed task coverage or business-output acceptance."
+  ]
+}

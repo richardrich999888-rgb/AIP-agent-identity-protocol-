@@ -1,0 +1,70 @@
+{
+  "classification": "ORIGINAL_FAILED_COVERAGE_DIAGNOSIS_NOT_REPAIRED_EVIDENCE",
+  "source_commit": "7695d9abb462b5cd7f51c271400b854f20d2a89a",
+  "run_id": 41291566529,
+  "job_id": 124803714563,
+  "requested_interval_ms": {
+    "from": 1793524117114,
+    "to": 1793524151759
+  },
+  "signed_unverifiable_batch": 46,
+  "connector_original": {
+    "batch_sequence": 46,
+    "event_index": 389,
+    "probe_seq": 4797,
+    "pid": 7097,
+    "tgid": 7097,
+    "kernel_timestamp_ns": 264533373550,
+    "bound": false
+  },
+  "actual_sched_counterpart_original": {
+    "batch_sequence": 47,
+    "event_index": 6,
+    "probe_seq": 4947,
+    "pid": 7097,
+    "kernel_timestamp_ns": 264533357961,
+    "filename_context": "/usr/bin/docker",
+    "bound": false
+  },
+  "delta_ns": 15589,
+  "signed_latest_coverage_starts_ms": 1793524146084,
+  "strict_result": "FAIL_WHOLE_REQUESTED_INTERVAL_NOT_COVERED",
+  "origin_limit": "The strict same-batch collector predicate necessarily finds the missing witness. The pre-collector mechanism-integrity declaration/query errno was not independently retained; no errno/query failure or actor identity is inferred.",
+  "original_arrival_runs_in_batch46": [
+    {
+      "source": "SchedTracepoint",
+      "events": 47,
+      "probe_seq": [
+        4408,
+        4454
+      ]
+    },
+    {
+      "source": "SockSendTracepoint",
+      "events": 14,
+      "probe_seq": [
+        4455,
+        4468
+      ]
+    },
+    {
+      "source": "ProcConnector",
+      "events": 344,
+      "probe_seq": [
+        4469,
+        4812
+      ]
+    },
+    {
+      "source": "SchedTracepoint",
+      "events": 128,
+      "probe_seq": [
+        4813,
+        4940
+      ]
+    }
+  ],
+  "acquisition_diagnosis": "Final128sched reads are consistent with old8rounds*16/source ceiling. Exact internal termination reason was not logged and is not proven.",
+  "evidence_preservation": "No event moved into another batch; no old Active record/epoch union/successful-run evidence supplies coverage. The failed original ZIP and all20original public members remain byte-identical.",
+  "independent_crypto_replay": "PASS_SIGNATURES_CHAINS_CHECKPOINT_ONLY; coverage replay remains FAIL."
+}

@@ -1,0 +1,572 @@
+{
+  "classification": "EXACT_SOURCE_FF99_COMPONENT_CI_BASELINE_NOT_FINAL_ACCEPTANCE",
+  "source_commit": "ff99d5ce41665bf8357e724570b0b1bf80f9601a",
+  "source_tree": "71e89708cd1076c952fc7573598ed6ffc2e04bf6",
+  "pr": 8,
+  "draft_at_snapshot": true,
+  "base_commit": "65b6ff7fdad5ae70546a57216a497399091c7dc7",
+  "actual_checkout_merge_commit": "4a4e1fa3b176d587ef242fed9094c511ebb54e7a",
+  "actual_checkout_merge_tree": "71e89708cd1076c952fc7573598ed6ffc2e04bf6",
+  "source_checkout_trees_equal": true,
+  "checkout_evidence": "Quality job actual fetch/checkout/log printed the full synthetic merge SHA; both git-commit API tree objects matched the exact source tree.",
+  "required_original14": {
+    "passed": 13,
+    "failed": 1,
+    "skipped": 0,
+    "conclusion": "FAIL"
+  },
+  "restored_strict_security3": {
+    "passed": 1,
+    "failed": 2,
+    "skipped": 0,
+    "conclusion": "FAIL"
+  },
+  "combined_required17": {
+    "passed": 14,
+    "failed": 3,
+    "skipped": 0,
+    "conclusion": "FAIL"
+  },
+  "separate_scope": {
+    "dynamic_advanced_security": "PASS",
+    "same_run_core_workflow_ff99": "PASS_SOURCE_RUN_REPORT_NOT_YET_INDEPENDENTLY_REPLAYED",
+    "agent_zero_pr_genuine_task": "SKIPPED_MANUAL_TASK_FALSE"
+  },
+  "runs": [
+    {
+      "run_id": 41298515225,
+      "name": "CI",
+      "event": "pull_request",
+      "source_head": "ff99d5ce41665bf8357e724570b0b1bf80f9601a",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515225",
+      "jobs": [
+        {
+          "id": 124824398575,
+          "name": "cargo audit \u00b7 cargo deny",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515225/job/124824398575",
+          "skipped_steps": []
+        },
+        {
+          "id": 124824398670,
+          "name": "fmt \u00b7 clippy \u00b7 test",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515225/job/124824398670",
+          "skipped_steps": []
+        },
+        {
+          "id": 124824398751,
+          "name": "postgres backend integration",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515225/job/124824398751",
+          "skipped_steps": []
+        },
+        {
+          "id": 124824398766,
+          "name": "coverage",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515225/job/124824398766",
+          "skipped_steps": []
+        },
+        {
+          "id": 124824398778,
+          "name": "Python SDK regression and parity tests",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515225/job/124824398778",
+          "skipped_steps": []
+        },
+        {
+          "id": 124824398795,
+          "name": "RED suite (adversarial ledger reproducible)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515225/job/124824398795",
+          "skipped_steps": []
+        }
+      ]
+    },
+    {
+      "run_id": 41298515228,
+      "name": "Enterprise integration",
+      "event": "pull_request",
+      "source_head": "ff99d5ce41665bf8357e724570b0b1bf80f9601a",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515228",
+      "jobs": [
+        {
+          "id": 124824398424,
+          "name": "contracts",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515228/job/124824398424",
+          "skipped_steps": []
+        },
+        {
+          "id": 124824398708,
+          "name": "contextforge",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515228/job/124824398708",
+          "skipped_steps": []
+        }
+      ]
+    },
+    {
+      "run_id": 41298515344,
+      "name": "RBI rehearsal",
+      "event": "pull_request",
+      "source_head": "ff99d5ce41665bf8357e724570b0b1bf80f9601a",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515344",
+      "jobs": [
+        {
+          "id": 124824398912,
+          "name": "script-regressions",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515344/job/124824398912",
+          "skipped_steps": []
+        },
+        {
+          "id": 124824515658,
+          "name": "live-rehearsal",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515344/job/124824515658",
+          "skipped_steps": []
+        }
+      ]
+    },
+    {
+      "run_id": 41298515203,
+      "name": "Real-agent harness contracts (no live agent claim)",
+      "event": "pull_request",
+      "source_head": "ff99d5ce41665bf8357e724570b0b1bf80f9601a",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515203",
+      "jobs": [
+        {
+          "id": 124824398397,
+          "name": "contracts",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515203/job/124824398397",
+          "skipped_steps": [
+            "Run python -m compileall -q integrations/real_agents",
+            "Post Run actions/setup-python@v5"
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": 41298515135,
+      "name": "Open-source agents and Linux observation",
+      "event": "pull_request",
+      "source_head": "ff99d5ce41665bf8357e724570b0b1bf80f9601a",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515135",
+      "jobs": [
+        {
+          "id": 124824398168,
+          "name": "image (agent_zero)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515135/job/124824398168",
+          "skipped_steps": [
+            "Run dtolnay/rust-toolchain@stable",
+            "Run Swatinem/rust-cache@v2",
+            "Prepare actual Linux observation for the installed framework component",
+            "Observe the actual installed framework tool component (zero model calls)",
+            "Preserve public framework observation separately from the image archive"
+          ]
+        },
+        {
+          "id": 124824398314,
+          "name": "release-regression",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515135/job/124824398314",
+          "skipped_steps": []
+        },
+        {
+          "id": 124824398346,
+          "name": "hosted-observer-capabilities",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515135/job/124824398346",
+          "skipped_steps": []
+        },
+        {
+          "id": 124825218282,
+          "name": "genuine-task",
+          "status": "completed",
+          "conclusion": "skipped",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515135/job/124825218282",
+          "skipped_steps": []
+        }
+      ]
+    },
+    {
+      "run_id": 41298515250,
+      "name": "Security",
+      "event": "pull_request",
+      "source_head": "ff99d5ce41665bf8357e724570b0b1bf80f9601a",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515250",
+      "jobs": [
+        {
+          "id": 124824398624,
+          "name": "trivy filesystem scan",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515250/job/124824398624",
+          "skipped_steps": []
+        },
+        {
+          "id": 124824398700,
+          "name": "cargo audit (RUSTSEC)",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515250/job/124824398700",
+          "skipped_steps": []
+        },
+        {
+          "id": 124824398820,
+          "name": "gitleaks (secret scan)",
+          "status": "completed",
+          "conclusion": "failure",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515250/job/124824398820",
+          "skipped_steps": []
+        }
+      ]
+    },
+    {
+      "run_id": 41298518667,
+      "name": "Code scanning AI findings on PR #8",
+      "event": "dynamic",
+      "source_head": "ff99d5ce41665bf8357e724570b0b1bf80f9601a",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298518667",
+      "jobs": [
+        {
+          "id": 124824413169,
+          "name": "github-advanced-security",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298518667/job/124824413169",
+          "skipped_steps": [
+            "Validate runner OS",
+            "Validate firewall settings (Linux)",
+            "Validate firewall settings (Windows)",
+            "Pre-cache Playwright MCP server in the background (Windows)",
+            "Prepare Copilot (Windows)",
+            "Download Autofind (Windows)",
+            "Start MCP Servers (Windows)",
+            "Setup Agent (Windows)",
+            "Download git-proxy (Windows)",
+            "Processing Request (Windows)",
+            "Clean Up (Windows)",
+            "[Optional] Archive Details"
+          ]
+        }
+      ]
+    },
+    {
+      "run_id": 41298515246,
+      "name": "Genuine same-run execution assurance",
+      "event": "pull_request",
+      "source_head": "ff99d5ce41665bf8357e724570b0b1bf80f9601a",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515246",
+      "jobs": [
+        {
+          "id": 124824398574,
+          "name": "local-model-linux",
+          "status": "completed",
+          "conclusion": "success",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41298515246/job/124824398574",
+          "skipped_steps": []
+        }
+      ]
+    }
+  ],
+  "tests": [
+    {
+      "name": "quality",
+      "job_id": 124824398670,
+      "rust_test_aggregates": {
+        "debug": {
+          "passed": 3270,
+          "failed": 0,
+          "ignored": 9,
+          "measured": 0,
+          "filtered_out": 0,
+          "suites": 332
+        },
+        "release": {
+          "passed": 3272,
+          "failed": 0,
+          "ignored": 7,
+          "measured": 0,
+          "filtered_out": 0,
+          "suites": 332
+        }
+      },
+      "python_suite_result_lines": [],
+      "g14_04_named_pass_occurrences": 2
+    },
+    {
+      "name": "postgres",
+      "job_id": 124824398751,
+      "rust_test_aggregates": {
+        "debug": {
+          "passed": 156,
+          "failed": 0,
+          "ignored": 17,
+          "measured": 0,
+          "filtered_out": 0,
+          "suites": 16
+        }
+      },
+      "python_suite_result_lines": [],
+      "g14_04_named_pass_occurrences": 0
+    },
+    {
+      "name": "coverage",
+      "job_id": 124824398766,
+      "rust_test_aggregates": {
+        "other": {
+          "passed": 3268,
+          "failed": 0,
+          "ignored": 7,
+          "measured": 0,
+          "filtered_out": 0,
+          "suites": 279
+        }
+      },
+      "python_suite_result_lines": [],
+      "g14_04_named_pass_occurrences": 1
+    },
+    {
+      "name": "python-sdk",
+      "job_id": 124824398778,
+      "rust_test_aggregates": {},
+      "python_suite_result_lines": [
+        "2026-11-01T10:40:35.5402156Z Ran 76 tests in 0.711s"
+      ],
+      "g14_04_named_pass_occurrences": 0
+    },
+    {
+      "name": "red-suite",
+      "job_id": 124824398795,
+      "rust_test_aggregates": {},
+      "python_suite_result_lines": [],
+      "g14_04_named_pass_occurrences": 0
+    },
+    {
+      "name": "enterprise-contracts",
+      "job_id": 124824398424,
+      "rust_test_aggregates": {
+        "other": {
+          "passed": 416,
+          "failed": 0,
+          "ignored": 3,
+          "measured": 0,
+          "filtered_out": 30,
+          "suites": 53
+        }
+      },
+      "python_suite_result_lines": [
+        "2026-11-01T10:40:47.0129837Z Ran 16 tests in 0.060s",
+        "2026-11-01T10:40:47.0933551Z Ran 3 tests in 0.014s",
+        "2026-11-01T10:40:56.5111107Z Ran 17 tests in 9.293s",
+        "2026-11-01T10:40:57.4748976Z Ran 76 tests in 0.627s",
+        "2026-11-01T10:40:59.0656026Z Ran 12 tests in 0.808s"
+      ],
+      "g14_04_named_pass_occurrences": 0
+    },
+    {
+      "name": "contextforge",
+      "job_id": 124824398708,
+      "rust_test_aggregates": {},
+      "python_suite_result_lines": [
+        "2026-11-01T10:41:16.5518552Z Ran 11 tests in 0.627s"
+      ],
+      "g14_04_named_pass_occurrences": 0
+    },
+    {
+      "name": "rbi-scripts",
+      "job_id": 124824398912,
+      "rust_test_aggregates": {},
+      "python_suite_result_lines": [
+        "2026-11-01T10:40:55.6344394Z Ran 17 tests in 13.682s"
+      ],
+      "g14_04_named_pass_occurrences": 0
+    },
+    {
+      "name": "rbi-live",
+      "job_id": 124824515658,
+      "rust_test_aggregates": {
+        "debug": {
+          "passed": 19,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered_out": 56,
+          "suites": 2
+        }
+      },
+      "python_suite_result_lines": [],
+      "g14_04_named_pass_occurrences": 0
+    },
+    {
+      "name": "agent-release",
+      "job_id": 124824398314,
+      "rust_test_aggregates": {
+        "other": {
+          "passed": 44,
+          "failed": 0,
+          "ignored": 0,
+          "measured": 0,
+          "filtered_out": 130,
+          "suites": 24
+        }
+      },
+      "python_suite_result_lines": [],
+      "g14_04_named_pass_occurrences": 20
+    }
+  ],
+  "main_debug_ignored_tests": [
+    {
+      "phase": "debug",
+      "line": "2026-11-01T10:42:27.4154605Z test emit_parity_vectors ... ignored, regeneration helper; run with --ignored --nocapture"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-01T10:44:32.7047272Z test observer_path_throughput ... ignored, timing measurement; run explicitly with --release --nocapture"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-01T10:44:33.3674546Z test emit_sample_bundle ... ignored, emits a sample bundle for CLI smoke testing"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-01T10:44:39.3029555Z test stress::test_signing_throughput ... ignored, wall-clock throughput gate \u2014 meaningful only under `cargo test --release`"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-01T10:44:44.6835903Z test stress::test_verification_throughput ... ignored, wall-clock throughput gate \u2014 meaningful only under `cargo test --release`"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-01T10:49:16.3584929Z test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-01T10:49:16.3586185Z test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-01T10:49:43.9087101Z test aip-standalone/aip-execution/src/profile.rs - profile::ExecutionProfile::authorization_parameter (line 202) ... ignored"
+    },
+    {
+      "phase": "debug",
+      "line": "2026-11-01T10:49:45.1256639Z test aip-standalone/aip-reconcile/src/result.rs - result::Reconciliation::fixture_default (line 767) ... ignored"
+    }
+  ],
+  "main_release_ignored_tests": [
+    {
+      "phase": "release",
+      "line": "2026-11-01T10:53:45.7897085Z test emit_parity_vectors ... ignored, regeneration helper; run with --ignored --nocapture"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-01T10:54:01.6305213Z test observer_path_throughput ... ignored, timing measurement; run explicitly with --release --nocapture"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-01T10:54:01.6906646Z test emit_sample_bundle ... ignored, emits a sample bundle for CLI smoke testing"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-01T10:54:48.1646440Z test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-01T10:54:48.1647492Z test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-01T10:55:05.7668143Z test aip-standalone/aip-execution/src/profile.rs - profile::ExecutionProfile::authorization_parameter (line 202) ... ignored"
+    },
+    {
+      "phase": "release",
+      "line": "2026-11-01T10:55:06.9805235Z test aip-standalone/aip-reconcile/src/result.rs - result::Reconciliation::fixture_default (line 767) ... ignored"
+    }
+  ],
+  "postgres_note": "Regular feature run142passed/17ignored; all14storage controls then explicitly ran and passed. Aggregate156passed/17ignored includes those repeated scheduling scopes.",
+  "red_suite_rows": [
+    "2026-11-01T10:40:48.2462960Z OI-01    BLOCKED      needs CAP_BPF + CAP_PERFMON + tracefs; no tracefs here; sealed in ledger as DETECTED",
+    "2026-11-01T10:40:48.2468856Z OI-02    BLOCKED      needs CAP_BPF + CAP_PERFMON + tracefs; no tracefs here; sealed in ledger as MISSED(pre-fix)",
+    "2026-11-01T10:40:48.2475536Z OI-03    BLOCKED      needs CAP_BPF + CAP_PERFMON + tracefs; no tracefs here; sealed in ledger as MISSED(pre-fix)",
+    "2026-11-01T10:40:48.2481759Z OI-04    BLOCKED      needs CAP_BPF + CAP_PERFMON + tracefs; no tracefs here; sealed in ledger as DETECTED",
+    "2026-11-01T10:40:48.2487994Z OI-05    BLOCKED      needs CAP_BPF + CAP_PERFMON + tracefs; no tracefs here; sealed in ledger as DETECTED",
+    "2026-11-01T10:40:48.2494842Z OI-06    BLOCKED      needs CAP_BPF + CAP_PERFMON + tracefs; no tracefs here; sealed in ledger as NO_FALSE_POSITIVE",
+    "2026-11-01T10:40:53.7378358Z OI-07    NOTE         boundary: KEY_CUSTODY_BOUNDARY",
+    "2026-11-01T10:40:53.7384917Z OI-08    BLOCKED      deferred \u2014 DEFERRED",
+    "2026-11-01T10:40:54.8249132Z OI-09    REPRODUCED   DETECTED",
+    "2026-11-01T10:40:54.9301848Z OI-10    REPRODUCED   DETECTED",
+    "2026-11-01T10:40:55.0386374Z OI-11    REPRODUCED   DETECTED",
+    "2026-11-01T10:40:55.1459317Z OI-12    REPRODUCED   NO_FALSE_POSITIVE",
+    "2026-11-01T10:41:04.0441276Z OI-13    BLOCKED      needs root + CAP_BPF + tracefs; sealed evidence in validation/pilot_e2e/results/sealed; NO_FALSE_POSITIVE",
+    "2026-11-01T10:41:04.0448804Z OI-14    BLOCKED      needs root + CAP_BPF + tracefs; sealed evidence in validation/pilot_e2e/results/sealed; DETECTED",
+    "2026-11-01T10:41:04.0455672Z OI-15    BLOCKED      needs root + CAP_BPF + tracefs; sealed evidence in validation/pilot_e2e/results/sealed; RECOVERS"
+  ],
+  "real_contextforge_checks": 27,
+  "contextforge_portable_python_tests": 11,
+  "failed_contract": {
+    "job_id": 124824398397,
+    "reported_tests": 134,
+    "passed": 133,
+    "errors": 1,
+    "failure": "Fixture called actual Path.exists on root-only /sys/kernel/tracing/available_events in nonroot runner:PermissionError13. Fixture-only repair later committed separately; this source remainsFAILED.",
+    "compileall": "SKIPPED_AFTER_TEST_FAILURE"
+  },
+  "security": {
+    "cargo_audit": "PASS",
+    "gitleaks": {
+      "status": "FAIL",
+      "reported_matches": 217,
+      "sarif_artifact_id": 13080810080,
+      "sarif_original_zip_bytes": 11387,
+      "github_service_zip_sha256": "74b733e96aa96ee8490c0b0ea4633aa438d8be7e53b69400ad7e18e500ff79b8",
+      "digest_origin": "GITHUB_SERVICE_NOT_LOCALLY_DOWNLOADED_IN_THIS_BASELINE_REVIEW",
+      "semantic_triage": "Not repeated for this exact source; count does not itself establish live credentials. No values exposed; no waiver/ignore added."
+    },
+    "trivy": {
+      "status": "FAIL",
+      "sarif_artifact_id": 13080745466,
+      "sarif_original_zip_bytes": 1840,
+      "complete_local_zip_sha256": "5ef933218c6a5918dbdbeaa69f8832b6c6a0fa2332912ad78008f0c3f7fc4086",
+      "service_digest_matches_local": true,
+      "full_crc": "PASS",
+      "private_redacted_summary": "/private/tmp/snifferdog-ci-ff99d5c-private/trivy-redacted-summary.json",
+      "rules": [
+        "KSV-0009",
+        "KSV-0010",
+        "KSV-0118",
+        "KSV-0121"
+      ],
+      "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+      "note": "Four enabled historical Helm privilege findings remain FAILED. Intended observer privileges are not proven minimum/safe; Kubernetes runtime qualification/policy acceptance remains separate."
+    }
+  },
+  "existing_policy_note": "No checks/ignores/allowlists changed in this review. Existing main CI cargo audit ignores RUSTSEC-2026-0097 per repository policy; separately restored Security cargo-audit command is unchanged.",
+  "limits": [
+    "Counts belong to exactff99 source/synthetic merge tree, not later runtime/governance changes.",
+    "Overlapping test runs are reported by job/profile, not summed into unique tests.",
+    "RED has10BLOCKED rows+4REPRODUCED+1NOTE; blocked rows are not passing executed kernel checks.",
+    "Main generic debug/release live-client fixtures remain ignored there; actual client runs belong to separately scoped enterprise/core workflows.",
+    "All workflow reports are GitHub/controller testimony; signed kernel/bundle verification is separately scoped.",
+    "No full-assignment, all-framework genuine-task, independent-custody or production-qualification claim."
+  ],
+  "registry_assembled_at_utc": "2026-11-01T12:38:35.965058+00:00"
+}

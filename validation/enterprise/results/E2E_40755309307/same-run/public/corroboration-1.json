@@ -1,0 +1,67 @@
+{
+  "source": "Auditd",
+  "independence": "DifferentMechanism",
+  "window_from_ms": 1793216144778,
+  "window_to_ms": 1793216163462,
+  "match_window_ms": 250,
+  "agreed": [
+    {
+      "aip": {
+        "pid": 6601,
+        "wall_ms": 1793216149450,
+        "image": "/home/runner/work/_temp/contextforge/.venv/bin/python",
+        "batch_sequence": 17
+      },
+      "external_wall_ms": 1793216149450,
+      "external_image": "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python3.12",
+      "skew_ms": 0
+    }
+  ],
+  "aip_only": [
+    {
+      "pid": 6596,
+      "wall_ms": 1793216145786,
+      "image": "/home/runner/work/_temp/bank-agent/bin/python",
+      "batch_sequence": 15
+    },
+    {
+      "pid": 6598,
+      "wall_ms": 1793216148838,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-execution-assurance",
+      "batch_sequence": 17
+    },
+    {
+      "pid": 6599,
+      "wall_ms": 1793216149402,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-execution-assurance",
+      "batch_sequence": 17
+    },
+    {
+      "pid": 6600,
+      "wall_ms": 1793216149426,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-tool-receipt",
+      "batch_sequence": 17
+    },
+    {
+      "pid": 6602,
+      "wall_ms": 1793216152541,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-tool-receipt",
+      "batch_sequence": 20
+    },
+    {
+      "pid": 6603,
+      "wall_ms": 1793216152600,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-execution-assurance",
+      "batch_sequence": 20
+    },
+    {
+      "pid": 6604,
+      "wall_ms": 1793216152629,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-tool-receipt",
+      "batch_sequence": 20
+    }
+  ],
+  "external_only": [],
+  "external_unparsed": 0,
+  "external_failed_attempts": 0
+}

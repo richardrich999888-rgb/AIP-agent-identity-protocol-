@@ -1,0 +1,463 @@
+{
+  "classification": "PORTABLE_FRESH_GENUINE_CORE_1968_APPEND_DERIVED_NOT_SIGNED",
+  "created_at_utc": "2026-11-01T11:25:44.408638+00:00",
+  "run_id": 41297713153,
+  "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41297713153",
+  "source_commit": "1968d458487bc921a22bf91c71a1156781a753dd",
+  "artifact_id": 13080640355,
+  "original_zip": {
+    "path": "original-artifact.zip",
+    "bytes": 1157020,
+    "sha256": "f730754e5b75c94a5b00e246a87c9a08433ff5cbf0b60c60069928a18215c356"
+  },
+  "complete_local_zip_sha_matches_github": true,
+  "full_zip_crc": "PASS",
+  "original_members": 132,
+  "member_inventory": {
+    "path": "original-member-inventory.json",
+    "bytes": 27863,
+    "sha256": "6e912ee68720030ab94df71692c3af3a63a4f7e1b2b4d477fc54aa6bfdc8eef4"
+  },
+  "github_service_metadata": {
+    "path": "github-artifact-metadata.json",
+    "bytes": 828,
+    "sha256": "53d1fea581f7b7368853a4c8c86e9eef26639a194281886bfbee8d0920d1317f"
+  },
+  "offline_replay_summary": {
+    "path": "independent-offline/summary.json",
+    "bytes": 8705,
+    "sha256": "994ea26cfddf11787afcb99f48bff7f69bbc70f772e8f5c26e1a9bd8a5843e9a"
+  },
+  "physical_coverage_and_original_client_reports": {
+    "path": "independent-offline/physical-observation-and-clients.json",
+    "bytes": 17183,
+    "sha256": "45e38cdc9ca8c916925474b587e73d59b3fe892d25a81d5ab4e9682a6a4c8055"
+  },
+  "command_receipts": {
+    "path": "independent-offline/command-receipts.json",
+    "bytes": 9974,
+    "sha256": "9fe0e4f67d68562a83f2d64cd841d1c6358f4a63011f16a73d1b89ffe2cdc3c5"
+  },
+  "audit_command_receipts": {
+    "path": "independent-offline/audit-command-receipts.json",
+    "bytes": 6467,
+    "sha256": "a930b0e6a0516b0159b69feacc6d8f5c0b0a9c5300a537175fee985db5b652b6"
+  },
+  "replay_source": [
+    {
+      "path": "replay-source/verify-original-bundles.py",
+      "bytes": 6880,
+      "sha256": "d0330b25c187a59b36de079f3e981d0dd6832686e19440f9caf2cef2b9ea7cf7"
+    },
+    {
+      "path": "replay-source/physical-scope-and-audit.py",
+      "bytes": 9605,
+      "sha256": "68c2665227b2450e292bd44a0e65410a7352ef9d6b26a100f85a1b03c0a6a3c0"
+    }
+  ],
+  "verifier_binary_build_source": "ff99d5ce41665bf8357e724570b0b1bf80f9601a",
+  "aip_standalone_source_diff_1968_to_ff99_empty": true,
+  "profiles": {
+    "same-run": {
+      "run_id": "same-run-30ce51da769207317c263e4d",
+      "controller_manifest_status": "PASS",
+      "actual_model_calls_controller_report": 2,
+      "signed_batches": 39,
+      "kernel_events": 1120,
+      "health_records": 4,
+      "independent_archive_findings": 0,
+      "original_checkpoint_bytes_match": true,
+      "original_receipt_dispositions_independently_verified": [
+        "Forwarded",
+        "Refused"
+      ],
+      "authorization_receipt_checkpoint_signed_reconciliation_evaluation_matches_original": true,
+      "all_six_actual_task_coverage": true,
+      "exact_instance_bound_events": {
+        "ProcessExec": 2,
+        "CgroupAttach": 1,
+        "SocketSend": 8,
+        "Fork": 2,
+        "Exec": 2,
+        "SocketState": 5,
+        "FileEvent": 1,
+        "Exit": 2
+      },
+      "unmatched_exact_instance_execs": 0,
+      "original_controller_client_checks": {
+        "api_admission": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "typescript_sdk": "PASS",
+        "official_mcp_client": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "console_browser": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS"
+      },
+      "client_source_bundle_and_evaluation_join_matches": true,
+      "canonical_kernel_finding": {
+        "identity": {
+          "Match": {
+            "observations": 10
+          }
+        },
+        "result": "CannotProve",
+        "reason": "ActionEvidenceUnavailable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "action": "Unobservable",
+        "lineage": "NotEvaluated",
+        "wire": "NotEvaluated"
+      },
+      "actual_refused_receipt_tool_boundary": {
+        "Diverges": {
+          "divergence": {
+            "ReceiptDoesNotMatchAuthorization": {
+              "authorized": [
+                240,
+                189,
+                183,
+                133,
+                178,
+                131,
+                58,
+                161,
+                97,
+                112,
+                15,
+                214,
+                74,
+                124,
+                70,
+                159,
+                135,
+                56,
+                248,
+                64,
+                13,
+                163,
+                38,
+                30,
+                216,
+                185,
+                236,
+                195,
+                243,
+                53,
+                137,
+                118
+              ],
+              "received": [
+                107,
+                140,
+                84,
+                178,
+                75,
+                131,
+                126,
+                157,
+                57,
+                163,
+                31,
+                191,
+                38,
+                186,
+                140,
+                244,
+                95,
+                105,
+                0,
+                42,
+                30,
+                233,
+                231,
+                70,
+                238,
+                181,
+                160,
+                14,
+                29,
+                224,
+                13,
+                137
+              ]
+            }
+          }
+        }
+      },
+      "controller_reported_business_outcome": "Synthetic read only; no loan approval or bank transaction",
+      "logical_subagent_attribution": "NOT_ESTABLISHED"
+    },
+    "same-run-interruption": {
+      "run_id": "same-run-397478b90081cefac478c80f",
+      "controller_manifest_status": "PASS",
+      "actual_model_calls_controller_report": 2,
+      "signed_batches": 17,
+      "kernel_events": 390,
+      "health_records": 4,
+      "independent_archive_findings": 0,
+      "original_checkpoint_bytes_match": true,
+      "original_receipt_dispositions_independently_verified": [
+        "Forwarded",
+        "Refused"
+      ],
+      "authorization_receipt_checkpoint_signed_reconciliation_evaluation_matches_original": true,
+      "all_six_actual_task_coverage": false,
+      "exact_instance_bound_events": {},
+      "unmatched_exact_instance_execs": 0,
+      "original_controller_client_checks": {
+        "api_admission": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "typescript_sdk": "PASS",
+        "official_mcp_client": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "console_browser": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS"
+      },
+      "client_source_bundle_and_evaluation_join_matches": true,
+      "canonical_kernel_finding": {
+        "identity": "NoReference",
+        "result": "CannotProve",
+        "reason": "WindowNotCovered",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "action": "Unobservable",
+        "lineage": "NotEvaluated",
+        "wire": "NotEvaluated"
+      },
+      "actual_refused_receipt_tool_boundary": {
+        "Diverges": {
+          "divergence": {
+            "ReceiptDoesNotMatchAuthorization": {
+              "authorized": [
+                240,
+                189,
+                183,
+                133,
+                178,
+                131,
+                58,
+                161,
+                97,
+                112,
+                15,
+                214,
+                74,
+                124,
+                70,
+                159,
+                135,
+                56,
+                248,
+                64,
+                13,
+                163,
+                38,
+                30,
+                216,
+                185,
+                236,
+                195,
+                243,
+                53,
+                137,
+                118
+              ],
+              "received": [
+                107,
+                140,
+                84,
+                178,
+                75,
+                131,
+                126,
+                157,
+                57,
+                163,
+                31,
+                191,
+                38,
+                186,
+                140,
+                244,
+                95,
+                105,
+                0,
+                42,
+                30,
+                233,
+                231,
+                70,
+                238,
+                181,
+                160,
+                14,
+                29,
+                224,
+                13,
+                137
+              ]
+            }
+          }
+        }
+      },
+      "controller_reported_business_outcome": "Synthetic read only; no loan approval or bank transaction",
+      "logical_subagent_attribution": "NOT_ESTABLISHED"
+    },
+    "same-run-recovery": {
+      "run_id": "same-run-997c70ac6cce229c0c2c7cda",
+      "controller_manifest_status": "PASS",
+      "actual_model_calls_controller_report": 2,
+      "signed_batches": 41,
+      "kernel_events": 1182,
+      "health_records": 4,
+      "independent_archive_findings": 0,
+      "original_checkpoint_bytes_match": true,
+      "original_receipt_dispositions_independently_verified": [
+        "Forwarded",
+        "Refused"
+      ],
+      "authorization_receipt_checkpoint_signed_reconciliation_evaluation_matches_original": true,
+      "all_six_actual_task_coverage": true,
+      "exact_instance_bound_events": {
+        "ProcessExec": 2,
+        "CgroupAttach": 1,
+        "Fork": 2,
+        "Exec": 2,
+        "SocketState": 5,
+        "SocketSend": 8,
+        "FileEvent": 1,
+        "Exit": 2
+      },
+      "unmatched_exact_instance_execs": 0,
+      "original_controller_client_checks": {
+        "api_admission": "PASS",
+        "exact_bundle_retrieval": "PASS",
+        "openapi_contract": "PASS",
+        "python_sdk": "PASS",
+        "typescript_sdk": "PASS",
+        "official_mcp_client": "PASS",
+        "cross_tenant_refusal": "PASS",
+        "reader_write_and_raw_refusal": "PASS",
+        "console_browser": "PASS",
+        "signed_runtime_verdict_retrieval": "PASS"
+      },
+      "client_source_bundle_and_evaluation_join_matches": true,
+      "canonical_kernel_finding": {
+        "identity": {
+          "Match": {
+            "observations": 4
+          }
+        },
+        "result": "CannotProve",
+        "reason": "ActionEvidenceUnavailable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "action": "Unobservable",
+        "lineage": "NotEvaluated",
+        "wire": "NotEvaluated"
+      },
+      "actual_refused_receipt_tool_boundary": {
+        "Diverges": {
+          "divergence": {
+            "ReceiptDoesNotMatchAuthorization": {
+              "authorized": [
+                240,
+                189,
+                183,
+                133,
+                178,
+                131,
+                58,
+                161,
+                97,
+                112,
+                15,
+                214,
+                74,
+                124,
+                70,
+                159,
+                135,
+                56,
+                248,
+                64,
+                13,
+                163,
+                38,
+                30,
+                216,
+                185,
+                236,
+                195,
+                243,
+                53,
+                137,
+                118
+              ],
+              "received": [
+                107,
+                140,
+                84,
+                178,
+                75,
+                131,
+                126,
+                157,
+                57,
+                163,
+                31,
+                191,
+                38,
+                186,
+                140,
+                244,
+                95,
+                105,
+                0,
+                42,
+                30,
+                233,
+                231,
+                70,
+                238,
+                181,
+                160,
+                14,
+                29,
+                224,
+                13,
+                137
+              ]
+            }
+          }
+        }
+      },
+      "controller_reported_business_outcome": "Synthetic read only; no loan approval or bank transaction",
+      "logical_subagent_attribution": "NOT_ESTABLISHED"
+    }
+  },
+  "limits": [
+    "All three are genuine fresh LangGraph model/ContextForge/tool workloads; this does not validate AgentZero/DeerFlow/OpenHands model tasks or a GitHub software patch.",
+    "Independent Mac offline archive/authorization/receipt/checkpoint/reconciliation evaluations match the originals. The original Linux API/SDK/MCP/browser PASS reports are inspected and joined to the exact independently verified bundle; browser/network clients are not rerun on Mac.",
+    "Positive/recovery actual task intervals have final signed all-six coverage; canonical full-authorization availability remains WindowNotCovered and action remains CannotProve/ActionEvidenceUnavailable. No verdict is upgraded.",
+    "The actual interruption task has no signed task events/coverage or process reference. Strict audit replay refuses nonoverlapping task/aip windows. Fresh recovery uses new keys/capture; not same-key daemon restart continuity.",
+    "Observed physical file-close/socket/process metadata does not bind HTTP payloads, logical delegation or authoritative bank outcomes. Named SocketState transitions are not a complete network request/destination join.",
+    "Performance has no matched unobserved baseline, so no causal overhead/task-impact result is claimed.",
+    "Public trust anchors/checkpoints came in the same GitHub artifact; host root/kernel/GitHub administration remain trusted. Independent institutional custody and regulated production approval remain incomplete."
+  ]
+}

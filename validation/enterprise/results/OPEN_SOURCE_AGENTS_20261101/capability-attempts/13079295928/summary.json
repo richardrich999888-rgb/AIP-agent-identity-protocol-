@@ -1,0 +1,34 @@
+{
+  "classification": "DERIVED_INSPECTION_OF_ORIGINAL_PUBLIC_ARTIFACT_NOT_NEW_EXECUTION",
+  "source_commit": "c379f75e16442476517f5eafca2da884b4202ed4",
+  "workflow_run": 41294805975,
+  "job_id": 124814739233,
+  "artifact_id": 13079295928,
+  "original_zip_sha256": "29a767fa9aa23c34497309ea6d8f164e8987befdc067a30f72dbe94b2db8b336",
+  "stage": "SEPARATE_REAL_FRAMEWORK_CAPABILITY",
+  "status": "FAIL",
+  "root_model_counter_delta": 3,
+  "business_workload_started": false,
+  "business_kernel_archives_present": false,
+  "capability_result_produced": false,
+  "task_returned": true,
+  "configuration_and_ipython_dependency_succeeded": true,
+  "actual_tool_results": [
+    {
+      "original_log_item_no": 2,
+      "runtime": "python",
+      "source_code_bytes": 454,
+      "source_code_sha256": "56de19f8b6350da8f1277b22a9c6ea96262dc97aaec1f20ba81a714c983f01d3",
+      "observed_error": "SyntaxError: incomplete input",
+      "tool_result_sha256": "aab0d275482fafdc6c7936362006d43106f9d5553c1657450eccd766d3032b9e"
+    }
+  ],
+  "warning_classes": [
+    "LiteLLM MidStreamFallbackError / repeated same whitespace chunk"
+  ],
+  "failure_type": "FileNotFoundError",
+  "framework_task_elapsed_ms": 139927,
+  "token_count_or_done_reason_retained": false,
+  "exact_num_predict_exhaustion_established": false,
+  "cutoff_observation": "Actual tool received454byte Python endinginside fstring; later stream has12800 trailingwhitespace bytes and repetition exception. No retained tokenusage or modeldone_reason establishes truncationcause."
+}

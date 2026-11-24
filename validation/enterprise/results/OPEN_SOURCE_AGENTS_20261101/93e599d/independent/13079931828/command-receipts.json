@@ -1,0 +1,56 @@
+[
+  {
+    "name": "archive-verifier",
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-observe-verify",
+      "--observer-id",
+      "collector.hosted.smoke",
+      "--key-version",
+      "1",
+      "--pubkey",
+      "dc5ff27dae144c039148dcd78da083d621d1dc038bab5d1ebd477d64315f3e54",
+      "--batches",
+      "/private/tmp/snifferdog-observed-deerflow-93e599d-41296854427/original/framework-observation/public/attested.archive.jsonl",
+      "--health",
+      "/private/tmp/snifferdog-observed-deerflow-93e599d-41296854427/original/framework-observation/public/health.archive.jsonl",
+      "--json"
+    ],
+    "exit_code": 0,
+    "seconds": 0.8818889579997631,
+    "stdout_sha256": "34d1b639bfe352ee13eddb3c582f27728ddfbbd4f5c532bea9241b0a8d93bbe7",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "environment_keys": [
+      "PATH"
+    ]
+  },
+  {
+    "name": "audit-corroborator",
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-corroborate",
+      "--observer-id",
+      "collector.hosted.smoke",
+      "--key-version",
+      "1",
+      "--pubkey-file",
+      "/private/tmp/snifferdog-observed-deerflow-93e599d-41296854427/independent-mac-offline/separately-supplied-public-files/observer.pub",
+      "--batches",
+      "/private/tmp/snifferdog-observed-deerflow-93e599d-41296854427/original/framework-observation/public/attested.archive.jsonl",
+      "--external",
+      "/private/tmp/snifferdog-observed-deerflow-93e599d-41296854427/original/framework-observation/public/auditd.log",
+      "--source",
+      "auditd",
+      "--from-ms",
+      "1793528421849",
+      "--to-ms",
+      "1793528432687",
+      "--json"
+    ],
+    "exit_code": 0,
+    "seconds": 0.601794834001339,
+    "stdout_sha256": "c0d4b1857d01caf69a2c8c41c32f3705bb338c694a232c5fce4ce84b47a75c4d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "environment_keys": [
+      "PATH"
+    ]
+  }
+]

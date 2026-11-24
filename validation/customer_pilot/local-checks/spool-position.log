@@ -1,0 +1,117 @@
+warning: unused imports: `EXECUTION_BINDING_VERSION` and `ProcessInstance`
+  --> aip-standalone/aip-core/src/execution_binding.rs:28:54
+   |
+28 | use aip_types::{ContainerIdentity, ExecutionBinding, ProcessInstance, EXECUTION_BINDING_VERSION};
+   |                                                      ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `aip-core` (lib) generated 1 warning (run `cargo fix --lib -p aip-core` to apply 1 suggestion)
+warning: unused import: `crate::probe::ProbeError`
+  --> aip-standalone/aip-observe/src/linux.rs:21:5
+   |
+21 | use crate::probe::ProbeError;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/sched.rs:19:20
+   |
+19 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/socksend.rs:22:20
+   |
+22 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/sockstate.rs:33:20
+   |
+33 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `BootClockAnchor`
+  --> aip-standalone/aip-observe/src/sockstate.rs:34:23
+   |
+34 | use crate::observed::{BootClockAnchor, KernelLifecycleKind, SocketEndpoint, SocketProtocol};
+   |                       ^^^^^^^^^^^^^^^
+
+warning: field `image_cache` is never read
+   --> aip-standalone/aip-observe/src/probe.rs:158:5
+    |
+122 | pub struct ProcfsProbe {
+    |            ----------- field in this struct
+...
+158 |     image_cache: std::cell::RefCell<HashMap<u32, CachedImage>>,
+    |     ^^^^^^^^^^^
+    |
+    = note: `ProcfsProbe` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `still_describes` is never used
+   --> aip-standalone/aip-observe/src/probe.rs:177:8
+    |
+172 | impl CachedImage {
+    | ---------------- method in this implementation
+...
+177 |     fn still_describes(
+    |        ^^^^^^^^^^^^^^^
+
+warning: method `read_process` is never used
+   --> aip-standalone/aip-observe/src/probe.rs:306:8
+    |
+193 | impl ProcfsProbe {
+    | ---------------- method in this implementation
+...
+306 |     fn read_process(&self, pid: u32) -> Result<ObservedProcess, ProbeError> {
+    |        ^^^^^^^^^^^^
+
+warning: `aip-observe` (lib) generated 8 warnings (run `cargo fix --lib -p aip-observe` to apply 5 suggestions)
+   Compiling aip-probe v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-probe)
+warning: variable does not need to be mutable
+   --> aip-standalone/aip-probe/src/sensors.rs:312:13
+    |
+312 |         let mut open: Vec<&str> = Vec::new();
+    |             ----^^^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+warning: `aip-probe` (lib test) generated 1 warning (run `cargo fix --lib -p aip-probe --tests` to apply 1 suggestion)
+    Finished `test` profile [unoptimized + debuginfo] target(s) in 0.33s
+     Running unittests src/lib.rs (target/debug/deps/aip_probe-23fe4b08968af028)
+
+running 26 tests
+test spool::tests::complete_initial_checkpoint_staging_recovers_only_an_empty_initialization ... ok
+test spool::tests::batch_count_limit_is_independent_of_byte_capacity ... ok
+test spool::tests::complete_staging_file_recovers_after_crash_before_directory_commit ... ok
+test spool::tests::crash_after_link_before_unlink_recovers_once ... ok
+test spool::tests::enqueue_checkpoint_staging_requires_its_complete_payload ... ok
+test spool::tests::drained_used_spool_cannot_silently_rebind_after_context_loss ... ok
+test spool::tests::an_interior_missing_entry_is_not_treated_as_an_acknowledgement ... ok
+test spool::tests::corrupt_committed_checkpoint_never_reinitializes_from_surviving_payloads ... ok
+test spool::tests::failed_ack_checkpoint_commit_never_unlinks_the_pending_evidence ... ok
+test spool::tests::full_spool_preserves_every_pending_entry_and_poison_stops_collection ... ok
+test spool::tests::empty_queue_retains_monotonic_enqueue_and_ack_counters_across_restart ... ok
+test spool::tests::oversized_payload_fails_before_creating_an_unsendable_entry ... ok
+test spool::tests::exact_next_complete_enqueue_recovers_before_tail_checkpoint_commit ... ok
+test spool::tests::simultaneous_process_owners_are_refused ... ok
+test spool::tests::durable_ack_checkpoint_precedes_cleanup_and_recovery_keeps_the_remaining_entry ... ok
+test spool::tests::symlink_and_public_permissions_are_refused ... ok
+test spool::tests::recipient_or_probe_change_refuses_replay_without_deleting_evidence ... ok
+test spool::tests::orphan_cannot_hide_a_missing_old_pending_entry_or_more_than_one_uncommitted_enqueue ... ok
+test spool::tests::torn_or_mutated_payload_is_retained_and_refuses_startup ... ok
+test spool::tests::staged_ack_cannot_hide_a_missing_other_pending_record_or_erase_its_leftover ... ok
+test spool::tests::torn_staging_file_is_retained_instead_of_silently_discarded ... ok
+test spool::tests::restart_replays_original_bytes_in_order_until_durable_ack ... ok
+test spool::tests::torn_bad_checksum_and_nonadjacent_checkpoint_staging_are_preserved_and_refused ... ok
+test spool::tests::unrelated_ack_and_modified_sent_bytes_cannot_remove_the_front ... ok
+test spool::tests::missing_checkpoint_refuses_even_when_existing_queue_is_empty_and_unbound ... ok
+test spool::tests::missing_first_last_sole_or_all_pending_records_refuses_without_rebasing_checkpoint ... ok
+
+test result: ok. 26 passed; 0 failed; 0 ignored; 0 measured; 32 filtered out; finished in 1.02s
+

@@ -1,0 +1,10 @@
+{
+  "source_commit": "e8c9c3cd8286f2478b58428214464b3a4c5e62b7",
+  "run_id": 44914454196,
+  "job_id": 136876955454,
+  "status": "FAILED_TEST_HARNESS",
+  "reason": "Test inferred Cargo profile from executable parent directories and attempted an undefined hashed profile; the offline verifier was not built",
+  "fix": "19d1aa31b29997ffcbadcf6e5f52591ff41b5bca resolves the freshly built verifier from Cargo compiler-artifact executable output",
+  "verification_rules_changed": false,
+  "excerpt": "2026-11-21T14:33:35.1012786Z \n2026-11-21T14:33:35.1013500Z thread 'g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too' (9058) panicked at aip-standalone/ghost-demo/tests/live_nexora.rs:78:9:\n2026-11-21T14:33:35.1014469Z could not build nexora-verify:\n2026-11-21T14:33:35.1015030Z error: profile `ca9c039f1e55eb52` is not defined\n2026-11-21T14:33:35.1015313Z \n2026-11-21T14:33:35.1015567Z note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace\n2026-11-21T14:33:35.1015869Z \n2026-11-21T14:33:35.1015873Z \n2026-11-21T14:33:35.1015992Z failures:"
+}

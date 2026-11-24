@@ -1,0 +1,75 @@
+{
+  "source_head": "32619a16b102d14d9cca667699a3b64394ca644f",
+  "workflow_merge_checkout": "e004eb0e49d39647c6e509909b0264c023416a9d",
+  "run_id": 44916522570,
+  "job_id": 136883203294,
+  "conclusion": "success",
+  "rustc": "1.100.0 (0ef1bc386 2026-11-09)",
+  "format": "success",
+  "clippy_deny_warnings": "success",
+  "phases": {
+    "debug": {
+      "tests": {
+        "passed": 3322,
+        "failed": 0,
+        "ignored": 7
+      },
+      "doctests": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 2
+      },
+      "result_lines": 335
+    },
+    "release": {
+      "tests": {
+        "passed": 3324,
+        "failed": 0,
+        "ignored": 5
+      },
+      "doctests": {
+        "passed": 2,
+        "failed": 0,
+        "ignored": 2
+      },
+      "result_lines": 335
+    }
+  },
+  "ignored_test_output": {
+    "debug": [
+      "test emit_parity_vectors ... ignored, regeneration helper; run with --ignored --nocapture",
+      "test observer_path_throughput ... ignored, timing measurement; run explicitly with --release --nocapture",
+      "test emit_sample_bundle ... ignored, emits a sample bundle for CLI smoke testing",
+      "test stress::test_signing_throughput ... ignored, wall-clock throughput gate \u2014 meaningful only under `cargo test --release`",
+      "test stress::test_verification_throughput ... ignored, wall-clock throughput gate \u2014 meaningful only under `cargo test --release`",
+      "test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener",
+      "test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener",
+      "test aip-standalone/aip-execution/src/profile.rs - profile::ExecutionProfile::authorization_parameter (line 202) ... ignored",
+      "test aip-standalone/aip-reconcile/src/result.rs - result::Reconciliation::fixture_default (line 767) ... ignored"
+    ],
+    "release": [
+      "test emit_parity_vectors ... ignored, regeneration helper; run with --ignored --nocapture",
+      "test observer_path_throughput ... ignored, timing measurement; run explicitly with --release --nocapture",
+      "test emit_sample_bundle ... ignored, emits a sample bundle for CLI smoke testing",
+      "test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener",
+      "test real_same_run_clients_use_the_service_boundary ... ignored, requires pinned Python MCP dependencies, Node and a loopback listener",
+      "test aip-standalone/aip-execution/src/profile.rs - profile::ExecutionProfile::authorization_parameter (line 202) ... ignored",
+      "test aip-standalone/aip-reconcile/src/result.rs - result::Reconciliation::fixture_default (line 767) ... ignored"
+    ]
+  },
+  "g14_04_workspace_passes": 2,
+  "additional_focused_g14_04_release_passes": 20,
+  "fresh_sibling_artifact_guards": {
+    "locates_fresh_siblings_from_a_relocated_test_executable": [
+      "debug",
+      "release",
+      "coverage"
+    ],
+    "failed_fresh_build_cannot_reuse_adjacent_stale_binaries": [
+      "debug",
+      "release",
+      "coverage"
+    ]
+  },
+  "error_or_failed_result_lines": 0
+}

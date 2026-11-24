@@ -1,0 +1,31 @@
+{
+  "classification": "DERIVED_REEVALUATION_ORIGINAL_BYTES_UNCHANGED",
+  "code_changes": "per-batch timestamp conversion matches Rust; current stronger final-health coverage gate",
+  "coverage": "INTEGRITY_UNKNOWN",
+  "workload_events_by_kind": {
+    "ProcessSpawn": 17,
+    "ProcessExec": 2,
+    "Fork": 1,
+    "Exec": 2,
+    "SocketState": 22,
+    "SocketSend": 6,
+    "Exit": 1
+  },
+  "workload_executions": [
+    {
+      "pid": 5289,
+      "wall_ms": 1793265764208,
+      "batch_sequence": 24
+    },
+    {
+      "pid": 5289,
+      "wall_ms": 1793265764212,
+      "batch_sequence": 24
+    }
+  ],
+  "acceptance_failures": [
+    "no signed Active epoch encloses the workload",
+    "no workload-bound FileEvent"
+  ],
+  "task_acceptance": "NOT_ESTABLISHED_NO_PATCH"
+}

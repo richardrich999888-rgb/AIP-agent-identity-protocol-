@@ -1,0 +1,72 @@
+{
+  "source_commit": "7625b1d60e54bc9d4ab4d935fb4e488b0ae30dc7",
+  "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40854007255",
+  "job_id": 123380318728,
+  "artifact_id": 12888542294,
+  "artifact_sha256": "9cd48e3172864f13be4da1b6e115e7268ecf9bce5a45f11bf99221e82db217c0",
+  "status": "FAIL_SIGNED_TASK_COVERAGE",
+  "genuine_agent_workload": false,
+  "classification": "ACTUAL_HOSTED_OS_OBSERVATION_COMPONENT_TEST",
+  "retained_batches": 79,
+  "exact_task_interval": "UNKNOWN_NOT_RETAINED_BY_FAILED_CONTROLLER",
+  "finding": "Batch33 contains connector exec PID/TGID3237 at95977410203ns; actual sched exec same PID/TGID is in batch32 at95977404365ns, 5838ns earlier. Strict same-batch collector comparison marks sched Unverifiable, zero counted drops, starts new coverage epoch. No old Active record was substituted.",
+  "archive_limit": "Original failure artifact has a pre-workload anchor but no final independently retained checkpoint. No checkpoint was retroactively invented.",
+  "files": {
+    "public/aip-collector.log": {
+      "sha256": "00e3d3d99c6eb32fdaf95040019844ff17d182fa0060924bb795182df223efeb",
+      "bytes": 1095,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "public/aip-probe.log": {
+      "sha256": "4aa7142f28aa548ffe8c79a64324a4b8602ff044937d40b0ff846fe2791bb55b",
+      "bytes": 4850,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "public/attested.archive.jsonl": {
+      "sha256": "f2aee53c018b3111e7244c9f68bdbf08f02f88fa07acceca37e23f86762822c5",
+      "bytes": 1147555,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "public/audit-rules-before.json": {
+      "sha256": "11924d0dd8182a40e93984e8679dea5e38d9037b09d7aa6c323b86d2fbfe66d1",
+      "bytes": 28,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "public/health.archive.jsonl": {
+      "sha256": "4561d736c22ae2e1ba35ace8e0784f87af4c96034b73d1149d1102eb222ec18e",
+      "bytes": 4485,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "public/result.json": {
+      "sha256": "50aaa9efd5cb706ef88ca8d39e1d29e3f405e27de00f4530dc00efde76b47333",
+      "bytes": 256,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "anchor.json": {
+      "sha256": "721cdab0b01365082036d275c57b0da3f77eec3882be037bd270d19c98872b7e",
+      "bytes": 150,
+      "origin": "unaltered GitHub public artifact"
+    },
+    "original-artifact.zip": {
+      "sha256": "9cd48e3172864f13be4da1b6e115e7268ecf9bce5a45f11bf99221e82db217c0",
+      "bytes": 65913,
+      "origin": "unaltered downloaded GitHub artifact ZIP"
+    },
+    "independent-offline/archive-verification.json": {
+      "sha256": "b8121ab5201b2b6e043b703a5f672297c3a821cd6d27370490953560b1d8d347",
+      "bytes": 734,
+      "origin": "separate local offline archive verifier"
+    },
+    "independent-offline/observer.pub": {
+      "sha256": "c1643d98f3ae20aa3002f4fe01b126b6f6f16312c0e2a239ae6e41d003a41b97",
+      "bytes": 65,
+      "origin": "separate local offline archive verifier"
+    }
+  },
+  "independent_archive_verification": {
+    "exit_code": 0,
+    "verifier_sha256": "916f770e88153a0683d295532da40261b4d76eb46aec67e200edab237b0c3701",
+    "environment": "PATH only; supplied original pre-workload public anchor; no model/agent/API/network",
+    "scope": "signature and internal continuity of original retained partial archives only; no final original checkpoint, no task coverage or execution acceptance"
+  }
+}

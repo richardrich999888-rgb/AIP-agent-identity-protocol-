@@ -1,0 +1,132 @@
+{
+  "case": 3,
+  "question": "Summarize the recovered record. Distinguish verified signatures from kernel action proof.",
+  "profile": "same-run-recovery",
+  "model_raw_outputs": [
+    "{\n  \"run_id\": \"e40866422e7e7a2a4ffa0e14eb55c3a661026ec2f9f2a40a85693140f678f37d\",\n  \"tool\": \"inspect_recorded_run\"\n}",
+    "{\"answer\": \"The recovered record is a Linux evidence that has been rechecked for integrity and verified signatures. The kernel application's action-proof verdict is \",\"evidence_labels\": [{\"evidence_scope\":\"RECORDED_LINUX_NOT_FRESH_MAC\",\"full_authorization_window_reason\":\"WindowNotCovered\",\"gateway_disposition\":\"Forwarded\",\"kernel_reason\":\"ActionEvidenceUnavailable\",\"kernel_verdict\":\"CannotProve\",\"process_identity\":\"Match\",\"signature_checks_verified\":true}]}"
+  ],
+  "status": "PASS",
+  "answer": "The recovered record is a Linux evidence that has been rechecked for integrity and verified signatures. The kernel application's action-proof verdict is ",
+  "evidence_labels": [
+    {
+      "evidence_scope": "RECORDED_LINUX_NOT_FRESH_MAC",
+      "full_authorization_window_reason": "WindowNotCovered",
+      "gateway_disposition": "Forwarded",
+      "kernel_reason": "ActionEvidenceUnavailable",
+      "kernel_verdict": "CannotProve",
+      "process_identity": "Match",
+      "signature_checks_verified": true
+    }
+  ],
+  "model_stats": {
+    "completed_http_requests": 2,
+    "responses": [
+      {
+        "request_number": 1,
+        "transport": "LOOPBACK_HTTP",
+        "model": "vanian-qwen-local",
+        "completed": true,
+        "elapsed_ms": 1126.563,
+        "prompt_eval_count": 521,
+        "eval_count": 80,
+        "total_duration": 1125995208,
+        "load_duration": 527916
+      },
+      {
+        "request_number": 2,
+        "transport": "LOOPBACK_HTTP",
+        "model": "vanian-qwen-local",
+        "completed": true,
+        "elapsed_ms": 1967.885,
+        "prompt_eval_count": 416,
+        "eval_count": 104,
+        "total_duration": 1967401791,
+        "load_duration": 454166
+      }
+    ],
+    "source": "LOCAL_MODEL_ENDPOINT_COUNTERS_NOT_KERNEL_EVIDENCE"
+  },
+  "tool_trace": [
+    {
+      "tool": "inspect_recorded_run",
+      "arguments": {
+        "run_id": "e40866422e7e7a2a4ffa0e14eb55c3a661026ec2f9f2a40a85693140f678f37d"
+      },
+      "read_only": true,
+      "api_reads": [
+        {
+          "method": "GET",
+          "path": "/v1/runs/e40866422e7e7a2a4ffa0e14eb55c3a661026ec2f9f2a40a85693140f678f37d/metadata",
+          "response_sha256": "8e3411fd9804f08d649cd89226c1049378038d79a043cdf6e60f7b1f0e21465d"
+        },
+        {
+          "method": "GET",
+          "path": "/v1/runs/e40866422e7e7a2a4ffa0e14eb55c3a661026ec2f9f2a40a85693140f678f37d/evaluation",
+          "response_sha256": "30976aa74dc038cf9607c378a3634945cff1173b660d6a94dab2340dddf68fe0"
+        },
+        {
+          "method": "GET",
+          "path": "/v1/runs/e40866422e7e7a2a4ffa0e14eb55c3a661026ec2f9f2a40a85693140f678f37d/verdict",
+          "response_sha256": "e4f783284b55f73a57d67591714e8877acb4dda611d017a75ad98584552fc1e2"
+        }
+      ],
+      "result_sha256": "edc5f3aa2c55ede85d8d3740579c11bb5b137aaceaa5c112cbad5bbce5a95196",
+      "status": "PASS"
+    }
+  ],
+  "authoritative_facts": {
+    "evidence_scope": "RECORDED_LINUX_EVIDENCE_REEVALUATED_BY_LOCAL_AIP_API",
+    "fresh_mac_kernel_capture": false,
+    "run_artifact_id": "e40866422e7e7a2a4ffa0e14eb55c3a661026ec2f9f2a40a85693140f678f37d",
+    "run_id": "same-run-d5e4b7d6f1381ae3a993ca73",
+    "agent_id": "aip14eYpDWJGyuaafRUXDnctErJMrjC6a2SCwnc86sU3LB",
+    "bundle_sha256": "b45018ab97d3187c4c36a81f1238b77b8df928b07d50f17d1f12bc394b6d1c5f",
+    "batches_sha256": "e51bcb83d2d49f00004214c01362410619ddcea7e6fb8452baf9660a53d5e804",
+    "health_sha256": "b1748249a3d96a54b7bf051a576275f3740d838510307542e1c1fa137e10c86b",
+    "api_verification_scope": "same_run_evaluation",
+    "evaluation": {
+      "archive_integrity_verified": true,
+      "checkpoint_verified": true,
+      "authorization_verified": true,
+      "gateway_receipt_verified": true,
+      "signed_reconciliation_verified": true,
+      "receipt_within_authorization": true,
+      "gateway_disposition": "Forwarded",
+      "tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      },
+      "limitations": [
+        "Archive signatures establish integrity; collector administrative separation requires deployment evidence.",
+        "Kernel process identity does not establish logical sub-agent attribution or a business outcome.",
+        "Tool request comparison is separate from the kernel reconciliation and cannot upgrade its verdict."
+      ],
+      "reconciliation": {
+        "result": "CannotProve",
+        "reason": "ActionEvidenceUnavailable",
+        "identity": {
+          "Match": {
+            "observations": 4
+          }
+        },
+        "action": "Unobservable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "temporal": "WithinWindow",
+        "lineage": "NotEvaluated",
+        "wire": "NotEvaluated",
+        "strength": "Heuristic",
+        "replay_detected": false
+      }
+    },
+    "signed_verdict_sha256": "e4f783284b55f73a57d67591714e8877acb4dda611d017a75ad98584552fc1e2",
+    "authority_boundary": "Existing API/Rust verification; model text grants no authority or coverage."
+  },
+  "seconds": 3.729,
+  "completed_model_responses": 2
+}

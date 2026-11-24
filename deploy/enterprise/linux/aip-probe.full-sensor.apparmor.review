@@ -1,0 +1,44 @@
+# Enforcing profile for the explicitly approved disposable full-sensor test.
+# No default_allow, complain, unconfined, or attachment to namespace root.
+profile aip-probe-full-sensor flags=(mediate_deleted, attach_disconnected.path=/__aip_readonly_disconnected__/) {
+  capability dac_read_search,
+  capability sys_ptrace,
+  capability perfmon,
+  capability net_admin,
+  capability sys_admin,
+  capability net_raw,
+
+  network inet stream,
+  network inet6 stream,
+  network netlink dgram,
+  network packet dgram,
+  # Existing systemd journal descriptors; AF_UNIX creation remains seccomp-denied.
+  network unix stream,
+
+  ptrace (read) peer=**,
+  ptrace (readby) peer=unconfined,
+  ptrace (readby) peer=aip-probe-full-sensor,
+  deny ptrace (trace),
+  signal (receive) peer=unconfined,
+  signal (send, receive) peer=aip-probe-full-sensor,
+
+  # Host measurement requires broad reads; it is not customer-data isolation.
+  / r,
+  /** r,
+  # Foreign-mount event FDs need metadata reads. This synthetic namespace can
+  # never inherit state writes, hardlinks, executable mappings, or execution.
+  /__aip_readonly_disconnected__/{,**} r,
+  deny /__aip_readonly_disconnected__/{,**} wklmx,
+  /{usr/,}lib{,32,64}/** mr,
+  /usr/bin/env ix,
+  /opt/vanian/snifferdog/bin/aip-probe ix,
+  # The same enforced profile runs the fixed disposable negative-test helper.
+  /usr/bin/python3{,.[0-9],.[0-9][0-9]} ix,
+
+  # Only this dedicated service-owned state hierarchy can be mutated.
+  owner /var/lib/aip-probe/ rw,
+  owner /var/lib/aip-probe/** rwk,
+  # Atomic spool publication: both the new link and original stay in state.
+  owner link subset /var/lib/aip-probe/** -> /var/lib/aip-probe/**,
+  deny mount,
+}

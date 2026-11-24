@@ -1,0 +1,77 @@
+{
+  "observed_at_utc": "2026-10-28T11:00:15Z",
+  "repository": "richardrich999888-rgb/AIP-agent-identity-protocol-",
+  "run_id": 40672558568,
+  "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558568",
+  "run_status": "completed",
+  "run_conclusion": "success",
+  "run_updated_at": "2026-10-28T10:58:27Z",
+  "watch": {
+    "command": "gh run watch 40672558568 --repo richardrich999888-rgb/AIP-agent-identity-protocol- --interval 60 --exit-status",
+    "exit_code": 0,
+    "scope": "Only this original immutable run was watched; no automation was created."
+  },
+  "source_attribution": {
+    "event": "pull_request",
+    "pull_request": 7,
+    "run_head_sha": "e9da41314c3851a92388a8ce80f1db9a3a696520",
+    "run_head_tree": "7b6a2f5f03c0710a7a17abd38cd00f0f4d9f8754",
+    "actually_checked_out_sha": "076b22c27d663a87dfd62d91df20583f417b383a",
+    "actually_checked_out_tree": "c2ea29de5e04487706aae9dd9d0f7f2a1ff91fb7",
+    "synthetic_merge_parents": [
+      "5489260b96124b95a7973233e69d9e5a44cb6bf5",
+      "e9da41314c3851a92388a8ce80f1db9a3a696520"
+    ],
+    "scope": "The successful checkout is the synthetic PR merge tree, not the PR head tree alone or later local evidence/documentation commits."
+  },
+  "quality_job": {
+    "job_id": 122762763033,
+    "job_name": "fmt · clippy · test",
+    "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558568/job/122762763033",
+    "status": "completed",
+    "conclusion": "success",
+    "completed_at": "2026-10-28T10:58:26Z",
+    "steps": {
+      "format": {
+        "command": "cargo fmt --all -- --check",
+        "conclusion": "success",
+        "completed_at": "2026-10-28T10:30:22Z"
+      },
+      "strict_clippy": {
+        "command": "cargo clippy --workspace --all-targets --all-features -- -D warnings",
+        "conclusion": "success",
+        "completed_at": "2026-10-28T10:31:58Z"
+      },
+      "workspace_debug": {
+        "command": "bash validation/ci/with_cgroup.sh cargo test --workspace --locked --no-fail-fast",
+        "conclusion": "success",
+        "completed_at": "2026-10-28T10:47:15Z"
+      },
+      "workspace_release": {
+        "command": "bash validation/ci/with_cgroup.sh cargo test --workspace --release --locked --no-fail-fast",
+        "conclusion": "success",
+        "completed_at": "2026-10-28T10:58:11Z"
+      }
+    },
+    "selected_actual_test_results": {
+      "service_unit_debug": {"passed": 53, "failed": 0, "ignored": 0},
+      "service_unit_release": {"passed": 53, "failed": 0, "ignored": 0},
+      "enterprise_api_debug": {"passed": 10, "failed": 0, "ignored": 1},
+      "enterprise_api_release": {"passed": 10, "failed": 0, "ignored": 1},
+      "console_static_security_debug_and_release": "PASS",
+      "artifact_readiness_debug_and_release": "PASS"
+    },
+    "failed_steps": [],
+    "ignored_test_boundary": "The live Python/MCP interoperability test remains intentionally ignored in these default workspace commands. Its separate explicit execution passed in enterprise workflow 40672558666, retained in summary.json. Other intentionally ignored platform/manual tests are not implied to have executed merely because this CI run is green."
+  },
+  "all_jobs": [
+    {"job_id": 122762762654, "name": "postgres backend integration", "conclusion": "success"},
+    {"job_id": 122762762903, "name": "coverage", "conclusion": "success"},
+    {"job_id": 122762762937, "name": "RED suite (adversarial ledger reproducible)", "conclusion": "success"},
+    {"job_id": 122762762960, "name": "cargo audit · cargo deny", "conclusion": "success"},
+    {"job_id": 122762763033, "name": "fmt · clippy · test", "conclusion": "success"},
+    {"job_id": 122762763065, "name": "Python SDK regression and parity tests", "conclusion": "success"}
+  ],
+  "scope": "Final hosted CI status and selected actual log excerpts only. No code, documentation, deployment or production-qualification change was made for this evidence capture.",
+  "log_excerpt": "workspace-final.log"
+}

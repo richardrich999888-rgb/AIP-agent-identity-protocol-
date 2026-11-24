@@ -1,0 +1,73 @@
+{
+  "source": "Auditd",
+  "independence": "DifferentMechanism",
+  "window_from_ms": 1793617003003,
+  "window_to_ms": 1793617019359,
+  "match_window_ms": 250,
+  "agreed": [
+    {
+      "aip": {
+        "pid": 4862,
+        "wall_ms": 1793617004010,
+        "image": "/home/runner/work/_temp/bank-agent/bin/python",
+        "batch_sequence": 19
+      },
+      "external_wall_ms": 1793617004008,
+      "external_image": "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python3.12",
+      "skew_ms": -2
+    }
+  ],
+  "aip_only": [
+    {
+      "pid": 4865,
+      "wall_ms": 1793617006723,
+      "image": "/home/runner/work/_temp/governance/opa/opa-1.22.0-linux_amd64",
+      "batch_sequence": 20
+    },
+    {
+      "pid": 4871,
+      "wall_ms": 1793617006740,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-execution-assurance",
+      "batch_sequence": 20
+    },
+    {
+      "pid": 4872,
+      "wall_ms": 1793617007395,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-execution-assurance",
+      "batch_sequence": 21
+    },
+    {
+      "pid": 4873,
+      "wall_ms": 1793617007420,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-tool-receipt",
+      "batch_sequence": 21
+    },
+    {
+      "pid": 4874,
+      "wall_ms": 1793617007440,
+      "image": "/home/runner/work/_temp/contextforge/.venv/bin/python",
+      "batch_sequence": 21
+    },
+    {
+      "pid": 4876,
+      "wall_ms": 1793617010526,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-tool-receipt",
+      "batch_sequence": 23
+    },
+    {
+      "pid": 4877,
+      "wall_ms": 1793617010606,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-execution-assurance",
+      "batch_sequence": 23
+    },
+    {
+      "pid": 4878,
+      "wall_ms": 1793617010644,
+      "image": "/home/runner/work/_temp/same-run/control/bin/aip-tool-receipt",
+      "batch_sequence": 23
+    }
+  ],
+  "external_only": [],
+  "external_unparsed": 0,
+  "external_failed_attempts": 0
+}

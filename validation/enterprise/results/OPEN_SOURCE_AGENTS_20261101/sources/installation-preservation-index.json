@@ -1,0 +1,68 @@
+{
+  "classification": "LOCAL_PRESERVATION_INDEX_NOT_EXECUTION_EVIDENCE",
+  "artifacts": [
+    {
+      "source_commit": "c63bb5ee0e71cc9f97142574c0c4f1b95b85f20c",
+      "run_id": 41288484161,
+      "artifact_id": 13076520844,
+      "framework": "deerflow",
+      "scope": "FAIL_SOURCE_APP_DIST_METADATA",
+      "original_zip": "/private/tmp/snifferdog-install-41288484161-originals/deerflow-13076520844.zip",
+      "hash_scope": "FULL_ORIGINAL_GITHUB_ARTIFACT_ZIP",
+      "sha256": "26dc2f4c68f9bcf64c6d3f6704cabd5411a78f2858b058527caf3adbc7ddce12",
+      "bytes": 3888,
+      "original_members_directory": "/private/tmp/snifferdog-install-41288484161-originals/deerflow-13076520844"
+    },
+    {
+      "source_commit": "c63bb5ee0e71cc9f97142574c0c4f1b95b85f20c",
+      "run_id": 41288484161,
+      "artifact_id": 13076192238,
+      "framework": "openhands",
+      "scope": "FAIL_UNPRIVILEGED_MANAGED_INTERPRETER",
+      "original_zip": "/private/tmp/snifferdog-install-41288484161-originals/openhands-13076192238.zip",
+      "hash_scope": "FULL_ORIGINAL_GITHUB_ARTIFACT_ZIP",
+      "sha256": "fce036d9849cda65484eff6b0816a30c2f6f83d428deccff10a151bbddbf35cf",
+      "bytes": 1201,
+      "original_members_directory": "/private/tmp/snifferdog-install-41288484161-originals/openhands-13076192238"
+    },
+    {
+      "source_commit": "7695d9abb462b5cd7f51c271400b854f20d2a89a",
+      "run_id": 41291563704,
+      "artifact_id": 13077353391,
+      "framework": "deerflow",
+      "scope": "INSTALL_AND_UPSTREAM_TOOL_SMOKE_PASS_ZERO_MODEL",
+      "original_zip": "/private/tmp/snifferdog-install-41291563704-originals/deerflow-13077353391.zip",
+      "hash_scope": "FULL_ORIGINAL_GITHUB_ARTIFACT_ZIP",
+      "sha256": "16da38ed5077850e8ee56940bb42a58a8e3f7c469fc3819e34f3f5c90e873e7d",
+      "bytes": 4019,
+      "original_members_directory": "/private/tmp/snifferdog-install-41291563704-originals/deerflow-13077353391"
+    },
+    {
+      "source_commit": "7695d9abb462b5cd7f51c271400b854f20d2a89a",
+      "run_id": 41291563704,
+      "artifact_id": 13077821320,
+      "framework": "openhands",
+      "scope": "INSTALL_AND_UPSTREAM_TOOL_SMOKE_PASS_ZERO_MODEL",
+      "original_zip": "/private/tmp/snifferdog-install-41291563704-originals/openhands-13077821320.zip",
+      "hash_scope": "FULL_ORIGINAL_GITHUB_ARTIFACT_ZIP",
+      "sha256": "b7ecad839608daeb794e222db3aecbffabcfdc709ecf6f1a2ed2976af5cfcde9",
+      "bytes": 4082,
+      "original_members_directory": "/private/tmp/snifferdog-install-41291563704-originals/openhands-13077821320"
+    },
+    {
+      "source_commit": "7695d9abb462b5cd7f51c271400b854f20d2a89a",
+      "run_id": 41291566529,
+      "artifact_id": 13077682610,
+      "framework": "agent_zero",
+      "scope": "INSTALL_AND_UPSTREAM_TOOL_SMOKE_PASS_ZERO_MODEL_SEPARATE_OBSERVATION_FAILED",
+      "original_zip": "/private/tmp/snifferdog-install-41291566529-originals/agent-zero-13077682610.zip",
+      "hash_scope": "FULL_ORIGINAL_GITHUB_ARTIFACT_ZIP",
+      "sha256": "d57210cc0cc9bff612962542c5b75ea913ce96a6e6e5c60cfd2b55862db20b25",
+      "bytes": 5462,
+      "original_members_directory": "/private/tmp/snifferdog-install-41291566529-originals/agent-zero-13077682610"
+    }
+  ],
+  "c379_observed_installation_smokes": "See /private/tmp/snifferdog-observed-frameworks-c379f75-summary.json owned by acceptance_review; its exact original small observation ZIPs also contain build-metadata.json and smoke.txt. Large image archives NOT downloaded by this agent.",
+  "c379_agent_zero_genuine_artifact": "/private/tmp/snifferdog-agent-zero-41294805975-preserved/original-13079295928.zip",
+  "c379_agent_zero_derived_summary": "/private/tmp/snifferdog-agent-zero-41294805975-preserved/derived/summary.json"
+}

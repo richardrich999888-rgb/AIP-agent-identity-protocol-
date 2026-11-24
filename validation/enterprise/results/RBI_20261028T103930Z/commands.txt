@@ -1,0 +1,33 @@
+Read/inspect .github/workflows/rbi-rehearsal.yml artifact allowlist before download.
+
+$ gh run view 40672603812 --repo richardrich999888-rgb/AIP-agent-identity-protocol- --json databaseId,headSha,headBranch,name,event,status,conclusion,url,createdAt,updatedAt,jobs
+$ gh run download 40672603812 --repo richardrich999888-rgb/AIP-agent-identity-protocol- --name rbi-rehearsal-40672603812 --dir .local/rbi-rehearsal-40672603812
+$ gh api repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672603812/artifacts
+
+Actual local offline verification command (exit 0):
+$ target/debug/aip-observe-verify --observer-id collector.pilot.e2e --key-version 1 --pubkey-file .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/work/state/observer.pub --batches .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/work/state/attested.archive.jsonl --health .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/work/state/health.archive.jsonl --json
+
+Control/recovery recheck (exit 0):
+$ python3 -B validation/rbi_demo/check_control.py .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/health.A.control.jsonl .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/work/state/health.archive.jsonl .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/work/state/attested.archive.jsonl
+PASS: recorded control is Active with coverage; recovery does not backfill unknown integrity
+
+Exact public file preservation commands:
+$ cp .local/rbi-rehearsal-40672603812/rbi-rehearsal/transcript.txt validation/enterprise/results/RBI_20261028T103930Z/session-transcript.txt
+$ cp .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/transcript.txt validation/enterprise/results/RBI_20261028T103930Z/system-transcript.txt
+$ cp .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/host.txt validation/enterprise/results/RBI_20261028T103930Z/host.txt
+$ cp .local/rbi-rehearsal-40672603812/rbi-clock.txt validation/enterprise/results/RBI_20261028T103930Z/clock.txt
+$ cp .local/rbi-rehearsal-40672603812/rbi-rehearsal/clock.log validation/enterprise/results/RBI_20261028T103930Z/clock-gate.txt
+$ cp .local/rbi-rehearsal-40672603812/rbi-rehearsal/control_check.log validation/enterprise/results/RBI_20261028T103930Z/control-check.txt
+$ cp .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/offline_verify.txt validation/enterprise/results/RBI_20261028T103930Z/offline-verify.txt
+$ cp .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/offline_verify_tampered.txt validation/enterprise/results/RBI_20261028T103930Z/offline-negative.txt
+$ cp .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/summary.json validation/enterprise/results/RBI_20261028T103930Z/run-summary.json
+$ cp .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/work/state/observer.pub validation/enterprise/results/RBI_20261028T103930Z/observer.pub
+$ cp .local/rbi-rehearsal-40672603812/rbi-rehearsal/act3_destination.log validation/enterprise/results/RBI_20261028T103930Z/act3-destination-tests.txt
+$ cp .local/rbi-rehearsal-40672603812/rbi-rehearsal/act4_toolcall.log validation/enterprise/results/RBI_20261028T103930Z/act4-gateway-tests.txt
+$ cp .local/rbi-rehearsal-40672603812/rbi-rehearsal/act4b_gateway.out validation/enterprise/results/RBI_20261028T103930Z/gateway-response.txt
+$ gzip -n -c .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/work/state/attested.archive.jsonl > validation/enterprise/results/RBI_20261028T103930Z/attested.archive.jsonl.gz
+$ gzip -n -c .local/rbi-rehearsal-40672603812/rbi-rehearsal/system/work/state/health.archive.jsonl > validation/enterprise/results/RBI_20261028T103930Z/health.archive.jsonl.gz
+$ gzip -n -c .local/rbi-rehearsal-40672603812/rbi-rehearsal/receipts.jsonl > validation/enterprise/results/RBI_20261028T103930Z/gateway-receipts.jsonl.gz
+
+Compression integrity and decompressed batch hash checked with gzip -t and gzip -dc | shasum -a 256.
+No private material or raw daemon logs were copied. No documentation outside this evidence directory was changed.

@@ -1,0 +1,44 @@
+# REVIEWED PROFILE: exact unit/config approval required; disposable-runner qualification only.
+
+[Unit]
+RequiresMountsFor=/srv/aip-pilot-workspace
+Description=AIP host-side probe (kernel-mediated observation; holds no evidence key)
+Documentation=file:/opt/aip/deploy/pilot/README.md
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+MemoryMax=512M
+TasksMax=128
+LimitNOFILE=8192
+CPUQuota=100%
+UMask=0077
+Type=simple
+User=aip-probe
+Group=aip-probe
+
+EnvironmentFile=/etc/aip/probe.env
+ExecStart=/usr/bin/env AIP_PROBE_FANOTIFY_PATH=/proc/1/root/srv/aip-pilot-workspace /opt/vanian/snifferdog/bin/aip-probe
+Restart=on-failure
+RestartSec=2
+
+NoNewPrivileges=yes
+AppArmorProfile=aip-probe-full-sensor
+# AppArmor policy SHA256: 437e272bd663e07ef11300a8a0845b827f4a4128b98879c91ee5fc73131142e7
+RestrictNamespaces=yes
+RestrictSUIDSGID=yes
+SystemCallArchitectures=native
+SystemCallErrorNumber=EPERM
+SystemCallFilter=~@mount @reboot @swap @module @raw-io @clock ptrace process_vm_writev pidfd_getfd
+MemoryDenyWriteExecute=yes
+AmbientCapabilities=CAP_DAC_READ_SEARCH CAP_SYS_PTRACE CAP_PERFMON CAP_NET_ADMIN CAP_SYS_ADMIN CAP_NET_RAW
+CapabilityBoundingSet=CAP_DAC_READ_SEARCH CAP_SYS_PTRACE CAP_PERFMON CAP_NET_ADMIN CAP_SYS_ADMIN CAP_NET_RAW
+ProtectSystem=strict
+ProtectHome=yes
+PrivateTmp=yes
+ReadWritePaths=/var/lib/aip-probe
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK AF_PACKET
+LockPersonality=yes
+
+[Install]
+WantedBy=multi-user.target

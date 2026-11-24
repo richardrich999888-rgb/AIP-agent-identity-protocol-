@@ -1,5 +1,6 @@
 # Rust build artifacts
 target/
+.local/
 **/*.rs.bk
 
 # OS noise
@@ -45,3 +46,7 @@ integrations/agents/**/__pycache__/
 # ignored because a run regenerates it and it holds fresh private keys.
 !validation/http_gateway/sealed/*.jsonl
 validation/http_gateway/results/
+
+# Explicit public gateway-validation evidence only; never working key/state files.
+!validation/enterprise/results/CONTEXTFORGE_20261028T101836Z/receipts.jsonl
+!validation/enterprise/results/CONTEXTFORGE_20261028T101836Z/upstream-events.jsonl

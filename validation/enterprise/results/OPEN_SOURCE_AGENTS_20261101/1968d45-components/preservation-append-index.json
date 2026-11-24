@@ -1,0 +1,415 @@
+{
+  "classification": "PORTABLE_APPEND_ONLY_NOVEMBER_1_1968D45_COMPONENTS",
+  "created_at_utc": "2026-11-01T10:37:17.344327+00:00",
+  "source_commit": "1968d458487bc921a22bf91c71a1156781a753dd",
+  "append_run_count": 2,
+  "preceding_seven_run_package_index_sha256": "6686166804c0a68dc6c11ebe476816a533e701d43420cbbefacb6ff6e77c442b",
+  "preceding_93_append_index_sha256": "61266c86591946b3188e01ea95f08a1a3a82e8b61f8e71df8d2df4618fb698d5",
+  "path_rules": "All path fields in this index are relative to this append directory. Unchanged original command receipts retain actual execution/source paths.",
+  "runs_and_artifact_catalog": [
+    {
+      "run_id": 41297323532,
+      "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41297323532",
+      "source_commit": "1968d458487bc921a22bf91c71a1156781a753dd",
+      "jobs": [
+        {
+          "id": 124820796992,
+          "name": "hosted-observer-capabilities",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124820797173,
+          "name": "image (agent_zero)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124820797227,
+          "name": "release-regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124822229454,
+          "name": "genuine-task",
+          "status": "in_progress",
+          "conclusion": null
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 13080147555,
+          "name": "agent-zero-build-41297323532",
+          "size_in_bytes": 1599705637,
+          "github_service_sha256": "577a5ba82ba4250ddbd246693bb19cb3bad3bab6daf73b7cb4b7b8cecfc4a6cf",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13080147555",
+          "local_retention": {
+            "status": "CATALOG_ONLY_NOT_DOWNLOADED",
+            "full_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13080146915,
+          "name": "hosted-observer-smoke-41297323532",
+          "size_in_bytes": 45549,
+          "github_service_sha256": "02543d5eb4f3215c4ed7229855e5be060d7e96acd1662d05e7f28dc04db9926a",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13080146915",
+          "local_retention": {
+            "status": "CATALOG_ONLY_NOT_DOWNLOADED",
+            "full_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13079264422,
+          "name": "framework-observation-agent_zero-41297323532",
+          "size_in_bytes": 85667,
+          "github_service_sha256": "6b7111d40ac777e66bb2a45be891174da7299d03b0e825349b6d8eb1f220aa89",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13079264422",
+          "local_retention": {
+            "status": "COMPLETE_ORIGINAL_ZIP",
+            "path": "artifacts/13079264422.zip",
+            "bytes": 85667,
+            "sha256": "6b7111d40ac777e66bb2a45be891174da7299d03b0e825349b6d8eb1f220aa89",
+            "complete_zip_crc": "PASS",
+            "full_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "member_count": 24,
+            "member_inventory": {
+              "path": "artifacts/13079264422.members.json",
+              "bytes": 5354,
+              "sha256": "1d79fdeb88e4a58f85f54964a5148667cd711fefaf9ad0f329e70ba95cc2c81c"
+            }
+          }
+        }
+      ],
+      "catalog_assembled_at_utc": "2026-11-01T10:36:07.090308+00:00"
+    },
+    {
+      "run_id": 41297326026,
+      "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41297326026",
+      "source_commit": "1968d458487bc921a22bf91c71a1156781a753dd",
+      "jobs": [
+        {
+          "id": 124820804185,
+          "name": "release-regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124820804480,
+          "name": "hosted-observer-capabilities",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124820804601,
+          "name": "image (agent_zero)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "id": 124822170329,
+          "name": "genuine-task",
+          "status": "in_progress",
+          "conclusion": null
+        }
+      ],
+      "artifacts": [
+        {
+          "id": 13079997600,
+          "name": "framework-observation-agent_zero-41297326026",
+          "size_in_bytes": 92925,
+          "github_service_sha256": "def35fb055f027f04522132e569ce56537a14aecbf7ecc8c25fc29768e3af133",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13079997600",
+          "local_retention": {
+            "status": "COMPLETE_ORIGINAL_ZIP",
+            "path": "artifacts/13079997600.zip",
+            "bytes": 92925,
+            "sha256": "def35fb055f027f04522132e569ce56537a14aecbf7ecc8c25fc29768e3af133",
+            "complete_zip_crc": "PASS",
+            "full_zip_locally_hashed": true,
+            "service_digest_matches_local": true,
+            "member_count": 24,
+            "member_inventory": {
+              "path": "artifacts/13079997600.members.json",
+              "bytes": 5354,
+              "sha256": "9e37ee8db64407f8960de3b9b684d1a53af9c2e2aa7351be21591359777a549e"
+            }
+          }
+        },
+        {
+          "id": 13079823402,
+          "name": "agent-zero-build-41297326026",
+          "size_in_bytes": 1599643263,
+          "github_service_sha256": "558937bdb75f4c001378542e040dc0decfa016dda5e3448379cb358a0e47fbac",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13079823402",
+          "local_retention": {
+            "status": "CATALOG_ONLY_NOT_DOWNLOADED",
+            "full_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        },
+        {
+          "id": 13079766810,
+          "name": "hosted-observer-smoke-41297326026",
+          "size_in_bytes": 47793,
+          "github_service_sha256": "bcf1d6606dae434b7b47d7205cc2d768cc47b2956bd953e7aaf6048e1cc50071",
+          "public_metadata_url": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/13079766810",
+          "local_retention": {
+            "status": "CATALOG_ONLY_NOT_DOWNLOADED",
+            "full_zip_locally_hashed": false,
+            "digest_authority": "GITHUB_SERVICE_ONLY"
+          }
+        }
+      ],
+      "catalog_assembled_at_utc": "2026-11-01T10:36:07.090308+00:00"
+    }
+  ],
+  "independently_verified_components": [
+    {
+      "framework": "agent_zero",
+      "run_id": 41297323532,
+      "source_commit": "1968d458487bc921a22bf91c71a1156781a753dd",
+      "artifact_id": 13079264422,
+      "original_artifact": {
+        "status": "COMPLETE_ORIGINAL_ZIP",
+        "path": "artifacts/13079264422.zip",
+        "bytes": 85667,
+        "sha256": "6b7111d40ac777e66bb2a45be891174da7299d03b0e825349b6d8eb1f220aa89",
+        "complete_zip_crc": "PASS",
+        "full_zip_locally_hashed": true,
+        "service_digest_matches_local": true,
+        "member_count": 24,
+        "member_inventory": {
+          "path": "artifacts/13079264422.members.json",
+          "bytes": 5354,
+          "sha256": "1d79fdeb88e4a58f85f54964a5148667cd711fefaf9ad0f329e70ba95cc2c81c"
+        }
+      },
+      "model_calls": 0,
+      "business_workload": "NOT_STARTED_COMPONENT_ONLY",
+      "all_six_sensor_task_coverage": "COVERED",
+      "task_observation": "PASS",
+      "independent_summary": {
+        "path": "independent/13079264422/summary.json",
+        "bytes": 3142,
+        "sha256": "6a05bf9a0e89cc2e64427dbe9700288c019515528d29db9b7dd145f1dadbff7b"
+      },
+      "signed_counts": {
+        "exit_code": 0,
+        "findings": 0,
+        "batches": 73,
+        "kernel_events": 1650,
+        "health_records": 4
+      },
+      "bound_events_by_kind": {
+        "ProcessSpawn": 29,
+        "ProcessExec": 6,
+        "Fork": 6,
+        "Exec": 6,
+        "FileEvent": 3,
+        "Exit": 6
+      },
+      "audit_comparison": {
+        "agreed": 26,
+        "whole_host_aip_only": 6,
+        "external_only": 0,
+        "external_unparsed": 0,
+        "external_failed_attempts": 114,
+        "unmatched_bound_component_exec_references": 0,
+        "all_bound_exec_references_matched": true
+      },
+      "independent_files": [
+        {
+          "path": "independent/13079264422/archive-verifier.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "independent/13079264422/archive-verifier.stdout.json",
+          "bytes": 734,
+          "sha256": "1ee4a2251888d5ee9cd558d081a7e8546ff3ee5531c37def8469414e6a6ca87a"
+        },
+        {
+          "path": "independent/13079264422/audit-corroborator.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "independent/13079264422/audit-corroborator.stdout.json",
+          "bytes": 7727,
+          "sha256": "7161c1708591b724b8b1dc3d623a634403b9cc9e181bad456db636cdf483965e"
+        },
+        {
+          "path": "independent/13079264422/command-receipts.json",
+          "bytes": 2120,
+          "sha256": "207129e09c79198afcb179cb17028acce583437f1941bafab0d1a3c30c70e0f5"
+        },
+        {
+          "path": "independent/13079264422/recomputed-component-summary.json",
+          "bytes": 40983,
+          "sha256": "7a9271d1a23aed4a29bff066d78c479a395a3f256e32b3a9282191488a6df7fb"
+        },
+        {
+          "path": "independent/13079264422/separately-supplied-public-files/anchor.json",
+          "bytes": 150,
+          "sha256": "121f4a55d2921ef8af7941721936ed320c49858d6ece83e88409a81a09a3180e"
+        },
+        {
+          "path": "independent/13079264422/separately-supplied-public-files/checkpoint.json",
+          "bytes": 215,
+          "sha256": "79b24bc836bf0ca4b268e9d1666775a23623141ed5848768ec1e29dbd4521f4a"
+        },
+        {
+          "path": "independent/13079264422/separately-supplied-public-files/observer.pub",
+          "bytes": 65,
+          "sha256": "8be9a983401eca77dfab7a9ea3a6b0aad57de35ec600854bdff5dada8e4dd14a"
+        },
+        {
+          "path": "independent/13079264422/summary.json",
+          "bytes": 3142,
+          "sha256": "6a05bf9a0e89cc2e64427dbe9700288c019515528d29db9b7dd145f1dadbff7b"
+        }
+      ],
+      "original_unsigned_acquisition_diagnostics": [
+        "exec_rendezvous_unresolved reason=RoundBudget rounds=16 sched_events=0 connector_events=0 sched_reads=16 connector_reads=16 idle_waits=15 requested_idle_wait_us=15000 elapsed_us=16182 event_budget=256 scheduling_budget_us=20000"
+      ],
+      "diagnostic_limit": "Readiness checks both witness directions; unsigned unresolved acquisition log alone does not decide collector integrity or prove loss. Original signed records remain authoritative.",
+      "verifier_build_source": "1968d458487bc921a22bf91c71a1156781a753dd",
+      "trust_limit": "Original hosted controller public anchor/checkpoint supplied separately to tools but received in the same GitHub artifact; shared kernel/root trusted. Replay does not establish separate institution custody, complete independent ground truth, logical delegation, genuine business-task acceptance or production readiness. Unbound/whole-host unmatched records are retained and not promoted to component attribution."
+    },
+    {
+      "framework": "agent_zero",
+      "run_id": 41297326026,
+      "source_commit": "1968d458487bc921a22bf91c71a1156781a753dd",
+      "artifact_id": 13079997600,
+      "original_artifact": {
+        "status": "COMPLETE_ORIGINAL_ZIP",
+        "path": "artifacts/13079997600.zip",
+        "bytes": 92925,
+        "sha256": "def35fb055f027f04522132e569ce56537a14aecbf7ecc8c25fc29768e3af133",
+        "complete_zip_crc": "PASS",
+        "full_zip_locally_hashed": true,
+        "service_digest_matches_local": true,
+        "member_count": 24,
+        "member_inventory": {
+          "path": "artifacts/13079997600.members.json",
+          "bytes": 5354,
+          "sha256": "9e37ee8db64407f8960de3b9b684d1a53af9c2e2aa7351be21591359777a549e"
+        }
+      },
+      "model_calls": 0,
+      "business_workload": "NOT_STARTED_COMPONENT_ONLY",
+      "all_six_sensor_task_coverage": "COVERED",
+      "task_observation": "PASS",
+      "independent_summary": {
+        "path": "independent/13079997600/summary.json",
+        "bytes": 3142,
+        "sha256": "6bb5925cd9b4adf2c9d40629b4a29c16f5add4bcfe27a4ee3d45341bd7664d6f"
+      },
+      "signed_counts": {
+        "exit_code": 0,
+        "findings": 0,
+        "batches": 71,
+        "kernel_events": 1857,
+        "health_records": 4
+      },
+      "bound_events_by_kind": {
+        "ProcessSpawn": 29,
+        "ProcessExec": 6,
+        "Fork": 6,
+        "Exec": 6,
+        "FileEvent": 3,
+        "Exit": 6
+      },
+      "audit_comparison": {
+        "agreed": 26,
+        "whole_host_aip_only": 6,
+        "external_only": 0,
+        "external_unparsed": 0,
+        "external_failed_attempts": 114,
+        "unmatched_bound_component_exec_references": 0,
+        "all_bound_exec_references_matched": true
+      },
+      "independent_files": [
+        {
+          "path": "independent/13079997600/archive-verifier.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "independent/13079997600/archive-verifier.stdout.json",
+          "bytes": 734,
+          "sha256": "c42c27891314656769deff346e8f66b03f27be6b3ba536d5047b396bdc0269c8"
+        },
+        {
+          "path": "independent/13079997600/audit-corroborator.stderr.txt",
+          "bytes": 0,
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        {
+          "path": "independent/13079997600/audit-corroborator.stdout.json",
+          "bytes": 7731,
+          "sha256": "b56b9252c37d37a8d213dc0431361735ec19dff5c3f808a047a9d50c95d93cff"
+        },
+        {
+          "path": "independent/13079997600/command-receipts.json",
+          "bytes": 2120,
+          "sha256": "31cbab466d01defb07abb6d6f457112289d5031825c8eb1bf696c700046bd0db"
+        },
+        {
+          "path": "independent/13079997600/recomputed-component-summary.json",
+          "bytes": 41215,
+          "sha256": "2531b71a839f2a33a106d76a52bed078d6a7cf16df0540391cc44bba416f3584"
+        },
+        {
+          "path": "independent/13079997600/separately-supplied-public-files/anchor.json",
+          "bytes": 150,
+          "sha256": "611dd3a96fc24d452204f9cc6d87b0f6a8658ae3de368276d207cc099265733e"
+        },
+        {
+          "path": "independent/13079997600/separately-supplied-public-files/checkpoint.json",
+          "bytes": 215,
+          "sha256": "e378e05135d849c6f676cc925a4e9430cd844df81db0689fe11dd908051af94c"
+        },
+        {
+          "path": "independent/13079997600/separately-supplied-public-files/observer.pub",
+          "bytes": 65,
+          "sha256": "785ffd8eb882371c263076d392830562133aab701e660b3a9b636fb9a8de5e5a"
+        },
+        {
+          "path": "independent/13079997600/summary.json",
+          "bytes": 3142,
+          "sha256": "6bb5925cd9b4adf2c9d40629b4a29c16f5add4bcfe27a4ee3d45341bd7664d6f"
+        }
+      ],
+      "original_unsigned_acquisition_diagnostics": [
+        "exec_rendezvous_unresolved reason=RoundBudget rounds=16 sched_events=0 connector_events=0 sched_reads=16 connector_reads=16 idle_waits=15 requested_idle_wait_us=15000 elapsed_us=16148 event_budget=256 scheduling_budget_us=20000"
+      ],
+      "diagnostic_limit": "Readiness checks both witness directions; unsigned unresolved acquisition log alone does not decide collector integrity or prove loss. Original signed records remain authoritative.",
+      "verifier_build_source": "1968d458487bc921a22bf91c71a1156781a753dd",
+      "trust_limit": "Original hosted controller public anchor/checkpoint supplied separately to tools but received in the same GitHub artifact; shared kernel/root trusted. Replay does not establish separate institution custody, complete independent ground truth, logical delegation, genuine business-task acceptance or production readiness. Unbound/whole-host unmatched records are retained and not promoted to component attribution."
+    }
+  ],
+  "genuine_stage_scope": "Not included in this component append. Job metadata is an assembly-time snapshot; separate capability/business/Click outcomes require their own original final reports and cannot be inferred from a passed component.",
+  "linux_release_checks": {
+    "path": "checks/linux-probe-1968d45.json",
+    "bytes": 7713,
+    "sha256": "4d31c3e20214976c298645e5f5cbfbf064a6e9a3b4adb523f27e974a69b3351b"
+  },
+  "model_request_measurement_annotation": {
+    "path": "MODEL_REQUEST_MEASUREMENT_LIMITS.json",
+    "bytes": 1064,
+    "sha256": "a34c6cb9a294218e070c27bef512bba77cb3220f3e27b6fea8e0b77be3718422"
+  },
+  "limits": [
+    "This append covers two exact1968-source AgentZero installed tool components only. It does not validate Qwen3 generation, a business workload, a Click patch or a later core run.",
+    "Each originalZIP has24unchanged public members, complete localSHA matching service metadata, fullCRC and independent all-six task verification with exact bound-exec audit agreement.",
+    "Original public anchors/checkpoints came in the same GitHub artifact; separate Mac replay is not independent institution custody or complete independent event ground truth.",
+    "No old witnesses/health/coverage are borrowed. Historical failed evidence and preceding indexes remain unchanged.",
+    "Logical delegation/concurrency/swarm validation, AIP authorization, authoritative business outcomes and production/regulatory acceptance remain outside this component proof."
+  ]
+}

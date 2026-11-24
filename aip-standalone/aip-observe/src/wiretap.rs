@@ -194,33 +194,60 @@ mod sys {
         }
     }
 
+    fn interface_request(name: &str) -> Result<libc::ifreq, SourceError> {
+        let bytes = name.as_bytes();
+        if bytes.is_empty() || bytes.len() >= libc::IFNAMSIZ || bytes.contains(&0) {
+            return Err(SourceError::Unavailable(
+                "interface name must be nonempty, NUL-free and shorter than IFNAMSIZ".into(),
+            ));
+        }
+        // SAFETY: ifreq is plain C data. Zeroing also terminates ifr_name;
+        // the checked name fits without truncation or overwriting its union.
+        let mut request: libc::ifreq = unsafe { std::mem::zeroed() };
+        for (target, source) in request.ifr_name.iter_mut().zip(bytes) {
+            *target = *source as libc::c_char;
+        }
+        Ok(request)
+    }
+
+    fn resolve_interface(fd: RawFd, request: &mut libc::ifreq) -> Result<u32, SourceError> {
+        // Use the already required packet socket in its actual network namespace.
+        // glibc if_nametoindex opens unrelated datagram sockets internally, which
+        // would require widening the service's approved socket policy.
+        // SAFETY: request is an initialized, correctly sized ifreq; the kernel
+        // writes ifru_ifindex only when SIOCGIFINDEX succeeds.
+        if unsafe { libc::ioctl(fd, libc::SIOCGIFINDEX, request as *mut libc::ifreq) } < 0 {
+            return Err(SourceError::Unavailable(format!(
+                "SIOCGIFINDEX: {}",
+                std::io::Error::last_os_error()
+            )));
+        }
+        // SAFETY: a successful SIOCGIFINDEX initialized this union member.
+        let index = unsafe { request.ifr_ifru.ifru_ifindex };
+        if index <= 0 {
+            return Err(SourceError::Unavailable(
+                "SIOCGIFINDEX returned a nonpositive interface index; refusing wildcard capture"
+                    .into(),
+            ));
+        }
+        Ok(index as u32)
+    }
+
     impl WireTap {
         /// Open the tap on `interface` (by name), or on every device when
         /// `None`. `Unavailable` without `CAP_NET_RAW` or when the interface
         /// does not exist; nothing is simulated in that case.
         pub fn open(interface: Option<&str>) -> Result<WireTap, SourceError> {
-            let ifindex: u32 = match interface {
-                None => 0,
-                Some(name) => {
-                    let c = std::ffi::CString::new(name)
-                        .map_err(|_| SourceError::Unavailable("interface name has NUL".into()))?;
-                    // SAFETY: `c` is a valid NUL-terminated string.
-                    let idx = unsafe { libc::if_nametoindex(c.as_ptr()) };
-                    if idx == 0 {
-                        return Err(SourceError::Unavailable(format!(
-                            "no such interface: {name}"
-                        )));
-                    }
-                    idx
-                }
-            };
-            let proto = (libc::ETH_P_ALL as u16).to_be() as libc::c_int;
+            // Validate before acquiring any descriptor. An invalid explicit name
+            // is never truncated or interpreted as the all-interface selection.
+            let request = interface.map(interface_request).transpose()?;
             // SAFETY: plain socket creation.
             let fd = unsafe {
                 libc::socket(
                     libc::AF_PACKET,
                     libc::SOCK_DGRAM | libc::SOCK_CLOEXEC,
-                    proto,
+                    // Protocol zero receives nothing until the scoped bind.
+                    0,
                 )
             };
             if fd < 0 {
@@ -229,12 +256,17 @@ mod sys {
                     "socket(AF_PACKET): {err} (CAP_NET_RAW required)"
                 )));
             }
-            let tap = WireTap {
+            // Establish ownership before interface resolution so every error
+            // below closes the descriptor through Drop.
+            let mut tap = WireTap {
                 fd,
-                ifindex,
+                ifindex: 0,
                 lost: 0,
                 buf: vec![0u8; BUF_LEN],
             };
+            if let Some(mut request) = request {
+                tap.ifindex = resolve_interface(fd, &mut request)?;
+            }
             // A larger receive queue: frames the queue cannot hold are counted
             // as loss, and the default queue overflows within a second of
             // host traffic between drains. Root may exceed rmem_max
@@ -275,7 +307,7 @@ mod sys {
             let mut addr: libc::sockaddr_ll = unsafe { std::mem::zeroed() };
             addr.sll_family = libc::AF_PACKET as u16;
             addr.sll_protocol = (libc::ETH_P_ALL as u16).to_be();
-            addr.sll_ifindex = ifindex as libc::c_int;
+            addr.sll_ifindex = tap.ifindex as libc::c_int;
             // SAFETY: `addr` is a valid sockaddr_ll of the stated length.
             let rc = unsafe {
                 libc::bind(
@@ -443,6 +475,37 @@ mod sys {
                 })),
                 Err(_) => Ok(None),
             }
+        }
+    }
+    #[cfg(test)]
+    mod interface_tests {
+        use super::*;
+        use std::os::fd::AsRawFd;
+        use std::os::unix::net::UnixDatagram;
+
+        #[test]
+        fn invalid_explicit_names_are_rejected_before_socket_creation() {
+            for name in ["", "lo\0hidden", "0123456789abcdef"] {
+                assert!(matches!(WireTap::open(Some(name)),
+                    Err(SourceError::Unavailable(detail)) if detail.starts_with("interface name must")));
+            }
+            let longest = interface_request("0123456789abcde").unwrap();
+            assert_eq!(longest.ifr_name[libc::IFNAMSIZ - 1], 0);
+        }
+
+        #[test]
+        fn interface_ioctl_resolves_real_index_and_never_widens_missing_names() {
+            // SIOCGIFINDEX is valid on any socket family; this unprivileged
+            // control exercises the same helper without requiring CAP_NET_RAW.
+            let socket = UnixDatagram::unbound().unwrap();
+            let mut loopback = interface_request("lo").unwrap();
+            assert!(resolve_interface(socket.as_raw_fd(), &mut loopback).unwrap() > 0);
+            // Slash cannot occur in a Linux network-interface name.
+            let mut absent = interface_request("aip/no-such").unwrap();
+            assert!(matches!(resolve_interface(socket.as_raw_fd(), &mut absent),
+                Err(SourceError::Unavailable(detail)) if detail.starts_with("SIOCGIFINDEX:")));
+            let mut closed = interface_request("lo").unwrap();
+            assert!(resolve_interface(-1, &mut closed).is_err());
         }
     }
 }

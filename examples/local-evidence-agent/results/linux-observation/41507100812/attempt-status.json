@@ -1,0 +1,15 @@
+{
+  "classification": "GENUINE_CAPTURE_AND_VERIFICATION_PASS_REPORT_UPLOAD_FAILED",
+  "run_id": 41507100812,
+  "source_commit": "d1737bbe08d04111d2e2cee43eab1dc1e419a54a",
+  "capture_job": 125489082521,
+  "offline_job": 125492293982,
+  "workflow_status": "FAIL",
+  "actual_linux_capture": "PASS",
+  "network_disabled_offline_verification_step": "PASS",
+  "offline_report_upload": "FAIL_EACCES",
+  "independent_mac_verification": "PASS",
+  "original_artifacts_preserved": true,
+  "fix_commit": "bce0037d6ca5eb1b85a9f2d242f4b2650dd2e6d9",
+  "fix_scope": "Make only the successfully verified public result readable by the artifact uploader"
+}

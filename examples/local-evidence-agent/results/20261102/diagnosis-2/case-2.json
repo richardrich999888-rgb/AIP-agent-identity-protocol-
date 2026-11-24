@@ -1,0 +1,13 @@
+{
+  "case": 2,
+  "question": "What does this interrupted record prove and why is its kernel action CannotProve?",
+  "profile": "same-run-interruption",
+  "model_raw_outputs": [
+    "{\n  \"run_id\": \"a47c436d9dbe53500f13db1cb37b3186ddb159a4197b13b92df220b3d9b1ec4f\",\n  \"tool\": \"inspect_recorded_run\"\n}"
+  ],
+  "status": "FAIL",
+  "failure_type": "AgentBoundaryError",
+  "safe_boundary_code": "local_model_not_finished",
+  "seconds": 8.15,
+  "completed_model_responses": 1
+}

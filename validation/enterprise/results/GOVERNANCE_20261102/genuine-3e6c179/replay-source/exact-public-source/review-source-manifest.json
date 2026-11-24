@@ -1,0 +1,74 @@
+{
+  "classification": "PUBLIC_EXACT_SOURCE_REPLAY_MODULE_HASHES",
+  "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+  "captured_at_utc": "2026-11-02T10:58:37.601926+00:00",
+  "files": [
+    {
+      "path": "integrations/governance/run.py",
+      "bytes": 8054,
+      "sha256": "b2913e2b88853c678385061d080e7c525166b713755d0cce62e16cc00f3bdb9b",
+      "origin": "Exact public Git blob at source commit; replay code snapshot, not remote attestation."
+    },
+    {
+      "path": "integrations/governance/opa.py",
+      "bytes": 10295,
+      "sha256": "1eacf02af7bf3c809c5588322d831be5d42da98d9da5a96d79a4e482e6569a00",
+      "origin": "Exact public Git blob at source commit; replay code snapshot, not remote attestation."
+    },
+    {
+      "path": "integrations/governance/opa.rego",
+      "bytes": 1232,
+      "sha256": "4412a347279d1372a423ef75f5f37ca936eeca73f63db9b0ef445b785c20fb86",
+      "origin": "Exact public Git blob at source commit; replay code snapshot, not remote attestation."
+    },
+    {
+      "path": "integrations/governance/opa.lock.json",
+      "bytes": 1699,
+      "sha256": "6d9fa38123091cb9351217f2f4391328760c5cae16cc29bd05564e7e7e20fa7b",
+      "origin": "Exact public Git blob at source commit; replay code snapshot, not remote attestation."
+    },
+    {
+      "path": "integrations/governance/telemetry.py",
+      "bytes": 24455,
+      "sha256": "71b7a77bc5b1e314adef767640b172c3d93cd77aea14811da8185bc1d57f71ca",
+      "origin": "Exact public Git blob at source commit; replay code snapshot, not remote attestation."
+    },
+    {
+      "path": "integrations/governance/otel_worker.py",
+      "bytes": 4243,
+      "sha256": "7a48cc2361865f7bedeb5901ddcf588ff83318cba1cb163ff769c8613f6c8e46",
+      "origin": "Exact public Git blob at source commit; replay code snapshot, not remote attestation."
+    },
+    {
+      "path": "integrations/governance/otel.lock.json",
+      "bytes": 2488,
+      "sha256": "50bf537c92959def5eb11265606329732f04990bbde33a55ed59cd1ae7cdc59f",
+      "origin": "Exact public Git blob at source commit; replay code snapshot, not remote attestation."
+    },
+    {
+      "path": "integrations/governance/otel-collector.json",
+      "bytes": 369,
+      "sha256": "34d65b92c5cc3477e513c3ccae783586fe75a5797912f7d9c088032162bac7e2",
+      "origin": "Exact public Git blob at source commit; replay code snapshot, not remote attestation."
+    },
+    {
+      "path": "integrations/governance/requirements-otel.lock",
+      "bytes": 16975,
+      "sha256": "8414d104f5db15d262a6453d00cc5da414c03d1cce7fabdf3b540f98211a1935",
+      "origin": "Exact public Git blob at source commit; replay code snapshot, not remote attestation."
+    },
+    {
+      "path": "validation/enterprise/same_run_validation.py",
+      "bytes": 61168,
+      "sha256": "1a00b485778d1e818547a6292a6b661f539ec19a384ecdea3e7ecbeadfdddfc6",
+      "origin": "Exact public Git blob at source commit; replay code snapshot, not remote attestation."
+    },
+    {
+      "path": ".github/workflows/same-run-validation.yml",
+      "bytes": 9416,
+      "sha256": "b3c364ac6a6f9002334e76f5cdfb7752219f864b71b1a720eab054fef0836515",
+      "origin": "Exact public Git blob at source commit; replay code snapshot, not remote attestation."
+    }
+  ],
+  "scope": "Independent offline code snapshot for subsequent original-evidence validation. Does not claim kernel-origin telemetry, independent administration or actual live integration success before original artifacts are verified."
+}

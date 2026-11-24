@@ -65,8 +65,19 @@ info "kernel $(uname -r), tracefs mounted, langgraph $LG_VER"
 uname -a > "$OUT/host.txt"; echo "langgraph=$LG_VER" >> "$OUT/host.txt"
 
 step "Build the daemons and the offline verifier"
-( cd "$REPO" && CARGO_INCREMENTAL=0 cargo build -q -p aip-probe -p aip-collector -p aip-observe-verify --bin aip-lineage 2>&1 ) \
-  | tee -a "$OUT/build.log" | grep -E "^error" && die "build failed"
+# Select each package's binary explicitly. A lone --bin aip-lineage filters
+# out the daemons and its owning package must also be selected. Use the build
+# status, not diagnostic wording, so stale binaries never earn a PASS.
+if ! ( cd "$REPO" && CARGO_INCREMENTAL=0 cargo build --locked -q \
+    -p aip-probe --bin aip-probe \
+    -p aip-collector --bin aip-collector \
+    -p aip-observe-verify --bin aip-observe-verify \
+    -p aip-reconcile --bin aip-lineage ) >> "$OUT/build.log" 2>&1; then
+  die "build failed; see build.log"
+fi
+for binary in aip-probe aip-collector aip-observe-verify aip-lineage; do
+  [ -x "$REPO/target/debug/$binary" ] || die "built binary missing: $binary"
+done
 ok "aip-probe, aip-collector, aip-observe-verify, aip-lineage built"
 
 W="$OUT/work"; mkdir -p "$W/state"
@@ -74,10 +85,7 @@ PORT=$(python3 -c "import socket;s=socket.socket();s.bind(('127.0.0.1',0));print
 echo -n "phase1-passphrase" > "$W/pass"
 
 step "Generate the probe's transport key (the probe holds no evidence key)"
-env AIP_PROBE_ID=probe.phase1 AIP_PROBE_COLLECTOR_ENDPOINT="127.0.0.1:1" \
-    AIP_PROBE_COLLECTOR_NOISE_PUBKEY="$(printf '0%.0s' $(seq 1 64))" \
-    AIP_PROBE_KEY_PATH="$W/probe.key.json" AIP_PROBE_SENSORS=sched \
-    timeout 4 "$REPO/target/debug/aip-probe" > "$W/probe.keygen.log" 2>&1
+"$REPO/target/debug/aip-probe" init-transport-key "$W/probe.key.json" > "$W/probe.keygen.log" 2>&1
 [ -s "$W/probe.key.json" ] || { cat "$W/probe.keygen.log"; die "probe did not generate a key"; }
 PROBE_PUB=$(python3 -c "import json;print(json.load(open('$W/probe.key.json'))['public_hex'])")
 printf '[{"probe_id":"probe.phase1","transport_pubkey_hex":"%s"}]\n' "$PROBE_PUB" > "$W/probes.json"
@@ -89,7 +97,7 @@ env AIP_COLLECTOR_OBSERVER_ID=collector.phase1 AIP_COLLECTOR_KEY_VERSION=1 \
     AIP_COLLECTOR_PASSPHRASE_FILE="$W/pass" AIP_COLLECTOR_STATE_DIR="$W/state" \
     AIP_COLLECTOR_LISTEN="127.0.0.1:$PORT" AIP_COLLECTOR_PROBES_PATH="$W/probes.json" \
     AIP_COLLECTOR_NOISE_KEY_PATH="$W/noise.key.json" \
-    AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0 \
+    AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=1 \
     "$REPO/target/debug/aip-collector" > "$W/collector.log" 2>&1 &
 COLLECTOR_PID=$!
 for _ in $(seq 1 40); do [ -s "$W/state/noise.pub" ] && break; sleep 0.25; done
@@ -107,9 +115,8 @@ env AIP_PROBE_ID=probe.phase1 AIP_PROBE_COLLECTOR_ENDPOINT="127.0.0.1:$PORT" \
     AIP_PROBE_BATCH_INTERVAL_MS=1000 \
     "$REPO/target/debug/aip-probe" > "$W/probe.log" 2>&1 &
 PROBE_PID=$!
-sleep 3
-kill -0 "$PROBE_PID" 2>/dev/null || { cat "$W/probe.log"; die "probe died"; }
-grep -q "connected" "$W/probe.log" || { cat "$W/probe.log"; die "probe never connected"; }
+source "$REPO/validation/pilot_e2e/wait_probe_ack.sh" || die "probe readiness helper unavailable"
+wait_probe_ack "$PROBE_PID" "$W/probe.log" || { cat "$W/probe.log"; die "probe did not receive a durable collector ACK within 30 seconds"; }
 ok "probe up, four kernel sensors open, connected over the confidential transport"
 
 step "Run the REAL LangGraph agent as the observed workload"
@@ -133,6 +140,16 @@ done
 [ -s "$ARCHIVE" ] || { cat "$W/collector.log"; die "no attested batches were archived"; }
 BATCHES=$(wc -l < "$ARCHIVE")
 info "attested batches on disk: $BATCHES"
+
+# Close the writers before verifying/exporting, as the RBI harness does. A
+# partial JSONL write or a new health head after the batch read must not make
+# this validation depend on teardown timing.
+kill "$PROBE_PID" 2>/dev/null || true
+wait "$PROBE_PID" 2>/dev/null || true
+PROBE_PID=""
+kill "$COLLECTOR_PID" 2>/dev/null || true
+wait "$COLLECTOR_PID" 2>/dev/null || true
+COLLECTOR_PID=""
 
 # The agent's execution must actually be in the signed evidence: count kernel
 # exec events across the archive. Absence here would mean the observer never

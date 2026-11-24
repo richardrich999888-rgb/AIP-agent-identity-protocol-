@@ -1,0 +1,488 @@
+{
+  "schema": "snifferdog-ci-provenance-v1",
+  "source_head": "e4cd07d906ed2c5661e7909e2c02559e100b26bf",
+  "scope": "Executed component and CI checks for e4cd07d9 only. This revision has a failed release binding test and is not all-green. Subsequent fixture repair is not covered by these CI results. Genuine workload evidence has separate acceptance records.",
+  "provenance": {
+    "pull_request": 8,
+    "pull_request_checkout": "3e02cf405b7f22a4354204453cc9405fc0ac2786",
+    "checkout_parents": [
+      "65b6ff7fdad5ae70546a57216a497399091c7dc7",
+      "e4cd07d906ed2c5661e7909e2c02559e100b26bf"
+    ],
+    "source_tree": "08862ae559d30c7ae67476826d834b82352f26e4",
+    "checkout_tree": "08862ae559d30c7ae67476826d834b82352f26e4",
+    "trees_equal": true,
+    "base_is_source_ancestor": true,
+    "method": "PR checkout SHA verified in completed job logs; GitHub git-commit tree compared with local source tree.",
+    "agent_zero_workflow_checkout": "3e02cf405b7f22a4354204453cc9405fc0ac2786",
+    "pr_workflows_checkout": "3e02cf405b7f22a4354204453cc9405fc0ac2786",
+    "rust_version": "1.99.1",
+    "hosted_os": "Ubuntu 24.04.5",
+    "kernel_observer_smoke": "7.0.0-1017-azure"
+  },
+  "runs": [
+    {
+      "id": 40857979555,
+      "name": "CI",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979555",
+      "conclusion": "failure",
+      "jobs": [
+        {
+          "id": 123393709079,
+          "name": "fmt \u00b7 clippy \u00b7 test",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979555/job/123393709079",
+          "conclusion": "failure",
+          "formatting": "PASS",
+          "strict_clippy": "PASS: --workspace --all-targets --all-features -- -D warnings",
+          "debug": {
+            "unit_and_integration": {
+              "passed": 3261,
+              "failed": 0,
+              "ignored": 7
+            },
+            "doctests": {
+              "passed": 2,
+              "failed": 0,
+              "ignored": 2
+            },
+            "g14_04": "PASS"
+          },
+          "release": {
+            "unit_and_integration": {
+              "passed": 3262,
+              "failed": 1,
+              "ignored": 5
+            },
+            "doctests": {
+              "passed": 2,
+              "failed": 0,
+              "ignored": 2
+            },
+            "g14_04": "PASS"
+          },
+          "ignored_unit_and_integration_common": [
+            "emit_parity_vectors (regeneration helper)",
+            "observer_path_throughput (explicit timing measurement)",
+            "emit_sample_bundle (CLI sample helper)",
+            "real_http_clients_use_the_service_boundary (executed separately in enterprise workflow)",
+            "real_same_run_clients_use_the_service_boundary (executed separately in enterprise workflow)"
+          ],
+          "ignored_debug_additional": [
+            "stress::test_signing_throughput (release-only wall-clock gate; passed in release)",
+            "stress::test_verification_throughput (release-only wall-clock gate; passed in release)"
+          ],
+          "ignored_doctests": [
+            "aip-execution/src/profile.rs: ExecutionProfile::authorization_parameter",
+            "aip-reconcile/src/result.rs: Reconciliation::fixture_default"
+          ],
+          "counting_method": "Per-profile test-result totals with individually named doctest outcomes separated; cargo stdout/stderr header interleaving does not control classification.",
+          "failure": {
+            "test": "b05_another_observers_records_do_not_bind",
+            "package": "aip-nexora",
+            "test_target": "binding",
+            "profile": "release",
+            "location": "aip-standalone/aip-nexora/tests/binding.rs:173",
+            "assertion": "Expected CitedHealthNotCarried after transplanting another scenario's signed health; actual structural faults=[]",
+            "root_cause": "Fixture's two fast scenarios can share millisecond health emitted_at and sequence2. Structural binding matches these metadata only; it does not authenticate the different observer key. Production health-signature and envelope verification remain separate and unchanged.",
+            "local_unchanged_release_reproduction": "/private/tmp/snifferdog-e4-binding-release-reproduction.json"
+          }
+        },
+        {
+          "id": 123393709086,
+          "name": "Python SDK regression and parity tests",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979555/job/123393709086",
+          "conclusion": "success",
+          "tests": {
+            "passed": 76,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "id": 123393709033,
+          "name": "coverage",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979555/job/123393709033",
+          "conclusion": "success",
+          "instrumented_unit_and_integration": {
+            "passed": 3261,
+            "failed": 0,
+            "ignored": 7
+          },
+          "artifact": {
+            "id": 12890971489,
+            "name": "coverage-lcov",
+            "zip_sha256": "8c470c4a696b8d63f7919f2bdbeef0e1558778c915883beccfabc518263971a9",
+            "bytes": 388874
+          }
+        },
+        {
+          "id": 123393708597,
+          "name": "RED suite (adversarial ledger reproducible)",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979555/job/123393708597",
+          "conclusion": "success",
+          "reproduced_runnable": 43,
+          "notes": 2,
+          "blocked": 10,
+          "failed": 0,
+          "note_ids": [
+            "OI-07: KEY_CUSTODY_BOUNDARY",
+            "CI-05: BY_CONSTRUCTION"
+          ],
+          "blocked_ids": [
+            "OI-01",
+            "OI-02",
+            "OI-03",
+            "OI-04",
+            "OI-05",
+            "OI-06",
+            "OI-08",
+            "OI-13",
+            "OI-14",
+            "OI-15"
+          ],
+          "blocked_reasons": {
+            "OI-01..06": "This unprivileged job lacks CAP_BPF/CAP_PERFMON/tracefs; historical ledger results are not re-execution.",
+            "OI-08": "DEFERRED",
+            "OI-13..15": "Requires root/CAP_BPF/tracefs; historical sealed evidence is not re-execution."
+          }
+        },
+        {
+          "id": 123393708955,
+          "name": "postgres backend integration",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979555/job/123393708955",
+          "conclusion": "success",
+          "default_tests": {
+            "passed": 142,
+            "failed": 0,
+            "ignored": 17
+          },
+          "explicit_storage_controls": {
+            "passed": 14,
+            "failed": 0,
+            "ignored": 0
+          },
+          "ignored_default": {
+            "storage_controls": 14,
+            "http_client_tests": 2,
+            "pg_benchmark_10k": 1
+          },
+          "remaining_unexecuted": "pg_benchmark_10k; HTTP tests execute in enterprise workflow and storage controls execute explicitly in this job."
+        },
+        {
+          "id": 123393709051,
+          "name": "cargo audit \u00b7 cargo deny",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979555/job/123393709051",
+          "conclusion": "success",
+          "cargo_audit": "PASS",
+          "dependencies_scanned": 322,
+          "advisories_loaded": 1381,
+          "cargo_deny": "advisories ok, bans ok, licenses ok, sources ok",
+          "existing_ignore": "RUSTSEC-2026-0097",
+          "ignore_status": "cargo-deny advisory-not-detected warning: no crate matched advisory criteria",
+          "visible_warnings": [
+            "workspace wildcard dependencies",
+            "duplicate dependency versions"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 40857979487,
+      "name": "Enterprise integration",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979487",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 123393708874,
+          "name": "contracts",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979487/job/123393708874",
+          "conclusion": "success",
+          "rust_default": {
+            "passed": 414,
+            "failed": 0,
+            "ignored": 3
+          },
+          "rust_explicit_http_clients": {
+            "passed": 2,
+            "failed": 0,
+            "ignored": 0
+          },
+          "rust_ignored_default": [
+            "emit_parity_vectors",
+            "real_http_clients_use_the_service_boundary (subsequently executed)",
+            "real_same_run_clients_use_the_service_boundary (subsequently executed)"
+          ],
+          "python": {
+            "packaging": 16,
+            "harness_controls": 3,
+            "sql_provisioning": 1,
+            "rbi_shell_regressions": 17,
+            "sdk": 76,
+            "mcp_and_openapi_boundaries": 12,
+            "failed": 0,
+            "skipped": 0
+          },
+          "typescript": {
+            "passed": 2,
+            "failed": 0,
+            "skipped": 0,
+            "strict_typecheck": "PASS"
+          },
+          "package_lifecycle": {
+            "status": "PASS",
+            "scope": "Actual Linux executable package staging install/uninstall/reinstall",
+            "live_clean_host_installation": false
+          },
+          "real_http_scope": "Actual loopback API/SDK/official MCP and tenant refusal checks over fixture evidence; kernel observation and browser not exercised; same-run fixture did not supply signed runtime verdict.",
+          "artifact": {
+            "id": 12890446443,
+            "name": "enterprise-linux-runtime-3e02cf405b7f22a4354204453cc9405fc0ac2786",
+            "zip_sha256": "6828f1877564c263a5d1c7a2a31cea740d0ae1a3f73fd7c8fbc6c63d061e2f37",
+            "bytes": 1741508
+          }
+        },
+        {
+          "id": 123393708489,
+          "name": "contextforge",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979487/job/123393708489",
+          "conclusion": "success",
+          "independent_authorization_policy_tests": {
+            "passed": 5,
+            "failed": 0,
+            "skipped": 0
+          },
+          "real_gateway_interoperability": {
+            "passed": 27,
+            "failed": 0
+          },
+          "scope": "Pinned actual ContextForge and MCP upstream, signed receipts and offline public-key verification; fixture authorizations distinct from genuine workload.",
+          "artifact": {
+            "id": 12890805319,
+            "name": "contextforge-integration-3e02cf405b7f22a4354204453cc9405fc0ac2786",
+            "zip_sha256": "6d703495bfbc963b5c111beaa171bae7ac09ebf1023e1a743b3a79d97f8151a1",
+            "bytes": 13691
+          }
+        }
+      ]
+    },
+    {
+      "id": 40857979576,
+      "name": "RBI rehearsal",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979576",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 123393710176,
+          "name": "script-regressions",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979576/job/123393710176",
+          "conclusion": "success",
+          "tests": {
+            "passed": 17,
+            "failed": 0,
+            "skipped": 0
+          }
+        },
+        {
+          "id": 123393877620,
+          "name": "live-rehearsal",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979576/job/123393877620",
+          "conclusion": "success",
+          "cross_sensor_tests": {
+            "passed": 13,
+            "failed": 0,
+            "ignored": 0,
+            "filtered_out": 56
+          },
+          "no_backfill_tests": {
+            "passed": 6,
+            "failed": 0,
+            "ignored": 0
+          },
+          "live_system_checks": 10,
+          "act3_resource_assertions": 11,
+          "act4_tool_boundary_assertions": 38,
+          "acts_rehearsed": 5,
+          "scope": "Actual existing five-act kernel/collector/offline rehearsal; component evidence, not genuine autonomous model workload.",
+          "artifact": {
+            "id": 12889609504,
+            "name": "rbi-rehearsal-40857979576",
+            "zip_sha256": "d2086998ea39a2859bc50c966b9ec8ed459fb6af3636d12a3dbe5f5f0f7761e4",
+            "bytes": 134200
+          }
+        }
+      ]
+    },
+    {
+      "id": 40857979553,
+      "name": "Real-agent harness contracts (no live agent claim)",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979553",
+      "conclusion": "success",
+      "jobs": [
+        {
+          "id": 123393708503,
+          "name": "contracts",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979553/job/123393708503",
+          "conclusion": "success",
+          "python_tests": {
+            "passed": 48,
+            "failed": 0,
+            "skipped": 0
+          },
+          "compileall": "PASS",
+          "autonomous_workload_executed": false
+        }
+      ]
+    },
+    {
+      "id": 40857979569,
+      "name": "Agent Zero container and Linux regression",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979569",
+      "conclusion": "success",
+      "event": "pull_request",
+      "jobs": [
+        {
+          "id": 123393709226,
+          "name": "image",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979569/job/123393709226",
+          "conclusion": "success",
+          "image_id": "sha256:2b0c14ac7c8bc04ace5fdd70d862f46024150b714b01e794cfbf0684286efae2",
+          "upstream_context_and_terminal_smoke": "PASS",
+          "model_calls": 0,
+          "autonomous_workload_executed": false,
+          "artifact": {
+            "id": 12889419162,
+            "name": "agent-zero-build-40857979569",
+            "zip_sha256": "6fa3c2909299f7723852373998c5f762732942cb191e28533a80a8fec254b47b",
+            "bytes": 1593637558,
+            "size_origin": "GitHub artifact API and final upload marker; earlier incremental progress-size annotation corrected where applicable",
+            "digest_origin": "GitHub artifact API and final upload log; not a local full-ZIP download/hash",
+            "local_full_zip_downloaded_for_registry": false
+          }
+        },
+        {
+          "id": 123393709227,
+          "name": "release-regression",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979569/job/123393709227",
+          "conclusion": "success",
+          "startup_readiness": {
+            "passed": 1,
+            "failed": 0
+          },
+          "startup_race_diagnostic": {
+            "passed": 1,
+            "failed": 0,
+            "attempts": 4096,
+            "pre_readiness_identity_changes": 0
+          },
+          "wrong_process_regression": {
+            "passed": 1,
+            "failed": 0
+          },
+          "g14_04_repeated_release": {
+            "passed": 20,
+            "failed": 0,
+            "ignored": 0
+          },
+          "scope": "23 focused release test invocations; no additional agent workload claim."
+        },
+        {
+          "id": 123393708741,
+          "name": "hosted-observer-capabilities",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979569/job/123393708741",
+          "conclusion": "success",
+          "status": "PASS",
+          "signed_batches": 52,
+          "autonomous_workload_executed": false,
+          "scope": "Actual kernel/collector/audit capability smoke with independent public-key offline verification; ephemeral local-isolation custody.",
+          "artifact": {
+            "id": 12889932975,
+            "name": "hosted-observer-smoke-40857979569",
+            "zip_sha256": "427c431dec5e1f8575640be66d2879fee0ef3e5c65b16416cc6fa03f839eacdb",
+            "bytes": 46225
+          },
+          "original_success_zip": "/private/tmp/snifferdog-observer-e4cd07d-success.zip",
+          "retained_evidence_directory": "validation/enterprise/results/OBSERVER_40857979569_SUCCESS",
+          "original_record_inspection": {
+            "batch_count": 52,
+            "signed_health_records": 3,
+            "batches_with_unverifiable_integrity": 0,
+            "batches_with_any_nonverified_integrity": 0,
+            "batches_with_reported_loss": 0,
+            "loss_unknown_batches": 0,
+            "reported_drop_sum": 0,
+            "terminal_health_sequence": 52,
+            "terminal_batch_sequence": 52,
+            "workflow_verifier_kernel_events": 988,
+            "workflow_verifier_findings": 0,
+            "inspection_report": "/private/tmp/snifferdog-observer-e4cd07d-success-analysis.json",
+            "inspection_scope": "ZIP digest and original members inspected; root's additional clean-environment verification is recorded separately."
+          }
+        },
+        {
+          "id": 123395318098,
+          "name": "genuine-task",
+          "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979569/job/123395318098",
+          "conclusion": "skipped",
+          "reason": "Pull-request event does not satisfy github.event_name == workflow_dispatch && inputs.genuine_task == true",
+          "environment": "snifferdog-validation",
+          "autonomous_workload_validation": "NOT_EXECUTED_BY_THIS_JOB"
+        }
+      ]
+    }
+  ],
+  "totals_policy": "Counts belong to individual test invocations. Do not sum across jobs/profiles as unique tests. Ignored, filtered, blocked and fixture scope remain separate. The five component/CI workflows exclude the separately recorded dynamic security review and the genuine workload workflows.",
+  "component_ci_summary": {
+    "completed_workflows": 5,
+    "successful_jobs": 13,
+    "failed_jobs": 1,
+    "skipped_jobs": 1,
+    "overall": "failure",
+    "skipped_scope": "Guarded Agent Zero genuine-task job on pull_request.",
+    "failed_scope": "Release b05 binding fixture failed; do not relabel e4cd07d as passing."
+  },
+  "additional_security_check": {
+    "workflow_id": 399757896,
+    "workflow_name": "GitHub Advanced Security",
+    "workflow_path": "dynamic/agents/github-advanced-security",
+    "workflow_state": "active",
+    "repository_yaml": false,
+    "conclusion": "NO_RUN_FOUND_FOR_E4CD07D9",
+    "evidence": "Read-only dynamic workflow listing returned six historical runs, newest on a6da6e59; no run on e4cd07d9.",
+    "last_historical_run": {
+      "run_id": 40755312123,
+      "source_head": "a6da6e590030a41b6b8ef025bc6c050f6fe03dfe",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40755312123"
+    },
+    "scope": "GitHub-managed Copilot/Autofind AI review of PR changed regions. Historical success is not a current-source result and does not run Gitleaks/Trivy or establish complete repository security qualification."
+  },
+  "repository_security_workflow": {
+    "workflow_id": 297111055,
+    "path": ".github/workflows/security.yml",
+    "state": "disabled_inactivity",
+    "gitleaks_trivy_execution_on_this_source": "NOT_ESTABLISHED"
+  },
+  "separate_workload_workflows": {
+    "same_run": {
+      "run_id": 40857979540,
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857979540",
+      "source_head": "e4cd07d906ed2c5661e7909e2c02559e100b26bf",
+      "status": "EVIDENCE_RECORDED_SEPARATELY",
+      "evidence_scope": "Genuine model/authority/gateway/kernel/client profile results and offline verification are recorded separately by root/B."
+    },
+    "agent_zero_dispatch": {
+      "run_id": 40857993677,
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40857993677",
+      "source_head": "e4cd07d906ed2c5661e7909e2c02559e100b26bf",
+      "status": "MONITORED_SEPARATELY",
+      "evidence_scope": "The genuine Agent Zero workload result must be read from its actual execution/evidence record, not inferred from image smoke."
+    }
+  },
+  "post_ci_investigation": {
+    "uncommitted_fixture_only_repair": "aip-standalone/aip-nexora/tests/binding.rs",
+    "validation_report": "/private/tmp/snifferdog-e4-binding-fixture-repair-validation.json",
+    "not_covered_by_this_ci": true,
+    "production_verifier_changed": false
+  },
+  "artifact_annotation_audit": "See validation/enterprise/results/ARTIFACT_PROVENANCE_CORRECTIONS/summary.json. Derived image size/origin annotations only; historical test statuses and original signed evidence unchanged."
+}

@@ -1,0 +1,39 @@
+{
+  "receivers": {
+    "otlp": {
+      "protocols": {
+        "http": {
+          "endpoint": "127.0.0.1:63482"
+        }
+      }
+    }
+  },
+  "exporters": {
+    "file": {
+      "path": "/private/tmp/snifferdog-otel-build/final-roundtrip-b3af4db4/private/collector-spans.jsonl",
+      "format": "json",
+      "flush_interval": "100ms"
+    }
+  },
+  "service": {
+    "telemetry": {
+      "logs": {
+        "level": "error"
+      },
+      "metrics": {
+        "level": "none",
+        "readers": []
+      }
+    },
+    "pipelines": {
+      "traces": {
+        "receivers": [
+          "otlp"
+        ],
+        "exporters": [
+          "file"
+        ]
+      }
+    }
+  }
+}

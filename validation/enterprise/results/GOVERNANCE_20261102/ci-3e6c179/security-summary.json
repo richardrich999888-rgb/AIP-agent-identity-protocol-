@@ -1,0 +1,156 @@
+{
+  "classification": "DERIVED_SCANNER_METADATA_ONLY_NO_RAW_DETECTOR_VALUES",
+  "source": "3e6c1794000fa23006ef623722e37700e49582b7",
+  "scanner_jobs_remain_failed": [
+    "gitleaks",
+    "trivy"
+  ],
+  "waivers_or_ignores_added": false,
+  "artifacts": [
+    {
+      "scanner": "trivy",
+      "artifact_id": 13135115942,
+      "original_zip": "/private/tmp/snifferdog-ci-3e6c179/security-originals/trivy-13135115942.zip",
+      "zip_sha256": "9342632385292484e8f4ad044361a0c474a396e6a489de6e19a66a613acbc338",
+      "reports": [
+        {
+          "file": "/private/tmp/snifferdog-ci-3e6c179/security-originals/trivy-13135115942/trivy-results.sarif",
+          "sha256": "ed861699d4afdfa66df7eeb9bbe9f7d6c09230935835fa4c021c07820df2ce56",
+          "result_count": 4,
+          "rule_counts": {
+            "KSV-0009": 1,
+            "KSV-0010": 1,
+            "KSV-0118": 1,
+            "KSV-0121": 1
+          },
+          "levels": {
+            "error": 4
+          },
+          "rule_metadata": [
+            {
+              "id": "KSV-0009",
+              "properties": {
+                "precision": "very-high",
+                "security-severity": "8.0",
+                "tags": [
+                  "misconfiguration",
+                  "security",
+                  "HIGH"
+                ]
+              }
+            },
+            {
+              "id": "KSV-0010",
+              "properties": {
+                "precision": "very-high",
+                "security-severity": "8.0",
+                "tags": [
+                  "misconfiguration",
+                  "security",
+                  "HIGH"
+                ]
+              }
+            },
+            {
+              "id": "KSV-0118",
+              "properties": {
+                "precision": "very-high",
+                "security-severity": "8.0",
+                "tags": [
+                  "misconfiguration",
+                  "security",
+                  "HIGH"
+                ]
+              }
+            },
+            {
+              "id": "KSV-0121",
+              "properties": {
+                "precision": "very-high",
+                "security-severity": "8.0",
+                "tags": [
+                  "misconfiguration",
+                  "security",
+                  "HIGH"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "scanner": "gitleaks",
+      "artifact_id": 13134458882,
+      "original_zip": "/private/tmp/snifferdog-ci-3e6c179/security-originals/gitleaks-13134458882.zip",
+      "zip_sha256": "258dd4336ae89b52f9a0d7e35c2f4894b9c1b4730da1443e07448ede76dea093",
+      "reports": [
+        {
+          "file": "/private/tmp/snifferdog-ci-3e6c179/security-originals/gitleaks-13134458882/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/results.sarif",
+          "sha256": "a59444b36fd4e911fa719f01d665a352ad7e78eb396b4cee1cc4ff8657b4043b",
+          "result_count": 217,
+          "rule_counts": {
+            "generic-api-key": 217
+          },
+          "levels": {
+            "null": 217
+          }
+        }
+      ]
+    },
+    {
+      "scanner": "cargo-audit",
+      "artifact_id": 13134763282,
+      "original_zip": "/private/tmp/snifferdog-ci-3e6c179/security-originals/cargo-audit-13134763282.zip",
+      "zip_sha256": "8fb1d1237a517c834b0f0f70486d9b79c02841bd946640490653c85ac5f96a2a",
+      "reports": [
+        {
+          "file": "/private/tmp/snifferdog-ci-3e6c179/security-originals/cargo-audit-13134763282/audit.json",
+          "sha256": "bdbd661f9df8abf8de6b677589922987a17c8f21fa60a049fd15f5a036c69fd2",
+          "vulnerabilities_found": false,
+          "vulnerability_count": 0,
+          "warning_categories": {}
+        }
+      ]
+    }
+  ],
+  "comparison_to_previously_source_triaged_results": {
+    "gitleaks": {
+      "method": "CANONICAL_COMPLETE_RESULT_OBJECT_MULTISET_COMPARISON_NO_RAW_DETECTOR_VALUES",
+      "prior_head": "57ac0d1d1bd7dae566244245316fa3314dd19b16",
+      "prior_original_zip": "/private/tmp/snifferdog-security-57ac0d1-private/12913273054.zip",
+      "current_report": "/private/tmp/snifferdog-ci-3e6c179/security-originals/gitleaks-13134458882/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/results.sarif",
+      "prior_count": 217,
+      "current_count": 217,
+      "identical_complete_result_multisets": true
+    },
+    "trivy": {
+      "method": "CANONICAL_COMPLETE_RESULT_OBJECT_MULTISET_COMPARISON_NO_RAW_DETECTOR_VALUES",
+      "prior_head": "57ac0d1d1bd7dae566244245316fa3314dd19b16",
+      "prior_original_zip": "/private/tmp/snifferdog-security-57ac0d1-private/12914446534.zip",
+      "current_report": "/private/tmp/snifferdog-ci-3e6c179/security-originals/trivy-13135115942/trivy-results.sarif",
+      "prior_count": 4,
+      "current_count": 4,
+      "identical_complete_result_multisets": true
+    }
+  },
+  "strict_security_result": "FAILED",
+  "source_context_classification": {
+    "gitleaks": {
+      "typed_classification_counts": {
+        "Linux audit rule-selection label": 213,
+        "container_environment_assignment_GPG_KEY": 3,
+        "local_API_executable_SHA256_digest": 1
+      },
+      "credential_classification": {
+        "False": 217
+      },
+      "basis": "Prior source-context review; complete current result-object multiset matches all217 prior originals exactly. This is not a detector waiver."
+    },
+    "trivy": {
+      "classification": "Four HIGH historical Helm host-access findings; opt-in disabled-default source context and runtime privilege qualification remain separate",
+      "basis": "Complete current result-object multiset matches all4 prior source-reviewed originals exactly; no runtime production validation or minimum-privilege claim."
+    }
+  },
+  "cargo_audit_scope": "Reported0 vulnerabilities under existing workflow configuration; inherited RUSTSEC-2026-0097 ignore remains. No unqualified vulnerability-free claim."
+}

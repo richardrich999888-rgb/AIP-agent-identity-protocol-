@@ -14,11 +14,12 @@
 //!              absent on tokens minted before tenancy, which belong to the
 //!              legacy tenant for revocation purposes
 
-use chrono::Utc;
+use crate::timestamps::utc_seconds;
 use jsonwebtoken::{
     decode, encode, errors::ErrorKind, Algorithm, DecodingKey, EncodingKey, Header, Validation,
 };
 use serde::{Deserialize, Serialize};
+use time::OffsetDateTime;
 use uuid::Uuid;
 
 // ── Claims ────────────────────────────────────────────────────────────────────
@@ -61,9 +62,14 @@ pub fn issue(
     tenant_id: &str,
     encoding_key: &EncodingKey,
 ) -> Result<IssueResult, String> {
-    let now = Utc::now();
-    let iat = now.timestamp();
-    let exp = iat + ttl_seconds as i64;
+    let now = OffsetDateTime::now_utc();
+    let iat = now.unix_timestamp();
+    let ttl = i64::try_from(ttl_seconds).map_err(|_| "JWT lifetime is out of range")?;
+    let exp = iat
+        .checked_add(ttl)
+        .ok_or("JWT expiry timestamp is out of range")?;
+    let expires = OffsetDateTime::from_unix_timestamp(exp)
+        .map_err(|_| "JWT expiry cannot be represented as a UTC response timestamp")?;
 
     let claims = Claims {
         sub: agent_id.to_owned(),
@@ -78,11 +84,8 @@ pub fn issue(
     let token = encode(&Header::new(Algorithm::EdDSA), &claims, encoding_key)
         .map_err(|e| format!("JWT encode error: {e}"))?;
 
-    let fmt = "%Y-%m-%dT%H:%M:%SZ";
-    let issued_at = now.format(fmt).to_string();
-    let expires_at = chrono::DateTime::from_timestamp(exp, 0)
-        .map(|dt| dt.format(fmt).to_string())
-        .unwrap_or_else(|| "9999-12-31T23:59:59Z".to_owned());
+    let issued_at = utc_seconds(now);
+    let expires_at = utc_seconds(expires);
 
     Ok(IssueResult {
         token,
@@ -184,6 +187,55 @@ mod tests {
         assert_eq!(v.agent_id, AGENT_ID);
         assert_eq!(v.agent_type, "human");
         assert!(v.reason.is_none());
+    }
+
+    #[test]
+    fn response_timestamps_match_signed_jwt_seconds_and_lifetime() {
+        let kp = test_keypair();
+        let ek = encoding_key(&kp);
+        let dk = decoding_key(&kp);
+        let mut validation = Validation::new(Algorithm::EdDSA);
+        validation.validate_aud = false;
+        validation.leeway = 0;
+        for ttl in [60, 3600, 86_400] {
+            let result = issue(AGENT_ID, "service", None, ttl, "tenant-test", &ek).unwrap();
+            let claims = decode::<Claims>(&result.token, &dk, &validation)
+                .unwrap()
+                .claims;
+            let issued = OffsetDateTime::parse(
+                &result.issued_at,
+                &time::format_description::well_known::Rfc3339,
+            )
+            .unwrap();
+            let expires = OffsetDateTime::parse(
+                &result.expires_at,
+                &time::format_description::well_known::Rfc3339,
+            )
+            .unwrap();
+            assert_eq!(result.issued_at.len(), 20);
+            assert_eq!(result.expires_at.len(), 20);
+            assert!(result.issued_at.ends_with('Z') && result.expires_at.ends_with('Z'));
+            assert_eq!(issued.unix_timestamp(), claims.iat);
+            assert_eq!(expires.unix_timestamp(), claims.exp);
+            assert_eq!(claims.exp - claims.iat, ttl as i64);
+            assert_eq!(claims.tid.as_deref(), Some("tenant-test"));
+        }
+    }
+
+    #[test]
+    fn unrepresentable_lifetime_is_refused_without_a_wrapped_or_placeholder_expiry() {
+        let kp = test_keypair();
+        for ttl in [u64::MAX, i64::MAX as u64, 253_402_300_800] {
+            assert!(issue(
+                AGENT_ID,
+                "service",
+                None,
+                ttl,
+                "tenant-test",
+                &encoding_key(&kp)
+            )
+            .is_err());
+        }
     }
 
     // ── Test 2: issue with ttl=1, wait 2s → expired ───────────────────────────

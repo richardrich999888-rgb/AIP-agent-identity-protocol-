@@ -1,0 +1,19 @@
+{
+  "source_commit": "64e3cd056d0003747c3690a3719e92f65e08da89",
+  "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40740307858",
+  "job_id": 123008593400,
+  "attempt": 2,
+  "status": "FAILED_BEFORE_AGENT_EXECUTION",
+  "autonomous_workload_executed": false,
+  "linux_observation_executed": false,
+  "failure": "Pinned manifest mismatch at legacy manifest path; runtime v0.40.11 writes original reviewed manifest under content-addressed v2 layout. No model digest accepted by substitution.",
+  "first_attempt": {
+    "runner_id": 0,
+    "steps_executed": 0,
+    "blocker": "GitHub account billing/spending limit; user subsequently made repository public"
+  },
+  "portable_boundary_tests_passed": 3,
+  "artifact_id": 12839793300,
+  "artifact_sha256": "c35a4bb15ce7fdc4c8dd261eced644b7ce96db1803f3f320b31663d0df5fb1e9",
+  "artifact_scope": "audit initial rule inventory only; no signed workload archive exists for this failed attempt"
+}

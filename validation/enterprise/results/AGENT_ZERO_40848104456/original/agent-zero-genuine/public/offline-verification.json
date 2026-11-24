@@ -1,0 +1,29 @@
+{
+  "observer_id": "collector.hosted-agent-zero",
+  "key_version": 1,
+  "public_key": "54451d5e979a252223239cfc2ed36955f461ba21228843b6fa82d7df02c362cb",
+  "batches": {
+    "records": 545,
+    "first_sequence": 1,
+    "last_sequence": 545,
+    "start": "Epoch",
+    "final_head": "f0e7b7f086403fd1af01a59abe2972298c6a993cadacba07830b1c32a9e0147b",
+    "observations": 0,
+    "kernel_events": 34050
+  },
+  "health": {
+    "records": 35,
+    "states": [
+      "ContinuityUnverified",
+      "Active"
+    ],
+    "with_coverage": 34,
+    "without_coverage": 1,
+    "cross_checked_against_batches": 34,
+    "clock_synchronised": 35,
+    "clock_unsynchronised": 0,
+    "clock_not_stated": 0,
+    "clock_worst_max_error_us": 4012
+  },
+  "findings": []
+}

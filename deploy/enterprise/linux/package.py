@@ -1,0 +1,765 @@
+#!/usr/bin/env python3
+"""Offline, stdlib-only packaging for the existing Linux probe/collector.
+
+This tool does not sign observations, open kernel sensors, or start services.
+Package verification must use an independently obtained archive digest.
+"""
+
+import argparse
+import hashlib
+import io
+import ipaddress
+import json
+import os
+import platform
+from pathlib import Path, PurePosixPath
+import re
+import shutil
+import socket
+import subprocess
+import sys
+import tarfile
+import tempfile
+
+REPO = Path(__file__).resolve().parents[3]
+FORMAT = "vanian-runtime-package-v2"
+LEGACY_FORMAT = "vanian-runtime-package-v1"
+APPARMOR_NAME = "aip-probe-full-sensor"
+APPARMOR_MEMBER = "apparmor/aip-probe-full-sensor"
+APPARMOR_PATH = "/etc/apparmor.d/aip-probe-full-sensor"
+BINARIES = ("aip-probe", "aip-collector", "aip-observe-verify")
+TARGETS = {"x86_64-unknown-linux-gnu": 62, "aarch64-unknown-linux-gnu": 183}
+MAX_FILE = 256 * 1024 * 1024
+MAX_TOTAL = 768 * 1024 * 1024
+MAX_FILTER_BYTES = 256 * 1024
+INSTALLED_PROBE = Path("/opt/vanian/snifferdog/bin/aip-probe")
+SENSORS = {
+    "sched": ("sched/sched_process_fork", "sched/sched_process_exec"),
+    "cgroup": ("cgroup/cgroup_mkdir", "cgroup/cgroup_rmdir", "cgroup/cgroup_attach_task"),
+    "sockstate": ("sock/inet_sock_set_state",),
+    "socksend": ("sock/sock_send_length",),
+    "connector": (), "fanotify": (), "afpacket": (),
+}
+PROBE_KEYS = {
+    "ID", "COLLECTOR_ENDPOINT", "COLLECTOR_NOISE_PUBKEY", "KEY_PATH", "SENSORS",
+    "FANOTIFY_PATH", "AFPACKET_INTERFACE", "BATCH_INTERVAL_MS",
+    "FILTER_PATH", "SPOOL_DIR", "SPOOL_MAX_BYTES", "SPOOL_MAX_BATCHES",
+}
+COLLECTOR_KEYS = {
+    "OBSERVER_ID", "KEY_VERSION", "KEY_PATH", "PASSPHRASE_FILE", "CONTINUITY",
+    "STATE_DIR", "LISTEN", "PROBES_PATH", "NOISE_KEY_PATH", "ATTESTED_ARCHIVE_PATH",
+    "REQUIRE_SYNCED_CLOCK", "CLOCK_MAX_ERROR_MS",
+}
+
+
+def fail(message):
+    raise ValueError(message)
+
+
+def digest(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def canonical(value):
+    return (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode()
+
+
+def elf_check(data, target):
+    if (len(data) < 64 or data[:6] != b"\x7fELF\x02\x01"
+            or int.from_bytes(data[18:20], "little") != TARGETS[target]):
+        fail(f"binary is not a 64-bit little-endian Linux ELF for {target}")
+
+
+def build(args):
+    if not re.fullmatch(r"[0-9a-f]{40}", args.source_commit):
+        fail("source-commit must be the complete reviewed 40-character Git SHA")
+    payload = {}
+    for name in BINARIES:
+        path = Path(args.bin_dir) / name
+        if path.is_symlink() or not path.is_file():
+            fail(f"missing regular executable {path}")
+        if not os.access(path, os.X_OK):
+            fail(f"binary is not executable: {path}")
+        data = path.read_bytes()
+        elf_check(data, args.target)
+        payload[f"bin/{name}"] = (data, 0o755)
+    for role in ("probe", "collector"):
+        for relative in (f"systemd/aip-{role}.service", f"{role}.env.example"):
+            payload[relative] = ((REPO / "deploy/pilot" / relative).read_bytes(), 0o644)
+    payload[APPARMOR_MEMBER] = ((Path(__file__).parent / "aip-probe.full-sensor.apparmor.review").read_bytes(), 0o644)
+    payload["package.py"] = (Path(__file__).read_bytes(), 0o755)
+    manifest = {
+        "format": FORMAT, "source_commit": args.source_commit,
+        "target": args.target, "mode": "OBSERVER_ONLY",
+        "provenance": "operator-supplied source commit; binary provenance requires the reviewed build transcript",
+        "files": {name: {"sha256": digest(data), "mode": mode}
+                  for name, (data, mode) in sorted(payload.items())},
+    }
+    payload["manifest.json"] = (canonical(manifest), 0o644)
+    output = Path(args.output)
+    if output.exists():
+        fail(f"refusing to replace {output}")
+    output.parent.mkdir(parents=True, exist_ok=True)
+    # A fixed order/mtime/uid makes the same input bytes reproducible.
+    with output.open("xb") as stream:
+        with tarfile.open(fileobj=stream, mode="w") as archive:
+            for name, (data, mode) in sorted(payload.items()):
+                info = tarfile.TarInfo(name)
+                info.size, info.mode, info.mtime = len(data), mode, 0
+                archive.addfile(info, io.BytesIO(data))
+    print(json.dumps({"archive": str(output), "sha256": digest(output.read_bytes()),
+                      "source_commit": args.source_commit, "target": args.target}))
+
+
+def verified_package(path, expected):
+    if not re.fullmatch(r"[0-9a-fA-F]{64}", expected or ""):
+        fail("an independently obtained --expected-sha256 is required (64 hex digits)")
+    if Path(path).stat().st_size > MAX_TOTAL:
+        fail("package is larger than the permitted size")
+    raw = Path(path).read_bytes()
+    if digest(raw) != expected.lower():
+        fail("archive SHA-256 differs from the trusted value")
+    files, total = {}, 0
+    with tarfile.open(fileobj=io.BytesIO(raw), mode="r:") as archive:
+        for member in archive:
+            name = member.name
+            parts = PurePosixPath(name).parts
+            if (not member.isfile() or name in files or name.startswith("/")
+                    or ".." in parts or "\\" in name or str(PurePosixPath(name)) != name
+                    or member.size > MAX_FILE or member.size < 0):
+                fail(f"unsafe or repeated package member: {name!r}")
+            total += member.size
+            if len(files) >= 32 or total > MAX_TOTAL:
+                fail("package expansion limit exceeded")
+            files[name] = (archive.extractfile(member).read(), member.mode)
+    try:
+        manifest = json.loads(files["manifest.json"][0])
+        if (manifest["format"] not in {FORMAT, LEGACY_FORMAT} or manifest["mode"] != "OBSERVER_ONLY"
+                or manifest["target"] not in TARGETS
+                or not re.fullmatch(r"[0-9a-f]{40}", manifest["source_commit"])):
+            fail("unsupported manifest or operating mode")
+        expected_names = {"package.py"}
+        if manifest["format"] == FORMAT:
+            expected_names.add(APPARMOR_MEMBER)
+        expected_names.update(f"bin/{name}" for name in BINARIES)
+        expected_names.update(f"systemd/aip-{role}.service" for role in ("probe", "collector"))
+        expected_names.update(f"{role}.env.example" for role in ("probe", "collector"))
+        if set(manifest["files"]) != expected_names or set(files) != expected_names | {"manifest.json"}:
+            fail("package does not contain exactly the approved runtime files")
+        for name, record in manifest["files"].items():
+            data, mode = files[name]
+            approved_mode = 0o755 if name.startswith("bin/") or name == "package.py" else 0o644
+            if (record != {"sha256": digest(data), "mode": approved_mode}
+                    or mode != approved_mode):
+                fail(f"manifest integrity/mode check failed: {name}")
+        for name in BINARIES:
+            elf_check(files[f"bin/{name}"][0], manifest["target"])
+        return manifest, files
+    except (KeyError, TypeError, json.JSONDecodeError) as error:
+        fail(f"invalid manifest: {error}")
+
+
+def parse_config(path, role):
+    return parse_config_bytes(Path(path).read_bytes(), role)
+
+
+def parse_config_bytes(raw, role):
+    """A deliberately restricted EnvironmentFile subset; never source a shell."""
+    try:
+        text = raw.decode("utf-8")
+    except UnicodeDecodeError:
+        fail("configuration must be UTF-8")
+    config = {}
+    for number, line in enumerate(text.splitlines(), 1):
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        match = re.fullmatch(r"([A-Z][A-Z0-9_]*)=([^\r\n]+)", line)
+        if not match:
+            fail(f"invalid configuration at line {number}")
+        key, value = match.groups()
+        if key in config:
+            fail(f"duplicate configuration key {key}")
+        # Shell expansions, inline comments, quotes and whitespace are refused
+        # so the validator and systemd cannot read the same file differently.
+        if not re.fullmatch(r"[A-Za-z0-9_./,:@%+\[\]-]+", value):
+            fail(f"unsupported characters or unresolved placeholder in {key}")
+        prefix = f"AIP_{role.upper()}_"
+        keys = PROBE_KEYS if role == "probe" else COLLECTOR_KEYS
+        if key != "RUST_LOG" and (not key.startswith(prefix) or key[len(prefix):] not in keys):
+            fail(f"unknown or cross-role configuration key {key}")
+        config[key] = value
+    prefix = f"AIP_{role.upper()}_"
+    required = ("ID", "COLLECTOR_ENDPOINT", "COLLECTOR_NOISE_PUBKEY", "KEY_PATH", "SENSORS") if role == "probe" else (
+        "OBSERVER_ID", "KEY_PATH", "STATE_DIR", "LISTEN", "PROBES_PATH", "NOISE_KEY_PATH")
+    for key in required:
+        if prefix + key not in config:
+            fail(f"missing required {prefix + key}")
+    for key, value in config.items():
+        if key.endswith(("_PATH", "_DIR", "_FILE")):
+            p = Path(value)
+            if not p.is_absolute() or ".." in p.parts:
+                fail(f"{key} must be an absolute path without traversal")
+    if role == "probe":
+        if not re.fullmatch(r"[0-9a-fA-F]{64}", config[prefix + "COLLECTOR_NOISE_PUBKEY"]):
+            fail("collector Noise public key must have 64 hex digits")
+        sensors = config[prefix + "SENSORS"].split(",")
+        if not sensors or len(set(sensors)) != len(sensors) or set(sensors) - set(SENSORS):
+            fail("unknown, duplicate or empty sensor selection")
+        if "fanotify" in sensors:
+            path = config.get(prefix + "FANOTIFY_PATH", "")
+            if (not path or not re.fullmatch(r"/[A-Za-z0-9_./-]+", path)
+                    or str(Path(path)) != path or ".." in Path(path).parts
+                    or path in {"/", "/home", "/var", "/var/lib", "/srv", "/mnt", "/opt"}
+                    or any(Path(path).is_relative_to(root) for root in (
+                        "/proc", "/sys", "/dev", "/etc", "/usr", "/bin", "/sbin", "/lib",
+                        "/lib64", "/run", "/tmp", "/var/tmp"))):
+                fail("fanotify requires an explicit dedicated workload mount path, not a system tree or shared temporary directory")
+        elif prefix + "FANOTIFY_PATH" in config:
+            fail("FANOTIFY_PATH requires the fanotify sensor")
+        if "afpacket" in sensors:
+            interface = config.get(prefix + "AFPACKET_INTERFACE", "")
+            if not re.fullmatch(r"[A-Za-z0-9_.-]{1,15}", interface) or interface in {".", ".."}:
+                fail("afpacket requires an explicit interface name (at most 15 characters)")
+        elif prefix + "AFPACKET_INTERFACE" in config:
+            fail("AFPACKET_INTERFACE requires the afpacket sensor")
+        for name, default in (("SPOOL_MAX_BYTES", "268435456"), ("SPOOL_MAX_BATCHES", "10000")):
+            value = config.get(prefix + name, default)
+            if not value.isdigit() or not 1 <= int(value) <= 2**63 - 1:
+                fail(f"{prefix + name} must be a bounded positive integer")
+        if prefix + "FILTER_PATH" in config:
+            path = Path(config[prefix + "FILTER_PATH"])
+            if not path.is_relative_to("/etc/aip") or path == Path("/etc/aip"):
+                fail("FILTER_PATH must name an operator-controlled file below /etc/aip")
+        endpoint = config[prefix + "COLLECTOR_ENDPOINT"]
+        host, separator, port = endpoint.rpartition(":")
+        if not separator or not host or not port.isdigit() or not 1 <= int(port) <= 65535:
+            fail("collector endpoint must be host:port (IPv6 in brackets)")
+        host = host.strip("[]")
+        try:
+            loopback = ipaddress.ip_address(host).is_loopback or ipaddress.ip_address(host).is_unspecified
+        except ValueError:
+            # Config validation is offline and must not block on reverse DNS.
+            # Aliases/routing still need actual host preflight and institution
+            # review; a hostname guard cannot prove separate administration.
+            loopback = host.lower() in {"localhost", "localhost.localdomain", socket.gethostname().lower()}
+        if loopback:
+            fail("enterprise collector endpoint must be a separate host")
+        interval = config.get(prefix + "BATCH_INTERVAL_MS", "2000")
+        if not interval.isdigit() or not 100 <= int(interval) <= 60000:
+            fail("batch interval must be between 100 and 60000 ms")
+    else:
+        if prefix + "PASSPHRASE_FILE" in config:
+            fail("this installer requires the systemd collector-passphrase credential, not PASSPHRASE_FILE")
+        if config.get(prefix + "CONTINUITY", "strict") != "strict":
+            fail("enterprise installation requires strict continuity")
+        if config.get(prefix + "REQUIRE_SYNCED_CLOCK", "1") not in {"1", "true"}:
+            fail("enterprise installation requires synchronized collector clock")
+        for key in ("KEY_VERSION", "CLOCK_MAX_ERROR_MS"):
+            if int(config.get(prefix + key, "1")) < 1:
+                fail(f"{prefix + key} must be positive")
+        if config[prefix + "KEY_PATH"] == config[prefix + "NOISE_KEY_PATH"]:
+            fail("evidence-signing and Noise transport keys must be separate files")
+    # Keep writable files inside the paths the reused systemd sandbox permits.
+    state_root = Path(f"/var/lib/aip-{role}")
+    for key, value in config.items():
+        if key.endswith(("KEY_PATH", "STATE_DIR", "ATTESTED_ARCHIVE_PATH", "SPOOL_DIR")):
+            if not Path(value).is_relative_to(state_root):
+                fail(f"{key} must be below {state_root} for the shipped unit")
+    return config
+
+
+def preflight(args):
+    config = parse_config(args.config, args.role)
+    if args.config_only:
+        print("CONFIG_VALIDATED: no sensors opened; runtime capabilities not established")
+        return
+    host_preflight(config, args.role)
+
+
+def host_preflight(config, role):
+    """Check the same parsed configuration that installation will retain."""
+    if platform.system() != "Linux":
+        fail("BLOCKED: Linux is required; no runtime validation was performed")
+    if not Path("/run/systemd/system").is_dir() or shutil.which("systemctl") is None:
+        fail("BLOCKED: systemd host and systemctl are required")
+    if role == "probe":
+        trace_root = Path("/sys/kernel/tracing/events")
+        for sensor in config["AIP_PROBE_SENSORS"].split(","):
+            for tracepoint in SENSORS[sensor]:
+                for item in ("id", "format"):
+                    if not os.access(trace_root / tracepoint / item, os.R_OK):
+                        fail(f"BLOCKED: unreadable tracepoint {tracepoint}/{item}")
+        if "fanotify" in config["AIP_PROBE_SENSORS"].split(","):
+            approved_mount(config["AIP_PROBE_FANOTIFY_PATH"])
+        if "afpacket" in config["AIP_PROBE_SENSORS"].split(","):
+            interface = config["AIP_PROBE_AFPACKET_INTERFACE"]
+            if not (Path("/sys/class/net") / interface).is_dir():
+                fail(f"BLOCKED: configured packet interface is absent: {interface}")
+        if "AIP_PROBE_FILTER_PATH" in config:
+            filter_preflight(Path(config["AIP_PROBE_FILTER_PATH"]))
+        print("PREREQUISITES_PRESENT: actual sensor open/coverage must still pass under the service identity")
+    else:
+        result = subprocess.run(["timedatectl", "show", "--property=NTPSynchronized", "--value"],
+                                capture_output=True, text=True, timeout=10, check=False)
+        if result.returncode or result.stdout.strip() != "yes":
+            fail("BLOCKED: clock synchronization not established")
+        print("PREREQUISITES_PRESENT: collector independently checks kernel clock discipline at startup")
+
+
+
+def private_filter_metadata(metadata):
+    """The operator owns the enrollment; the daemon may receive group read."""
+    if metadata.st_uid != 0 or (metadata.st_mode & 0o7777) not in {0o600, 0o640}:
+        fail("BLOCKED: filter must be root-owned with exact mode 0600 or 0640")
+    if metadata.st_size > MAX_FILTER_BYTES:
+        fail("BLOCKED: filter exceeds the 256 KiB runtime limit")
+
+
+def filter_preflight(path, probe_binary=INSTALLED_PROBE):
+    # This is enrollment validation, not process or sensor observation. The
+    # installed probe's parser remains the single authority for the schema.
+    if path.is_symlink() or not path.is_file() or path.resolve() != path:
+        fail("BLOCKED: filter must be a regular canonical file without symlinks")
+    private_filter_metadata(path.stat())
+    with path.open("rb") as stream:
+        raw = stream.read(MAX_FILTER_BYTES + 1)
+    if len(raw) > MAX_FILTER_BYTES:
+        fail("BLOCKED: filter exceeds the 256 KiB runtime limit")
+    try:
+        json.loads(raw)
+    except (ValueError, UnicodeDecodeError):
+        fail("BLOCKED: filter is not valid JSON")
+    if not probe_binary.exists() and not probe_binary.is_symlink():
+        print("FILTER_SCHEMA_DEFERRED: install the independently verified package, then rerun host preflight before starting the probe")
+        return
+    if probe_binary.is_symlink() or not probe_binary.is_file() or not os.access(probe_binary, os.X_OK):
+        fail("BLOCKED: installed probe must be a regular executable; filter schema validation did not run")
+    result = subprocess.run([str(probe_binary), "validate-filter", str(path)],
+                            capture_output=True, text=True, timeout=10, check=False,
+                            env={"PATH": os.defpath})
+    if result.returncode:
+        # Do not echo arbitrary binary diagnostics or enrollment identifiers.
+        fail("BLOCKED: installed probe refused the filter schema; validate-filter must pass before service startup")
+    print("FILTER_SCHEMA_VALIDATED: installed probe accepted enrollment; service-user access and live target identity still require runtime checks")
+
+
+def approved_mount(path, mountinfo="/proc/self/mountinfo"):
+    """Require a distinct, exact workload mount; a subdirectory marks its entire mount."""
+    location = Path(path)
+    if not location.is_dir() or location.resolve() != location:
+        fail("BLOCKED: fanotify path must be an existing canonical directory, without symlinks")
+    mounts = []
+    for line in Path(mountinfo).read_text().splitlines():
+        fields = line.split()
+        if len(fields) < 10 or "-" not in fields:
+            fail("BLOCKED: malformed mountinfo")
+        # Config refuses spaces/backslashes, including mountinfo escapes.
+        mounts.append((fields[2], fields[3], fields[4]))
+    selected = [item for item in mounts if item[2] == path]
+    if len(selected) != 1 or selected[0][1] != "/":
+        fail("BLOCKED: fanotify path must be the root of a dedicated mounted filesystem")
+    device = selected[0][0]
+    if any(item[0] == device and item[2] != path for item in mounts):
+        fail("BLOCKED: fanotify filesystem is also mounted elsewhere; approve a dedicated workload filesystem")
+    return selected[0]
+
+
+def proposed_probe_unit(template, config, apparmor_policy=None):
+    """Generate exact bytes for review or explicitly approved runner validation.
+
+    The host-mount lookup requires actual kernel/systemd qualification. Profile
+    generation does not prove effective privileges or file-event coverage.
+    Installation selects these bytes only through the explicit digest gate.
+    """
+    if apparmor_policy is None:
+        apparmor_policy = (Path(__file__).parent / "aip-probe.full-sensor.apparmor.review").read_text()
+    sensors = config["AIP_PROBE_SENSORS"].split(",")
+    # READ-mode procfs access checks for other UIDs require SYS_PTRACE; content
+    # measurement may also need read-only DAC bypass. Neither allows DAC writes.
+    capabilities = ["CAP_DAC_READ_SEARCH", "CAP_SYS_PTRACE"]
+    if any(SENSORS[sensor] for sensor in sensors):
+        capabilities.append("CAP_PERFMON")
+    if "connector" in sensors:
+        capabilities.append("CAP_NET_ADMIN")
+    if "fanotify" in sensors:
+        capabilities.append("CAP_SYS_ADMIN")
+    if "afpacket" in sensors:
+        capabilities.append("CAP_NET_RAW")
+    # Template comments describe the currently installed profile, not this
+    # proposal. Keep directives and place the review warning first.
+    template = "\n".join(line for line in template.splitlines() if not line.lstrip().startswith("#")) + "\n"
+    unit = "# REVIEWED PROFILE: exact unit/config approval required; disposable-runner qualification only.\n" + template.replace("/usr/local/bin/", "/opt/vanian/snifferdog/bin/")
+    unit = re.sub(r"(?m)^(AmbientCapabilities|CapabilityBoundingSet)=.*$",
+                  lambda match: match.group(1) + "=" + " ".join(capabilities), unit)
+    families = ["AF_INET", "AF_INET6"]
+    if "connector" in sensors:
+        families.append("AF_NETLINK")
+    if "afpacket" in sensors:
+        families.append("AF_PACKET")
+    unit = re.sub(r"(?m)^RestrictAddressFamilies=.*$", "RestrictAddressFamilies=" + " ".join(families), unit)
+    # Do not disable mount namespace hardening. Syscall restrictions additionally
+    # deny mutation APIs, but are not a proof that all uses of broad capabilities
+    # are safe; e.g. read visibility and BPF integrity queries remain privileged.
+    controls = (f"AppArmorProfile={APPARMOR_NAME}\n# AppArmor policy SHA256: {digest(apparmor_policy.encode())}\n"
+                "RestrictNamespaces=yes\nRestrictSUIDSGID=yes\n"
+                "SystemCallArchitectures=native\nSystemCallErrorNumber=EPERM\n"
+                "SystemCallFilter=~@mount @reboot @swap @module @raw-io @clock ptrace process_vm_writev pidfd_getfd\n"
+                "MemoryDenyWriteExecute=yes\n")
+    unit = unit.replace("NoNewPrivileges=yes\n", "NoNewPrivileges=yes\n" + controls)
+    unit = unit.replace("[Service]\n", "[Service]\nMemoryMax=512M\nTasksMax=128\nLimitNOFILE=8192\nCPUQuota=100%\nUMask=0077\n")
+    if "fanotify" in sensors:
+        # /proc/1/root resolves the root/mount view of PID 1. Whether this marks
+        # the correct host vfsmount from the systemd service must be qualified
+        # with a host-origin file write and negative alternate-mount test.
+        host_path = "/proc/1/root" + config["AIP_PROBE_FANOTIFY_PATH"]
+        unit = re.sub(r"(?m)^ExecStart=(.+)$",
+                      lambda match: "ExecStart=/usr/bin/env AIP_PROBE_FANOTIFY_PATH=" + host_path + " " + match.group(1), unit)
+        unit = unit.replace("[Unit]\n", "[Unit]\nRequiresMountsFor=" + config["AIP_PROBE_FANOTIFY_PATH"] + "\n")
+    return unit
+
+
+def review_probe_unit(args):
+    """Create an inert review artifact. No service, capability or mount is changed."""
+    manifest, package = verified_package(args.archive, args.expected_sha256)
+    config_bytes = Path(args.config).read_bytes()
+    config = parse_config_bytes(config_bytes, "probe")
+    if APPARMOR_MEMBER not in package:
+        fail("full-sensor review requires a v2 package containing the write-confinement policy")
+    apparmor_policy = package[APPARMOR_MEMBER][0].decode()
+    proposed = proposed_probe_unit(package["systemd/aip-probe.service"][0].decode(), config, apparmor_policy)
+    review = {"format": "vanian-probe-unit-review-v1", "status": "NEEDS_EXACT_DIGEST_APPROVAL",
+              "installable_by_this_tool": False,
+              "explicit_activation_scope": "APPROVED_DISPOSABLE_RUNNER_VALIDATION_ONLY",
+              "source_commit": manifest["source_commit"],
+              "package_sha256": args.expected_sha256.lower(), "unit_sha256": digest(proposed.encode()),
+              "config_sha256": digest(config_bytes), "apparmor_sha256": digest(apparmor_policy.encode()),
+              "apparmor_policy": apparmor_policy, "apparmor_profile": APPARMOR_NAME,
+              "sensors": config["AIP_PROBE_SENSORS"].split(","),
+              "fanotify_mount": config.get("AIP_PROBE_FANOTIFY_PATH"),
+              "packet_interface": config.get("AIP_PROBE_AFPACKET_INTERFACE"),
+              "filter_path": config.get("AIP_PROBE_FILTER_PATH"), "unit": proposed,
+              "limitations": ["Unexecuted profile: no host coverage or security qualification claimed",
+                  "CAP_SYS_ADMIN and SYS_PTRACE broaden access; separate security-owner approval required",
+                  "Host root mount reference and cross-UID measurements require actual systemd tests",
+                  "Same-administrator hosted tests do not establish independent collector custody"]}
+    output = Path(args.output)
+    with output.open("xb") as stream:
+        stream.write(canonical(review))
+    print(json.dumps({"status": review["status"], "output": str(output),
+                      "unit_sha256": review["unit_sha256"], "config_sha256": review["config_sha256"], "apparmor_sha256": review["apparmor_sha256"]}))
+
+
+def safe_destination(root, absolute):
+    path = root / absolute.lstrip("/")
+    current = root
+    for part in Path(absolute.lstrip("/")).parts:
+        if part in {"..", "."}:
+            fail("unsafe installation path")
+        current = current / part
+        if current.is_symlink():
+            fail(f"refusing symbolic link in installation path: {current}")
+    return path
+
+
+def installation_root(args):
+    root = Path(args.root).absolute()
+    if root == Path("/"):
+        if platform.system() != "Linux" or os.geteuid() != 0:
+            fail("live installation/uninstallation requires Linux and root")
+    elif not root.is_dir() or root.is_symlink():
+        fail("staging root must be an existing non-symlink directory")
+    # Reject symlinks in ancestors too; stage mode must not escape its tree.
+    if root.resolve() != root:
+        fail("installation root must be canonical, without symbolic links")
+    return root
+
+
+def apparmor_support(enabled_path=Path("/sys/module/apparmor/parameters/enabled"),
+                     profiles_path=Path("/sys/kernel/security/apparmor/profiles")):
+    parser = shutil.which("apparmor_parser")
+    if not parser:
+        fail("BLOCKED: apparmor_parser is required for full-sensor write confinement")
+    # The disconnected-path field first appeared in Linux 4.13 and has no
+    # dedicated feature query. This conservative minimum is not qualification:
+    # loading approved bytes, enforce mode, and live negative controls remain
+    # mandatory. Unknown release formats and older/backported kernels refuse.
+    kernel = re.fullmatch(r"([0-9]+)\.([0-9]+)(?:[.-].*)?", platform.release())
+    if kernel is None or tuple(map(int, kernel.groups())) < (4, 13):
+        fail("BLOCKED: read-only disconnected-path mediation requires a parseable Linux kernel release >= 4.13")
+    if not enabled_path.is_file() or enabled_path.read_text().strip() != "Y":
+        fail("BLOCKED: AppArmor must be enabled; systemd alone can silently ignore its profile directive")
+    if not profiles_path.is_file():
+        fail("BLOCKED: loaded AppArmor profiles cannot be inspected")
+    return parser, profiles_path.read_text().splitlines()
+
+
+def apparmor_preflight():
+    parser, profiles = apparmor_support()
+    if any(line.startswith(APPARMOR_NAME + " ") for line in profiles):
+        fail("BLOCKED: refusing to replace an already loaded AppArmor profile")
+    return parser
+
+
+def apparmor_require_enforcing():
+    _, profiles = apparmor_support()
+    if APPARMOR_NAME + " (enforce)" not in profiles:
+        fail("BLOCKED: exact full-sensor AppArmor profile is not loaded in enforce mode")
+
+
+def approved_probe_profile(args, root, config, config_bytes, template, apparmor_policy=None):
+    """An explicit operator approval gate; never evidence of host/custody trust.
+
+    A root operator can supply environment markers, so they only prevent an
+    accidental run outside the declared disposable Actions context. They are
+    not authentication or independently verified runner attestation.
+    """
+    unit_digest = getattr(args, "approved_probe_unit_sha256", None)
+    config_digest = getattr(args, "approved_probe_config_sha256", None)
+    policy_digest = getattr(args, "approved_probe_apparmor_sha256", None)
+    validation = getattr(args, "disposable_runner_validation", False)
+    requested = bool(unit_digest or config_digest or policy_digest or validation)
+    if not requested:
+        if args.role == "probe" and "fanotify" in config["AIP_PROBE_SENSORS"].split(","):
+            fail("full-sensor service profile is review-only by default; use review-probe-unit and explicit approved disposable-runner installation")
+        return None
+    if args.role != "probe":
+        fail("approved full-sensor validation applies only to the probe role")
+    if not validation:
+        fail("approved full-sensor profile installation requires --disposable-runner-validation")
+    if args.confirm_separate_host:
+        fail("disposable runner validation cannot assert separate administrative hosts")
+    if any(not re.fullmatch(r"[0-9a-fA-F]{64}", value or "") for value in (unit_digest, config_digest, policy_digest)):
+        fail("all three independently approved probe unit, config and AppArmor SHA-256 digests are required")
+    if apparmor_policy is None:
+        apparmor_policy = (Path(__file__).parent / "aip-probe.full-sensor.apparmor.review").read_text()
+    if digest(apparmor_policy.encode()) != policy_digest.lower():
+        fail("AppArmor policy differs from the approved SHA-256")
+    proposed = proposed_probe_unit(template, config, apparmor_policy)
+    if digest(proposed.encode()) != unit_digest.lower():
+        fail("proposed probe unit differs from the approved SHA-256")
+    if digest(config_bytes) != config_digest.lower():
+        fail("probe configuration differs from the approved SHA-256")
+    if config["AIP_PROBE_COLLECTOR_NOISE_PUBKEY"] == "0" * 64:
+        fail("approved profile requires an enrolled collector Noise pin, not an all-zero placeholder")
+    if root == Path("/") and (os.environ.get("GITHUB_ACTIONS") != "true"
+                              or os.environ.get("RUNNER_ENVIRONMENT") != "github-hosted"):
+        fail("live full-sensor qualification requires declared disposable GitHub-hosted Actions context")
+    return proposed
+
+
+def install(args):
+    manifest, package = verified_package(args.archive, args.expected_sha256)
+    root = installation_root(args)
+    # Freeze approval, parsing and installation to the same bytes. Do not reread
+    # a mutable configuration after its digest has been checked.
+    config_bytes = Path(args.config).read_bytes()
+    config = parse_config_bytes(config_bytes, args.role)
+    apparmor_policy = package.get(APPARMOR_MEMBER, (None, None))[0]
+    if getattr(args, "disposable_runner_validation", False) and apparmor_policy is None:
+        fail("full-sensor activation requires a v2 package containing its AppArmor policy")
+    profile = approved_probe_profile(args, root, config, config_bytes,
+        package[f"systemd/aip-{args.role}.service"][0].decode(),
+        apparmor_policy.decode() if apparmor_policy is not None else None)
+    validation = profile is not None
+    if root == Path("/"):
+        machine = {"x86_64": "x86_64", "aarch64": "aarch64"}.get(platform.machine())
+        if not manifest["target"].startswith(str(machine) + "-"):
+            fail("package target does not match this host")
+        host_preflight(config, args.role)
+        if validation:
+            apparmor_parser = apparmor_preflight()
+        if not validation and not args.confirm_separate_host:
+            fail("confirm separate administrative collector/workload hosts with --confirm-separate-host")
+    receipt_path = safe_destination(root, "/etc/aip/vanian-runtime-install.json")
+    if receipt_path.exists():
+        fail("runtime role already installed; uninstall software first, preserving keys/evidence/config")
+    other = "collector" if args.role == "probe" else "probe"
+    for location in (f"/etc/aip/{other}.env", f"/etc/systemd/system/aip-{other}.service"):
+        if safe_destination(root, location).exists():
+            fail("probe and collector must be installed on separate hosts")
+    mapping = {
+        f"/opt/vanian/snifferdog/bin/aip-{args.role}": package[f"bin/aip-{args.role}"],
+        "/opt/vanian/snifferdog/bin/aip-observe-verify": package["bin/aip-observe-verify"],
+        "/opt/vanian/snifferdog/package.py": package["package.py"],
+    }
+    if validation:
+        unit = profile
+        mapping[APPARMOR_PATH] = (apparmor_policy, 0o644)
+    else:
+        unit = package[f"systemd/aip-{args.role}.service"][0].decode().replace(
+            "/usr/local/bin/", "/opt/vanian/snifferdog/bin/")
+        # Bound daemon resource use; sensor availability/coverage remain runtime facts.
+        unit = unit.replace("[Service]\n", "[Service]\nMemoryMax=512M\nTasksMax=128\nLimitNOFILE=8192\nCPUQuota=100%\nUMask=0077\n")
+        if args.role == "collector":
+            unit = unit.replace("LoadCredential=collector-passphrase\n",
+                                "LoadCredential=collector-passphrase:/etc/aip/collector-passphrase\n")
+        else:
+            sensors = config["AIP_PROBE_SENSORS"].split(",")
+            capabilities = []
+            if any(SENSORS[sensor] for sensor in sensors):
+                capabilities.append("CAP_PERFMON")
+            if "connector" in sensors:
+                capabilities.append("CAP_NET_ADMIN")
+            if "afpacket" in sensors:
+                capabilities.append("CAP_NET_RAW")
+            unit = re.sub(r"(?m)^(AmbientCapabilities|CapabilityBoundingSet)=.*$",
+                          lambda match: match.group(1) + "=" + " ".join(capabilities), unit)
+    mapping[f"/etc/systemd/system/aip-{args.role}.service"] = (unit.encode(), 0o644)
+    config_path = f"/etc/aip/{args.role}.env"
+    previous_config = safe_destination(root, config_path)
+    if previous_config.exists():
+        if previous_config.read_bytes() != config_bytes:
+            fail("existing configuration differs; retain and review it before installation")
+    else:
+        mapping[config_path] = (config_bytes, 0o600)
+    # All target checks precede writes. No extraction or arbitrary package path
+    # is ever passed to a shell or used as a destination.
+    for location in mapping:
+        if safe_destination(root, location).exists():
+            fail(f"refusing to overwrite existing {location}")
+    if root == Path("/"):
+        import grp
+        import pwd
+        try:
+            account = pwd.getpwnam(f"aip-{args.role}")
+        except KeyError:
+            subprocess.run(["useradd", "--system", "--user-group", "--no-create-home", "--home-dir",
+                            f"/var/lib/aip-{args.role}", "--shell", "/usr/sbin/nologin",
+                            f"aip-{args.role}"], check=True)
+            account = pwd.getpwnam(f"aip-{args.role}")
+        if account.pw_uid == 0:
+            fail("runtime service account must not be root")
+        if grp.getgrnam(f"aip-{args.role}").gr_gid != account.pw_gid:
+            fail("service account must have its same-named primary group")
+    state = safe_destination(root, f"/var/lib/aip-{args.role}")
+    state.mkdir(parents=True, exist_ok=True, mode=0o700)
+    if root == Path("/"):
+        os.chown(state, account.pw_uid, account.pw_gid)
+        os.chmod(state, 0o700)
+    installed = {}
+    for location, (data, mode) in mapping.items():
+        target = safe_destination(root, location)
+        target.parent.mkdir(parents=True, exist_ok=True)
+        with target.open("xb") as stream:
+            stream.write(data)
+        target.chmod(mode)
+        if not location.endswith(".env"):
+            installed[location] = digest(data)
+    if validation and root == Path("/"):
+        policy_loaded = False
+        try:
+            subprocess.run([apparmor_parser, "--add", "--skip-cache", APPARMOR_PATH], check=True, timeout=30)
+            policy_loaded = True
+            apparmor_require_enforcing()
+        except (OSError, ValueError, subprocess.SubprocessError):
+            # No daemon has started. Retain credentials/spool and roll back
+            # only the exact fresh software/config writes owned by this attempt.
+            try:
+                if policy_loaded:
+                    subprocess.run([apparmor_parser, "--remove", "--skip-cache", APPARMOR_PATH],
+                                   check=False, timeout=30)
+            finally:
+                for location in mapping:
+                    safe_destination(root, location).unlink()
+            raise
+    receipt_path.write_bytes(canonical({"format": FORMAT, "role": args.role,
+        "source_commit": manifest["source_commit"], "archive_sha256": args.expected_sha256.lower(),
+        "installed": installed, "mode": "OBSERVER_ONLY",
+        "service_profile": "APPROVED_DISPOSABLE_FULL_SENSOR" if validation else "DEFAULT",
+        "unit_sha256": digest(unit.encode()), "config_sha256": digest(config_bytes),
+        "apparmor_sha256": digest(apparmor_policy) if validation else None,
+        "apparmor_profile": APPARMOR_NAME if validation else None,
+        "apparmor_enforcing_checked": validation and root == Path("/"),
+        "disposable_runner_validation": validation,
+        "live_installation": root == Path("/"),
+        "operator_separate_host_assertion": bool(args.confirm_separate_host),
+        "independent_administrative_custody_established": False}))
+    receipt_path.chmod(0o600)
+    if root == Path("/"):
+        subprocess.run(["systemctl", "daemon-reload"], check=True)
+    print("INSTALLED: services are not started; finish credentials, allow-list and operator acceptance")
+
+
+def uninstall(args):
+    root = installation_root(args)
+    receipt_path = safe_destination(root, "/etc/aip/vanian-runtime-install.json")
+    receipt = json.loads(receipt_path.read_text())
+    role = receipt.get("role")
+    if role not in {"probe", "collector"} or receipt.get("format") not in {FORMAT, LEGACY_FORMAT}:
+        fail("invalid installation receipt")
+    allowed = {f"/opt/vanian/snifferdog/bin/aip-{role}", "/opt/vanian/snifferdog/bin/aip-observe-verify",
+               "/opt/vanian/snifferdog/package.py", f"/etc/systemd/system/aip-{role}.service"}
+    apparmor_installed = receipt.get("apparmor_profile") == APPARMOR_NAME
+    if apparmor_installed:
+        if role != "probe" or receipt.get("service_profile") != "APPROVED_DISPOSABLE_FULL_SENSOR":
+            fail("unexpected AppArmor ownership in installation receipt")
+        allowed.add(APPARMOR_PATH)
+    if set(receipt["installed"]) != allowed:
+        fail("installation receipt contains unexpected paths")
+    # Refuse before deleting anything if a local administrator changed a file.
+    for location, expected in receipt["installed"].items():
+        target = safe_destination(root, location)
+        if not target.is_file() or digest(target.read_bytes()) != expected:
+            fail(f"local change or missing file at {location}; review before uninstall")
+    if root == Path("/"):
+        subprocess.run(["systemctl", "disable", "--now", f"aip-{role}.service"], check=True)
+        if apparmor_installed:
+            parser, _ = apparmor_support()
+            subprocess.run([parser, "--remove", "--skip-cache", APPARMOR_PATH], check=True, timeout=30)
+    for location in receipt["installed"]:
+        safe_destination(root, location).unlink()
+    receipt_path.unlink()
+    if root == Path("/"):
+        subprocess.run(["systemctl", "daemon-reload"], check=True)
+    print("UNINSTALLED software only: retained config, accounts, credentials, trust anchors, keys and all evidence")
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    commands = parser.add_subparsers(dest="command", required=True)
+    command = commands.add_parser("build")
+    command.add_argument("--bin-dir", required=True)
+    command.add_argument("--source-commit", required=True)
+    command.add_argument("--target", choices=TARGETS, required=True)
+    command.add_argument("--output", required=True)
+    for name in ("verify", "install"):
+        command = commands.add_parser(name)
+        command.add_argument("--archive", required=True)
+        command.add_argument("--expected-sha256", required=True)
+        if name == "install":
+            command.add_argument("--role", choices=("probe", "collector"), required=True)
+            command.add_argument("--config", required=True)
+            command.add_argument("--root", default="/", help="existing staging directory for packaging tests only")
+            command.add_argument("--confirm-separate-host", action="store_true")
+            command.add_argument("--approved-probe-unit-sha256", help="exact reviewed full-sensor unit digest")
+            command.add_argument("--approved-probe-config-sha256", help="exact reviewed probe configuration digest")
+            command.add_argument("--approved-probe-apparmor-sha256", help="exact reviewed enforcing write-confinement policy digest")
+            command.add_argument("--disposable-runner-validation", action="store_true",
+                                 help="explicit full-sensor qualification only on an approved disposable GitHub runner; never separate custody")
+    command = commands.add_parser("review-probe-unit", help="write an inert candidate profile; never install or start it")
+    command.add_argument("--archive", required=True)
+    command.add_argument("--expected-sha256", required=True)
+    command.add_argument("--config", required=True)
+    command.add_argument("--output", required=True)
+    command = commands.add_parser("preflight")
+    command.add_argument("--role", choices=("probe", "collector"), required=True)
+    command.add_argument("--config", required=True)
+    command.add_argument("--config-only", action="store_true")
+    command = commands.add_parser("uninstall")
+    command.add_argument("--root", default="/")
+    args = parser.parse_args()
+    try:
+        if args.command == "verify":
+            manifest, _ = verified_package(args.archive, args.expected_sha256)
+            print(json.dumps({"status": "PACKAGE_VERIFIED", "manifest": manifest}))
+        else:
+            globals()[args.command.replace("-", "_")](args)
+    except (ValueError, OSError, KeyError, tarfile.TarError, subprocess.SubprocessError) as error:
+        print(f"ERROR: {error}", file=sys.stderr)
+        return 1
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

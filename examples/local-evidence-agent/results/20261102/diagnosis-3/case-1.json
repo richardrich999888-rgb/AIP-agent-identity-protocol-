@@ -1,0 +1,40 @@
+{
+  "case": 1,
+  "question": "Explain what this run verifies and why the kernel action is CannotProve.",
+  "profile": "same-run",
+  "model_raw_outputs": [
+    "{\n  \"run_id\": \"1c9084248c6919fb3fef326288b8e489b9eeb45e09500bae3761b5040c4da07c\",\n  \"tool\": \"inspect_recorded_run\"\n}",
+    "{\n  \"answer\": \"This run verifies the integrity of the recorded Linux evidence and the signed requests. The kernel cannot prove the application action because the action evidence is unavailable. The longer authorization window limit is not covered, and the recorded Linux scope is not verified. The business outcome is UNKNOWN because the API does not establish approval or nonapproval. No independent custody or fresh Mac kernel capture is established. The kernel cannot prove the application action because the ```\",\"evidence_labels\": [{\"evidence_scope\":\"RECORDED_LINUX_NOT_FRESH_MAC\",\"full_authorization_window_reason\":\"WindowNotCovered\",\"gateway_disposition\":\"Forwarded\",\"kernel_reason\":\"ActionEvidenceUnavailable\",\"kernel_verdict\":\"CannotProve\",\"process_identity\":\"Match\",\"signature_checks_verified\":true}]}"
+  ],
+  "status": "FAIL",
+  "failure_type": "AgentBoundaryError",
+  "safe_boundary_code": "invalid_model_answer",
+  "seconds": 5.342,
+  "completed_model_responses": 2,
+  "model_raw_http_responses": [
+    {
+      "model": "vanian-qwen-local",
+      "done": true,
+      "done_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"run_id\": \"1c9084248c6919fb3fef326288b8e489b9eeb45e09500bae3761b5040c4da07c\",\n  \"tool\": \"inspect_recorded_run\"\n}"
+      },
+      "prompt_eval_count": 511,
+      "eval_count": 78,
+      "total_duration": 1691513125
+    },
+    {
+      "model": "vanian-qwen-local",
+      "done": true,
+      "done_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"answer\": \"This run verifies the integrity of the recorded Linux evidence and the signed requests. The kernel cannot prove the application action because the action evidence is unavailable. The longer authorization window limit is not covered, and the recorded Linux scope is not verified. The business outcome is UNKNOWN because the API does not establish approval or nonapproval. No independent custody or fresh Mac kernel capture is established. The kernel cannot prove the application action because the ```\",\"evidence_labels\": [{\"evidence_scope\":\"RECORDED_LINUX_NOT_FRESH_MAC\",\"full_authorization_window_reason\":\"WindowNotCovered\",\"gateway_disposition\":\"Forwarded\",\"kernel_reason\":\"ActionEvidenceUnavailable\",\"kernel_verdict\":\"CannotProve\",\"process_identity\":\"Match\",\"signature_checks_verified\":true}]}"
+      },
+      "prompt_eval_count": 422,
+      "eval_count": 173,
+      "total_duration": 2992401083
+    }
+  ]
+}

@@ -6,6 +6,7 @@ on:
       - 'validation/rbi_demo/**'
       - 'validation/pilot_e2e/**'
       - 'aip-standalone/aip-observe/**'
+      - 'aip-standalone/aip-mcp-gateway/**'
       - '.github/workflows/rbi-rehearsal.yml'
   workflow_dispatch:
 
@@ -25,6 +26,7 @@ jobs:
           bash -n validation/rbi_demo/run.sh
           bash -n validation/pilot_e2e/run.sh
           python3 -B validation/rbi_demo/test_run.py
+          python3 -B validation/rbi_demo/test_public_export.py
 
   live-rehearsal:
     needs: script-regressions
@@ -60,39 +62,18 @@ jobs:
             CARGO_INCREMENTAL=0 \
             AIP_DEMO_SKIP_SYSTEM=0 \
             bash validation/rbi_demo/run.sh "$RUNNER_TEMP/rbi-rehearsal"
-      - name: Retain evidence and failure diagnostics, never private keys
+      - name: Export only allowlisted public evidence and failure diagnostics
+        id: export_public
         if: always()
+        run: |
+          sudo python3 -B validation/rbi_demo/collect_public.py \
+            --source "$RUNNER_TEMP" --output "$RUNNER_TEMP/rbi-public" \
+            --github-output "$GITHUB_OUTPUT"
+      - name: Retain evidence and failure diagnostics, never private keys
+        if: always() && steps.export_public.outputs.export_ready == 'true'
         uses: actions/upload-artifact@v4
         with:
           name: rbi-rehearsal-${{ github.run_id }}
           retention-days: 14
           if-no-files-found: warn
-          path: |
-            ${{ runner.temp }}/rbi-clock.txt
-            ${{ runner.temp }}/rbi-build.log
-            ${{ runner.temp }}/rbi-rehearsal/transcript.txt
-            ${{ runner.temp }}/rbi-rehearsal/clock.log
-            ${{ runner.temp }}/rbi-rehearsal/build.log
-            ${{ runner.temp }}/rbi-rehearsal/system_run.log
-            ${{ runner.temp }}/rbi-rehearsal/control_check.log
-            ${{ runner.temp }}/rbi-rehearsal/act3_destination.log
-            ${{ runner.temp }}/rbi-rehearsal/act4_toolcall.log
-            ${{ runner.temp }}/rbi-rehearsal/act4b_gateway.out
-            ${{ runner.temp }}/rbi-rehearsal/act4b_gateway.err
-            ${{ runner.temp }}/rbi-rehearsal/act4b_receipt_check.err
-            ${{ runner.temp }}/rbi-rehearsal/receipts.jsonl
-            ${{ runner.temp }}/rbi-rehearsal/system/transcript.txt
-            ${{ runner.temp }}/rbi-rehearsal/system/build.log
-            ${{ runner.temp }}/rbi-rehearsal/system/host.txt
-            ${{ runner.temp }}/rbi-rehearsal/system/summary.json
-            ${{ runner.temp }}/rbi-rehearsal/system/health.A.control.jsonl
-            ${{ runner.temp }}/rbi-rehearsal/system/health.B.under_attack.jsonl
-            ${{ runner.temp }}/rbi-rehearsal/system/health.C.recovery.jsonl
-            ${{ runner.temp }}/rbi-rehearsal/system/offline_verify.txt
-            ${{ runner.temp }}/rbi-rehearsal/system/offline_verify_tampered.txt
-            ${{ runner.temp }}/rbi-rehearsal/system/work/collector.log
-            ${{ runner.temp }}/rbi-rehearsal/system/work/probe.log
-            ${{ runner.temp }}/rbi-rehearsal/system/work/attack.log
-            ${{ runner.temp }}/rbi-rehearsal/system/work/state/health.archive.jsonl
-            ${{ runner.temp }}/rbi-rehearsal/system/work/state/attested.archive.jsonl
-            ${{ runner.temp }}/rbi-rehearsal/system/work/state/observer.pub
+          path: ${{ runner.temp }}/rbi-public/

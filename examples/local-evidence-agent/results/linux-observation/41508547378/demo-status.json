@@ -1,0 +1,203 @@
+{
+  "status": "ready",
+  "model": "vanian-qwen-local",
+  "frameworks": [
+    "LangChain",
+    "LangGraph"
+  ],
+  "inference": "local",
+  "api": "real AIP service; read-only agent access",
+  "evidence": "Recorded Linux execution; no live Mac kernel capture",
+  "runs": [
+    {
+      "id": "e32fe5b3a42e7ebab62a1e98041203da662e0178b0b8b64553b9c258827a4f8e",
+      "run_artifact_id": "e32fe5b3a42e7ebab62a1e98041203da662e0178b0b8b64553b9c258827a4f8e",
+      "profile": "same-run",
+      "label": "Observed Linux task",
+      "agent_id": "aip1468hqdonLeB8ijW7RwftuaZ939Bxx6BCDVMo2UMPkR",
+      "run_id": "same-run-54697da019b4ae8dbd8b77ee",
+      "evidence_source": "HISTORICAL_SIGNED_LINUX_CAPTURE",
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+      "workflow_run_id": 41432473155,
+      "current_host_kernel_capture": false
+    },
+    {
+      "id": "ae43ef4739a451c25283d841abcb2249955a325a18e44e0f0d1238e80b55549b",
+      "run_artifact_id": "ae43ef4739a451c25283d841abcb2249955a325a18e44e0f0d1238e80b55549b",
+      "profile": "same-run-interruption",
+      "label": "Interrupted Linux observer",
+      "agent_id": "aip16Q21WER7SFm1TjZHTKddHyXw2jQkEwQbUbuz2P8QbG",
+      "run_id": "same-run-a051d7606eb718ede04a61e9",
+      "evidence_source": "HISTORICAL_SIGNED_LINUX_CAPTURE",
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+      "workflow_run_id": 41432473155,
+      "current_host_kernel_capture": false
+    },
+    {
+      "id": "ac74f2d5d0c934297e1757233992b4b1dc11826832f6dba9d8a5a0cdb9701bab",
+      "run_artifact_id": "ac74f2d5d0c934297e1757233992b4b1dc11826832f6dba9d8a5a0cdb9701bab",
+      "profile": "same-run-recovery",
+      "label": "Recovered Linux observer",
+      "agent_id": "aip14eYpDWJGyuaafRUXDnctErJMrjC6a2SCwnc86sU3LB",
+      "run_id": "same-run-d5e4b7d6f1381ae3a993ca73",
+      "evidence_source": "HISTORICAL_SIGNED_LINUX_CAPTURE",
+      "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+      "workflow_run_id": 41432473155,
+      "current_host_kernel_capture": false
+    }
+  ],
+  "fresh_observation": {
+    "status": "PASS",
+    "classification": "FRESH_LINUX_AGENT_OBSERVATION",
+    "run_id": "local-qa-5008dbe8caa91aa859736d61",
+    "source_commit": "bce0037d6ca5eb1b85a9f2d242f4b2650dd2e6d9",
+    "workflow_run_id": 41508547378,
+    "task": {
+      "from_ms": 1793647267118,
+      "to_ms": 1793647328684,
+      "exit_code": 0
+    },
+    "capture": {
+      "platform": "Linux",
+      "signed_batches": 93,
+      "health_records": 6,
+      "kernel_events": 3372,
+      "agent_bound_events": 56,
+      "events_by_kind": {
+        "ProcessExec": 1,
+        "Exec": 1,
+        "SocketState": 20,
+        "SocketSend": 28,
+        "FileEvent": 5,
+        "Exit": 1
+      },
+      "task_coverage": "SIGNED_ACTIVE_FOR_COMPLETE_TASK",
+      "process_identity": "CONTROLLER_INSTANCE_MATCHED_IN_SIGNED_KERNEL_EVENTS",
+      "process": {
+        "pid": 3762,
+        "pid_start_time_ticks": 32971,
+        "boot_id": [
+          28,
+          81,
+          134,
+          192,
+          50,
+          102,
+          75,
+          236,
+          164,
+          243,
+          93,
+          102,
+          9,
+          150,
+          33,
+          130
+        ]
+      },
+      "namespaces": {
+        "pid_ns_inode": 4026531836,
+        "mnt_ns_inode": 4026532376,
+        "net_ns_inode": 4026532317
+      },
+      "file_event_paths": [
+        "/home/runner/work/_temp/local-qa-capture/work/answers/case-1.json",
+        "/home/runner/work/_temp/local-qa-capture/work/answers/case-2.json",
+        "/home/runner/work/_temp/local-qa-capture/work/answers/case-3.json",
+        "/home/runner/work/_temp/local-qa-capture/work/answers/case-4.json",
+        "/home/runner/work/_temp/local-qa-capture/work/workload-summary.json"
+      ],
+      "required_mechanisms": [
+        "SchedTracepoint",
+        "CgroupTracepoint",
+        "ProcConnector",
+        "Fanotify",
+        "SockStateTracepoint",
+        "SockSendTracepoint"
+      ],
+      "independent_audit_exec_agreements": 1,
+      "observer_anchor": {
+        "observer_id": "collector.local.qa",
+        "key_version": 1,
+        "public_key": "7ad9041f3ced8f80a33d1da6459a869c46a73e6774bcf509909d59d91a501b56"
+      },
+      "checkpoint": {
+        "sha256": {
+          "attested.archive.jsonl": "a4066893f069dbac1f86b7154273800358e58825b49835ac351ae443f33f082b",
+          "health.archive.jsonl": "7d4b1209cba802b6f6f034196d9a4fd77d783f4225c98985ba30a8838e016578"
+        }
+      },
+      "rust_archive_verification": {
+        "observer_id": "collector.local.qa",
+        "key_version": 1,
+        "public_key": "7ad9041f3ced8f80a33d1da6459a869c46a73e6774bcf509909d59d91a501b56",
+        "batches": {
+          "records": 93,
+          "first_sequence": 1,
+          "last_sequence": 93,
+          "start": "Epoch",
+          "final_head": "46b9fae02d72927c718b515af95450c18c14b83b483bad3d5538c0fa1fe71699",
+          "observations": 0,
+          "kernel_events": 3372
+        },
+        "health": {
+          "records": 6,
+          "states": [
+            "ContinuityUnverified",
+            "Active"
+          ],
+          "with_coverage": 5,
+          "without_coverage": 1,
+          "cross_checked_against_batches": 5,
+          "clock_synchronised": 6,
+          "clock_unsynchronised": 0,
+          "clock_not_stated": 0,
+          "clock_worst_max_error_us": 4012
+        },
+        "findings": []
+      }
+    },
+    "model": {
+      "name": "Qwen2.5-1.5B-Instruct / vanian-qwen-local",
+      "completed_http_requests": 8,
+      "weight_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+      "source_authority": "ROOT_CONTROLLER_APPLICATION_CORRELATION",
+      "actual_focuses": [
+        "kernel_action",
+        "kernel_action",
+        "record_integrity",
+        "business_outcome"
+      ]
+    },
+    "api_reads": {
+      "completed": 12,
+      "source_authority": "ROOT_CONTROLLER_APPLICATION_CORRELATION"
+    },
+    "output": {
+      "sha256": "a188246052ac18632c6da5460cf32f1a49a6b01bd02ba719e2bd84b7fa8d79e1",
+      "answer_files": {
+        "answers/case-1.json": "216998b149e64c4808cd97a313a6454bc16ce982ce2d82407849f1cbc10b99af",
+        "answers/case-2.json": "1e88643aedc26c583946f47407bf868df15eb3ca156ede75bc654483c60ca4c7",
+        "answers/case-3.json": "10352b555fe56babe58812fbe1906e3f93fe1bc7db6f3bd7548cfbcc189ebb95",
+        "answers/case-4.json": "481c95ecf7c335a3ef96a97c78815d2683e9b6e33d2f07db3b4823427b3fc24e"
+      },
+      "source_authority": "ROOT_CONTROLLER_APPLICATION_CORRELATION"
+    },
+    "original_public_files_verified": 27,
+    "controller_trust_sha256": "fbf8a873a475bccdaa6c2a849b515e051967455adf71136cc98528cfcf9ac62b",
+    "api_observation_admission": "NOT_REQUESTED_OR_CLAIMED",
+    "limits": [
+      "Fresh Linux kernel capture; no new Mac kernel capture.",
+      "Observer signatures cover system observations, not model answer semantics or model-call counts.",
+      "Task outputs, model counters and their association are separately approved controller metadata.",
+      "No new gateway authorization, gateway receipt, loan approval or logical delegation proof is supplied.",
+      "Collector and workload share runner administration; independent administrative custody is not established."
+    ],
+    "api_admission": {
+      "status": "NOT_REQUESTED",
+      "description": "Offline-verified original capture; not admitted through /v1/observations",
+      "decoded_archive_limit_bytes": 524288,
+      "source_authority": "LOCAL_DEMO_DISPLAY_CONFIGURATION_NOT_KERNEL_EVIDENCE"
+    }
+  }
+}

@@ -1,0 +1,27 @@
+test_privacy_veto_precedes_controller_record_publication (test_join.ControllerPublicationBoundary.test_privacy_veto_precedes_controller_record_publication) ... ok
+test_policy_allow_does_not_override_an_aip_signer_denial (test_join.PolicySigningBoundary.test_policy_allow_does_not_override_an_aip_signer_denial) ... ok
+test_policy_denial_never_reaches_the_aip_signer (test_join.PolicySigningBoundary.test_policy_denial_never_reaches_the_aip_signer) ... ok
+test_bool_numeric_extra_arguments_and_identity_injection_are_denied_before_engine (test_opa.FailClosedControls.test_bool_numeric_extra_arguments_and_identity_injection_are_denied_before_engine) ... ok
+test_changed_policy_is_refused_even_with_valid_asset_identity (test_opa.FailClosedControls.test_changed_policy_is_refused_even_with_valid_asset_identity) ... ok
+test_missing_mismatched_or_symlink_engine_cannot_allow (test_opa.FailClosedControls.test_missing_mismatched_or_symlink_engine_cannot_allow) ... ok
+test_nonboolean_undefined_error_and_oversized_outputs_never_allow (test_opa.FailClosedControls.test_nonboolean_undefined_error_and_oversized_outputs_never_allow) ... ok
+test_actual_rego_default_denies_bool_and_extra_arguments_too (test_opa.RealOPAComponent.test_actual_rego_default_denies_bool_and_extra_arguments_too) ... ok
+test_cached_preparation_verifies_real_binary_and_license_without_network (test_opa.RealOPAComponent.test_cached_preparation_verifies_real_binary_and_license_without_network) ... ok
+test_offline_verify_and_evaluate_do_not_download (test_opa.RealOPAComponent.test_offline_verify_and_evaluate_do_not_download) ... ok
+test_real_engine_allows_exact_configured_call_only (test_opa.RealOPAComponent.test_real_engine_allows_exact_configured_call_only) ... ok
+test_real_engine_denies_wrong_record_tool_amount_and_peer (test_opa.RealOPAComponent.test_real_engine_denies_wrong_record_tool_amount_and_peer) ... ok
+test_actual_failed_controller_operation_exports_only_numeric_error_status (test_telemetry.ActualCollectorRoundTrip.test_actual_failed_controller_operation_exports_only_numeric_error_status) ... ok
+test_late_unapproved_tail_after_actual_collector_exit_is_private_and_never_published (test_telemetry.ActualCollectorRoundTrip.test_late_unapproved_tail_after_actual_collector_exit_is_private_and_never_published) ... ok
+test_real_sdk_collector_receives_measured_controller_times_without_privacy_canaries (test_telemetry.ActualCollectorRoundTrip.test_real_sdk_collector_receives_measured_controller_times_without_privacy_canaries) ... ok
+test_chronology_count_types_and_single_run_are_enforced (test_telemetry.TelemetryContracts.test_chronology_count_types_and_single_run_are_enforced) ... ok
+test_collector_config_has_only_loopback_receiver_and_file_exporter (test_telemetry.TelemetryContracts.test_collector_config_has_only_loopback_receiver_and_file_exporter) ... ok
+test_exact_phase_attribute_and_value_allowlists_reject_privacy_canary (test_telemetry.TelemetryContracts.test_exact_phase_attribute_and_value_allowlists_reject_privacy_canary) ... ok
+test_import_does_not_import_sdk_into_controller (test_telemetry.TelemetryContracts.test_import_does_not_import_sdk_into_controller) ... ok
+test_original_collector_correlation_rejects_tamper_and_extra_data (test_telemetry.TelemetryContracts.test_original_collector_correlation_rejects_tamper_and_extra_data) ... ok
+test_regular_bounded_input_refuses_symlinks (test_telemetry.TelemetryContracts.test_regular_bounded_input_refuses_symlinks) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 3.310s
+
+OK
+{"classification": "FRAMEWORK_COMPONENT_CONTROLS_NOT_AGENT_EXECUTION", "tests": 21, "failures": 0, "errors": 0, "skipped": 0, "status": "PASS"}

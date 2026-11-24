@@ -1,0 +1,115 @@
+{
+  "run_utc": "2026-10-28T10:31:33Z",
+  "source_commit": "e9da41314c3851a92388a8ce80f1db9a3a696520",
+  "scope": "Helm lint/render and static rendered-YAML assertions only",
+  "host": "Darwin arm64",
+  "tool": {
+    "name": "helm",
+    "version": "v3.18.6+gb76a950",
+    "archive_url": "https://get.helm.sh/helm-v3.18.6-darwin-arm64.tar.gz",
+    "checksum_url": "https://get.helm.sh/helm-v3.18.6-darwin-arm64.tar.gz.sha256sum",
+    "archive_sha256": "48e30d236a1f334c6acb78501be5a851eaa2a267fefeb1131b6484eb2f9f30d7",
+    "installation": "temporary directory only; no global install"
+  },
+  "chart_files_sha256": {
+    "Chart.yaml": "e9f72c7cd67c1b8209ec32683023e347f5a5c060c292fb51f21ad86164ba7c2a",
+    "values.yaml": "64f6d1723b551ddc3366bf7d6c20207265fe333dd5e1f5fd53ea06b46b9abccc",
+    "templates/runtime.yaml": "416af42d7e38f29227b77f6ff8de9a4cd51e754aa74a60505611162595b462fb"
+  },
+  "helm_cases": [
+    {
+      "name": "lint-default",
+      "command": "/private/tmp/vanian-helm-538Uzb/darwin-arm64/helm lint deploy/enterprise/kubernetes/chart",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "result": "PASS",
+      "combined_output_file": "lint-default.txt"
+    },
+    {
+      "name": "template-default",
+      "command": "/private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "result": "PASS",
+      "combined_output_file": "template-default.yaml"
+    },
+    {
+      "name": "lint-enabled",
+      "command": "/private/tmp/vanian-helm-538Uzb/darwin-arm64/helm lint deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set probe.enabled=true --set collector.enabled=true --set-string probe.image=registry.example.invalid/vanian/probe@sha256:0000000000000000000000000000000000000000000000000000000000000000 --set-string collector.image=registry.example.invalid/vanian/collector@sha256:1111111111111111111111111111111111111111111111111111111111111111 --set-string probe.configMap=probe-environment-fixture --set-string collector.configMap=collector-environment-fixture --set-string collector.allowListConfigMap=approved-probes-fixture --set-string collector.passphraseSecret=collector-passphrase-fixture",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "result": "PASS",
+      "combined_output_file": "lint-enabled.txt"
+    },
+    {
+      "name": "template-enabled",
+      "command": "/private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set probe.enabled=true --set collector.enabled=true --set-string probe.image=registry.example.invalid/vanian/probe@sha256:0000000000000000000000000000000000000000000000000000000000000000 --set-string collector.image=registry.example.invalid/vanian/collector@sha256:1111111111111111111111111111111111111111111111111111111111111111 --set-string probe.configMap=probe-environment-fixture --set-string collector.configMap=collector-environment-fixture --set-string collector.allowListConfigMap=approved-probes-fixture --set-string collector.passphraseSecret=collector-passphrase-fixture",
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "result": "PASS",
+      "combined_output_file": "template-enabled.yaml"
+    },
+    {
+      "name": "refuse-missing-separation",
+      "command": "/private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set probe.enabled=true",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "result": "PASS",
+      "combined_output_file": "refuse-missing-separation.txt"
+    },
+    {
+      "name": "refuse-probe-image-tag",
+      "command": "/private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set probe.enabled=true --set-string probe.image=registry.example.invalid/vanian/probe:latest",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "result": "PASS",
+      "combined_output_file": "refuse-probe-image-tag.txt"
+    },
+    {
+      "name": "refuse-collector-image-tag",
+      "command": "/private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set collector.enabled=true --set-string collector.image=registry.example.invalid/vanian/collector:latest",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "result": "PASS",
+      "combined_output_file": "refuse-collector-image-tag.txt"
+    },
+    {
+      "name": "refuse-same-nodes",
+      "command": "/private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set probe.enabled=true --set-string probe.nodeLabel=same-fixture --set-string collector.nodeLabel=same-fixture",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "result": "PASS",
+      "combined_output_file": "refuse-same-nodes.txt"
+    },
+    {
+      "name": "refuse-missing-probe-config",
+      "command": "/private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set probe.enabled=true --set-string probe.image=registry.example.invalid/vanian/probe@sha256:0000000000000000000000000000000000000000000000000000000000000000",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "result": "PASS",
+      "combined_output_file": "refuse-missing-probe-config.txt"
+    },
+    {
+      "name": "refuse-missing-collector-secret",
+      "command": "/private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set collector.enabled=true --set-string collector.image=registry.example.invalid/vanian/collector@sha256:1111111111111111111111111111111111111111111111111111111111111111 --set-string collector.configMap=collector-environment-fixture",
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "result": "PASS",
+      "combined_output_file": "refuse-missing-collector-secret.txt"
+    }
+  ],
+  "structural_assertions": {
+    "result": "PASS",
+    "command_file": "structure-command.sh",
+    "output_file": "structure-output.json",
+    "exit_code": 0
+  },
+  "limits": [
+    "Enabled image digests/configuration/secret names are explicitly synthetic rendering fixtures.",
+    "No Kubernetes cluster was contacted or resource applied.",
+    "No image was built, pulled, scanned, signed or started.",
+    "No Linux sensor, collection path, off-host separation or business outcome was exercised.",
+    "The matching checksum authenticates transfer integrity from the HTTPS release source; it is not an independent software publisher signature."
+  ],
+  "chart_changes": "none"
+}

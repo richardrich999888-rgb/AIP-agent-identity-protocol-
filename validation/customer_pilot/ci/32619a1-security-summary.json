@@ -1,0 +1,73 @@
+{
+  "source_head": "32619a16b102d14d9cca667699a3b64394ca644f",
+  "workflow_run": 44916522750,
+  "scans": [
+    {
+      "artifact_id": 14711653779,
+      "tool": "gitleaks",
+      "result_count": 217,
+      "rule_counts": {
+        "generic-api-key": 217
+      },
+      "rule_severities": {
+        "generic-api-key": []
+      },
+      "locations": []
+    },
+    {
+      "artifact_id": 14711499117,
+      "tool": "Trivy",
+      "result_count": 4,
+      "rule_counts": {
+        "KSV-0009": 1,
+        "KSV-0010": 1,
+        "KSV-0118": 1,
+        "KSV-0121": 1
+      },
+      "rule_severities": {
+        "KSV-0010": [
+          "misconfiguration",
+          "security",
+          "HIGH"
+        ],
+        "KSV-0118": [
+          "misconfiguration",
+          "security",
+          "HIGH"
+        ],
+        "KSV-0121": [
+          "misconfiguration",
+          "security",
+          "HIGH"
+        ],
+        "KSV-0009": [
+          "misconfiguration",
+          "security",
+          "HIGH"
+        ]
+      },
+      "locations": [
+        {
+          "rule_id": "KSV-0009",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "line": 33
+        },
+        {
+          "rule_id": "KSV-0010",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "line": 33
+        },
+        {
+          "rule_id": "KSV-0118",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "line": 43
+        },
+        {
+          "rule_id": "KSV-0121",
+          "path": "validation/enterprise/results/HELM_20261028T103133Z/template-enabled.yaml",
+          "line": 33
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+warning: unused imports: `EXECUTION_BINDING_VERSION` and `ProcessInstance`
+  --> aip-standalone/aip-core/src/execution_binding.rs:28:54
+   |
+28 | use aip_types::{ContainerIdentity, ExecutionBinding, ProcessInstance, EXECUTION_BINDING_VERSION};
+   |                                                      ^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: `aip-core` (lib) generated 1 warning (run `cargo fix --lib -p aip-core` to apply 1 suggestion)
+warning: unused import: `crate::probe::ProbeError`
+  --> aip-standalone/aip-observe/src/linux.rs:21:5
+   |
+21 | use crate::probe::ProbeError;
+   |     ^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = note: `#[warn(unused_imports)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/sched.rs:19:20
+   |
+19 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/socksend.rs:22:20
+   |
+22 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `ProcEvent`
+  --> aip-standalone/aip-observe/src/sockstate.rs:33:20
+   |
+33 | use crate::linux::{ProcEvent, SourceError};
+   |                    ^^^^^^^^^
+
+warning: unused import: `BootClockAnchor`
+  --> aip-standalone/aip-observe/src/sockstate.rs:34:23
+   |
+34 | use crate::observed::{BootClockAnchor, KernelLifecycleKind, SocketEndpoint, SocketProtocol};
+   |                       ^^^^^^^^^^^^^^^
+
+warning: field `image_cache` is never read
+   --> aip-standalone/aip-observe/src/probe.rs:158:5
+    |
+122 | pub struct ProcfsProbe {
+    |            ----------- field in this struct
+...
+158 |     image_cache: std::cell::RefCell<HashMap<u32, CachedImage>>,
+    |     ^^^^^^^^^^^
+    |
+    = note: `ProcfsProbe` has derived impls for the traits `Clone` and `Debug`, but these are intentionally ignored during dead code analysis
+    = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: method `still_describes` is never used
+   --> aip-standalone/aip-observe/src/probe.rs:177:8
+    |
+172 | impl CachedImage {
+    | ---------------- method in this implementation
+...
+177 |     fn still_describes(
+    |        ^^^^^^^^^^^^^^^
+
+warning: method `read_process` is never used
+   --> aip-standalone/aip-observe/src/probe.rs:306:8
+    |
+193 | impl ProcfsProbe {
+    | ---------------- method in this implementation
+...
+306 |     fn read_process(&self, pid: u32) -> Result<ObservedProcess, ProbeError> {
+    |        ^^^^^^^^^^^^
+
+warning: `aip-observe` (lib) generated 8 warnings (run `cargo fix --lib -p aip-observe` to apply 5 suggestions)
+    Checking aip-observe-verify v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-observe-verify)
+    Checking aip-observation v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-observation)
+    Checking aip-platform v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-platform)
+    Checking aip-incident v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-incident)
+    Checking aip-probe v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-probe)
+    Checking aip-collector v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-collector)
+    Checking aip-placement v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-placement)
+    Checking aip-interlock v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-interlock)
+    Checking ot-accountability-core v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/orbitaltrust-accountability/rust/ot-accountability-core)
+    Checking aip-reconcile v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-reconcile)
+warning: variable does not need to be mutable
+   --> aip-standalone/aip-probe/src/sensors.rs:312:13
+    |
+312 |         let mut open: Vec<&str> = Vec::new();
+    |             ----^^^^
+    |             |
+    |             help: remove this `mut`
+    |
+    = note: `#[warn(unused_mut)]` (part of `#[warn(unused)]`) on by default
+
+    Checking aip-effect v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-effect)
+    Checking aip-industrial v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-industrial)
+    Checking aip-space v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-space)
+    Checking aip-corroborate v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-corroborate)
+warning: `aip-probe` (lib) generated 1 warning (run `cargo fix --lib -p aip-probe` to apply 1 suggestion)
+    Checking ot-sentinel v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/orbitaltrust-accountability/rust/ot-sentinel)
+    Checking aip-spiffe v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-spiffe)
+    Checking aip-uas v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-uas)
+    Checking aip-robotics v0.4.0 (/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/aip-standalone/aip-robotics)
+error[E0425]: cannot find value `SYS_clone3` in crate `libc`
+   --> aip-standalone/aip-placement/src/spawn.rs:145:19
+    |
+145 |             libc::SYS_clone3,
+    |                   ^^^^^^^^^^ not found in `libc`
+
+For more information about this error, try `rustc --explain E0425`.
+error: could not compile `aip-placement` (lib) due to 1 previous error
+warning: build failed, waiting for other jobs to finish...

@@ -450,3 +450,62 @@ fn a_record_with_no_clock_reading_is_counted_apart_from_a_good_one() {
     );
     let _ = std::fs::remove_dir_all(&dir);
 }
+
+#[test]
+fn offline_report_exposes_signed_retention_scope_and_preserves_legacy_shape() {
+    let plain = build_chain("unscoped-report", 2);
+    let report = verify_archives(
+        OBSERVER_ID,
+        KEY_VERSION,
+        &plain.public_key,
+        Some(parse_jsonl(&jsonl(&plain.batches))),
+        Some(parse_jsonl(&jsonl(&plain.health))),
+    );
+    assert!(report.ok());
+    assert!(serde_json::to_value(&report).unwrap()["batches"]
+        .get("scoped_batches")
+        .is_none());
+
+    let dir = scratch("scoped-report");
+    let key = CollectorKey::development();
+    let public = key.public_key().to_vec();
+    let mut runtime = match CollectorRuntime::start_with_custodian(
+        CollectorStore::open(&dir).unwrap(),
+        OBSERVER_ID,
+        KEY_VERSION,
+        key.into_custodian(),
+        ContinuityPolicy::Strict,
+    )
+    .unwrap()
+    {
+        Started::Running(runtime, _) => runtime,
+        Started::Refused(error) => panic!("fresh runtime refused: {error:?}"),
+    };
+    let mut batch = ProcfsProbe::new("probe-scoped").batch([9; 16], 100, 200, vec![]);
+    batch.filter_report = Some(
+        serde_json::from_value(serde_json::json!({
+            "scope": {"version":1,"targets":[{"agent_label":"operator-selection",
+                "process":{"pid":123,"pid_start_time_ticks":456,"boot_id":vec![1;16]},
+                "exe_content_sha256":vec![2;32],"container":null}]},
+            "original_records":1,"excluded_records":1,"unassigned_records":0
+        }))
+        .unwrap(),
+    );
+    let signed = runtime.attest(batch).unwrap();
+    let health = runtime.health_with_clock(250, Some(CLOCK)).unwrap();
+    let report = verify_archives(
+        OBSERVER_ID,
+        KEY_VERSION,
+        &public,
+        Some(parse_jsonl(&jsonl(&[signed]))),
+        Some(parse_jsonl(&jsonl(&[health]))),
+    );
+    assert!(report.ok(), "{:?}", report.findings);
+    assert_eq!(report.batches.as_ref().unwrap().scoped_batches, 1);
+    assert_eq!(report.health.as_ref().unwrap().with_coverage, 0);
+    assert_eq!(
+        serde_json::to_value(&report).unwrap()["batches"]["scoped_batches"],
+        1
+    );
+    std::fs::remove_dir_all(dir).unwrap();
+}

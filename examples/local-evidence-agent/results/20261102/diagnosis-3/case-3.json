@@ -1,0 +1,40 @@
+{
+  "case": 3,
+  "question": "Summarize the recovered record. Distinguish verified signatures from kernel action proof.",
+  "profile": "same-run-recovery",
+  "model_raw_outputs": [
+    "{\n  \"run_id\": \"04191c121681cd8636000db8ef30c22d91acb5adc982854c30eadec68c2f2e2a\",\n  \"tool\": \"inspect_recorded_run\"\n}",
+    "{\n  \"answer\": \"The kernel cannot prove the application action due to the inability to verify the integrity of the signatures and the lack of a fresh Mac kernel capture. The business outcome is UNKNOWN because the API does not establish whether the loan was approved or not. The longer authorization-window limit is not covered, and the recorded Linux scope is not independent of the AIP API. The verified signatures establish integrity and signed request authority, but gateway forwarding and process identity do no\",\n  \"evidence_labels\": [{\"evidence_scope\":\"RECORDED_LINUX_NOT_FRESH_MAC\",\"full_authorization_window_reason\":\"WindowNotCovered\",\"gateway_disposition\":\"Forwarded\",\"kernel_reason\":\"ActionEvidenceUnavailable\",\"kernel_verdict\":\"CannotProve\",\"process_identity\":\"Match\",\"signature_checks_verified\":true}]\n}"
+  ],
+  "status": "FAIL",
+  "failure_type": "AgentBoundaryError",
+  "safe_boundary_code": "invalid_model_answer",
+  "seconds": 4.979,
+  "completed_model_responses": 2,
+  "model_raw_http_responses": [
+    {
+      "model": "vanian-qwen-local",
+      "done": true,
+      "done_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"run_id\": \"04191c121681cd8636000db8ef30c22d91acb5adc982854c30eadec68c2f2e2a\",\n  \"tool\": \"inspect_recorded_run\"\n}"
+      },
+      "prompt_eval_count": 507,
+      "eval_count": 74,
+      "total_duration": 1198919458
+    },
+    {
+      "model": "vanian-qwen-local",
+      "done": true,
+      "done_reason": "stop",
+      "message": {
+        "role": "assistant",
+        "content": "{\n  \"answer\": \"The kernel cannot prove the application action due to the inability to verify the integrity of the signatures and the lack of a fresh Mac kernel capture. The business outcome is UNKNOWN because the API does not establish whether the loan was approved or not. The longer authorization-window limit is not covered, and the recorded Linux scope is not independent of the AIP API. The verified signatures establish integrity and signed request authority, but gateway forwarding and process identity do no\",\n  \"evidence_labels\": [{\"evidence_scope\":\"RECORDED_LINUX_NOT_FRESH_MAC\",\"full_authorization_window_reason\":\"WindowNotCovered\",\"gateway_disposition\":\"Forwarded\",\"kernel_reason\":\"ActionEvidenceUnavailable\",\"kernel_verdict\":\"CannotProve\",\"process_identity\":\"Match\",\"signature_checks_verified\":true}]\n}"
+      },
+      "prompt_eval_count": 422,
+      "eval_count": 181,
+      "total_duration": 3139826667
+    }
+  ]
+}

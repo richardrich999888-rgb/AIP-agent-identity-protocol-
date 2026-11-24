@@ -1,0 +1,23 @@
+# Selected public quality-job records; original timestamps retained, ANSI formatting omitted.
+# Source: https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40672558568/job/122762763033
+# Final run and job conclusions are success; these are selected results, not aggregate workspace test counts.
+2026-10-28T10:29:52.0462699Z HEAD is now at 076b22c Merge e9da41314c3851a92388a8ce80f1db9a3a696520 into 5489260b96124b95a7973233e69d9e5a44cb6bf5
+2026-10-28T10:29:52.0665708Z 076b22c27d663a87dfd62d91df20583f417b383a
+2026-10-28T10:30:21.1646945Z ##[group]Run cargo fmt --all -- --check
+2026-10-28T10:30:22.7947468Z ##[group]Run cargo clippy --workspace --all-targets --all-features -- -D warnings
+2026-10-28T10:31:58.6689914Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --locked --no-fail-fast
+2026-10-28T10:46:20.1882823Z test tokens::tests::test_verify_latency_under_1ms_mean ... ok
+2026-10-28T10:46:21.8098516Z test result: ok. 53 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.58s
+2026-10-28T10:46:22.2474112Z test console_shell_is_public_but_contains_no_records_and_data_stays_authenticated ... ok
+2026-10-28T10:46:22.9070651Z test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener
+2026-10-28T10:46:22.9177338Z test service_readiness_refuses_an_unavailable_artifact_path_without_creating_files ... ok
+2026-10-28T10:46:22.9682953Z test result: ok. 10 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 1.14s
+2026-10-28T10:47:15.1343939Z ##[group]Run bash validation/ci/with_cgroup.sh cargo test --workspace --release --locked --no-fail-fast
+2026-10-28T10:56:36.5371531Z     Finished `release` profile [optimized] target(s) in 9m 21s
+2026-10-28T10:57:51.1724327Z test tokens::tests::test_verify_latency_under_1ms_mean ... ok
+2026-10-28T10:57:53.1195928Z test result: ok. 53 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 2.02s
+2026-10-28T10:57:53.1411107Z test console_shell_is_public_but_contains_no_records_and_data_stays_authenticated ... ok
+2026-10-28T10:57:53.1560530Z test real_http_clients_use_the_service_boundary ... ignored, requires the Python SDK/MCP client environment and a loopback listener
+2026-10-28T10:57:53.1562439Z test service_readiness_refuses_an_unavailable_artifact_path_without_creating_files ... ok
+2026-10-28T10:57:53.1636935Z test result: ok. 10 passed; 0 failed; 1 ignored; 0 measured; 0 filtered out; finished in 0.04s
+2026-10-28T10:58:11.5533681Z test result: ok. 1 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.11s

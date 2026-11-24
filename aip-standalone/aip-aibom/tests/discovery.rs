@@ -7,9 +7,10 @@ use aip_aibom::ports::{DiscoveryError, DiscoverySource, Transport};
 use serde_json::json;
 
 const SECRETS: [&str; 6] = [
+    // Explicit noncredential fixture: the parser tests the known prefix only.
     "sk-live-4f9a8c2e71b3",
     "hunter2-db-password",
-    "ghp_16C7e42F292c6912E7710c838347Ae178B4a",
+    "ghp_unit_test_fixture_not_a_real_token",
     "s3cr3t-query-token",
     "Bearer xoxb-1234-abcd",
     "user:pa55word",

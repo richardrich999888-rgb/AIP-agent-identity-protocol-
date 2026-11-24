@@ -1,0 +1,201 @@
+{
+  "classification": "INDEPENDENT_OFFLINE_VERIFICATION_OF_GENUINE_FAILED_AGENT_ZERO_BUSINESS_WORKLOAD",
+  "source_commit": "0b3473046af8433a0b96a6c24403336d1a6819b1",
+  "run_id": 41299438636,
+  "artifact_id": 13081566093,
+  "genuine_workload": "EXECUTED",
+  "business_task_acceptance": "FAIL",
+  "workload_exit": 1,
+  "capability_status": "PASS",
+  "successful_HTTP200_capability_requests": 3,
+  "successful_HTTP200_framework_period_requests_excluding_policy": 8,
+  "total_attempted_model_requests": "UNKNOWN_COUNTER_COUNTS_SUCCESSFUL_HTTP200_ONLY",
+  "requested_task_interval_ms": {
+    "from": 1793531196546,
+    "to": 1793531607255
+  },
+  "task_ms": 410709,
+  "original_checkpoint_bytes_match": true,
+  "signature_chain_verification": {
+    "observer_id": "collector.hosted-agent-zero",
+    "key_version": 1,
+    "public_key": "5f4fbb0574053ec6b2c0aaeae18868a6b0de0d05fad2157e78bbe062d27a8b9b",
+    "batches": {
+      "records": 198,
+      "first_sequence": 1,
+      "last_sequence": 198,
+      "start": "Epoch",
+      "final_head": "f833a43b8c40edb68baf102a073ba5c8895eb58db1547431a541c218c7999861",
+      "observations": 0,
+      "kernel_events": 13868
+    },
+    "health": {
+      "records": 16,
+      "states": [
+        "ContinuityUnverified",
+        "Active"
+      ],
+      "with_coverage": 15,
+      "without_coverage": 1,
+      "cross_checked_against_batches": 15,
+      "clock_synchronised": 16,
+      "clock_unsynchronised": 0,
+      "clock_not_stated": 0,
+      "clock_worst_max_error_us": 4037
+    },
+    "findings": []
+  },
+  "independent_full_six_sensor_task_coverage": true,
+  "six_sensor_replay_limit": "Original generic harness acceptance checks3mechanisms; this separate post-signature replay requests6explicitmechanisms from final signed health only, no epochunion/oldhealthfallback.",
+  "requested_sensor_mechanisms": [
+    "SchedTracepoint",
+    "CgroupTracepoint",
+    "ProcConnector",
+    "Fanotify",
+    "SockStateTracepoint",
+    "SockSendTracepoint"
+  ],
+  "latest_signed_health": {
+    "version": 13,
+    "observer_id": "collector.hosted-agent-zero",
+    "key_version": 1,
+    "state": "Active",
+    "continuity": "Verified",
+    "probe_policy": "RegisteredOnly",
+    "sequence": 194,
+    "head": [
+      73,
+      240,
+      74,
+      169,
+      183,
+      224,
+      54,
+      104,
+      52,
+      83,
+      200,
+      245,
+      203,
+      65,
+      154,
+      238,
+      201,
+      141,
+      79,
+      87,
+      128,
+      92,
+      209,
+      16,
+      30,
+      193,
+      121,
+      217,
+      153,
+      213,
+      116,
+      54
+    ],
+    "last_batch_id": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      194
+    ],
+    "attested_coverage": {
+      "from_ms": 1793531168794,
+      "to_ms": 1793531614701
+    },
+    "covered_by": [
+      "ProcConnector",
+      "SockStateTracepoint",
+      "SchedTracepoint",
+      "SockSendTracepoint",
+      "Fanotify",
+      "CgroupTracepoint"
+    ],
+    "emitted_at_ms": 1793531615283,
+    "clock": {
+      "synchronized": true,
+      "max_error_us": 1008,
+      "state": 0
+    }
+  },
+  "nonverified_batch_sequences": [],
+  "summary_matches_original": true,
+  "recomputed_observation_acceptance": "FAIL",
+  "recomputed_observation_failures": [
+    "framework process failed",
+    "no workload-bound FileEvent"
+  ],
+  "workload_namespace_bound_events": {
+    "ProcessSpawn": 21,
+    "SocketState": 39,
+    "SocketSend": 11,
+    "ProcessExec": 3,
+    "Fork": 3,
+    "Exec": 3,
+    "Exit": 3
+  },
+  "exact_process_instances": 4,
+  "launch_instance_events": 64,
+  "reported_drops": 0,
+  "unclocked_events": 0,
+  "unbound_host_events_not_attributed": 8776,
+  "outside_workload_bound_events_not_attributed": 4095,
+  "audit_comparison": {
+    "agreed": 53,
+    "whole_host_aip_only": 378,
+    "external_only": 0,
+    "external_unparsed": 0,
+    "external_failed_attempts": 294,
+    "unmatched_exact_bound_exec_references": 0
+  },
+  "business_original_controller_report": {
+    "status": "FAIL",
+    "failures": [
+      "business report is missing, unsafe or invalid JSON"
+    ],
+    "actual": null,
+    "policy_responses_in_task_window": 1,
+    "controller_measured_client_ip": "172.18.0.4",
+    "actual_report_sha256": null
+  },
+  "finalization_original": {
+    "source_authority": "ROOT_CONTROLLER",
+    "errors": [],
+    "coverage_wait": {
+      "status": "VERIFIED_SNAPSHOT_COVERS_INTERVAL",
+      "attempts": 2
+    },
+    "archive_frozen": true,
+    "external_checkpoint_retained": true,
+    "archive_verification": "VERIFIED"
+  },
+  "limitations": [
+    "Crypto integrity and full signed task coverage do not turn failed work/no file event/missing report into success.",
+    "One root HTTP-service policy response tied to measured workload IP/time is unsigned application testimony, not kernel TCP payload/URL proof or AIP authorization.",
+    "Missing workload-bound FileEvent remains zero in the actual signed records; outside/unbound host events are not borrowed.",
+    "No gateway receipts/AIP authority or logical delegation claim is supplied by this business profile.",
+    "Original public anchor/checkpoint arrived in same GitHub artifact. Shared kernel/root/GitHub administration trusted; independentinstitutioncustody incomplete."
+  ],
+  "verifier_binaries_sha256": {
+    "aip-observe-verify": "916f770e88153a0683d295532da40261b4d76eb46aec67e200edab237b0c3701",
+    "aip-corroborate": "0cb3ba6d642903d65a058a3fe061b2f38c58eb4287e62085190f18ce7a95aa51"
+  },
+  "verifier_build_source": "ff99d5ce41665bf8357e724570b0b1bf80f9601a",
+  "aip_standalone_source_ff99_to_0b347_equal": true
+}

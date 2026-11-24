@@ -70,10 +70,7 @@ PORT=$(python3 -c "import socket;s=socket.socket();s.bind(('127.0.0.1',0));print
 echo -n "corroborate-passphrase" > "$W/pass"
 
 step "Start AIP: collector (holds the only key) and probe (holds none)"
-env AIP_PROBE_ID=probe.corr AIP_PROBE_COLLECTOR_ENDPOINT="127.0.0.1:1" \
-    AIP_PROBE_COLLECTOR_NOISE_PUBKEY="$(printf '0%.0s' $(seq 1 64))" \
-    AIP_PROBE_KEY_PATH="$W/probe.key.json" AIP_PROBE_SENSORS=sched \
-    timeout 4 "$REPO/target/debug/aip-probe" > "$W/probe.keygen.log" 2>&1
+"$REPO/target/debug/aip-probe" init-transport-key "$W/probe.key.json" > "$W/probe.keygen.log" 2>&1
 [ -s "$W/probe.key.json" ] || die "probe did not generate a transport key"
 PROBE_PUB=$(python3 -c "import json;print(json.load(open('$W/probe.key.json'))['public_hex'])")
 printf '[{"probe_id":"probe.corr","transport_pubkey_hex":"%s"}]\n' "$PROBE_PUB" > "$W/probes.json"
@@ -96,9 +93,8 @@ env AIP_PROBE_ID=probe.corr AIP_PROBE_COLLECTOR_ENDPOINT="127.0.0.1:$PORT" \
     AIP_PROBE_SENSORS=sched,connector AIP_PROBE_BATCH_INTERVAL_MS=1000 \
     "$REPO/target/debug/aip-probe" > "$W/probe.log" 2>&1 &
 PROBE_PID=$!
-sleep 3
-kill -0 "$PROBE_PID" 2>/dev/null || { cat "$W/probe.log"; die "probe died"; }
-grep -q "connected" "$W/probe.log" || { cat "$W/probe.log"; die "probe never connected"; }
+source "$REPO/validation/pilot_e2e/wait_probe_ack.sh" || die "probe readiness helper unavailable"
+wait_probe_ack "$PROBE_PID" "$W/probe.log" || { cat "$W/probe.log"; die "probe did not receive a durable collector ACK within 30 seconds"; }
 ok "collector on 127.0.0.1:$PORT; probe connected over the confidential transport"
 
 step "Start the two INDEPENDENT observers"

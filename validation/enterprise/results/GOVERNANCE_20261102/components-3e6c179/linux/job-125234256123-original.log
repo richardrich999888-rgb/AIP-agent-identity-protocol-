@@ -1,0 +1,216 @@
+﻿2026-11-02T10:54:23.7168817Z Current runner version: '2.338.2'
+2026-11-02T10:54:23.7187885Z ##[group]Runner Image Provisioner
+2026-11-02T10:54:23.7188446Z Hosted Compute Agent
+2026-11-02T10:54:23.7188866Z Version: 20261021.618
+2026-11-02T10:54:23.7189274Z Commit: 21505ad2541d5be6135ed84fc33697146cf75b8e
+2026-11-02T10:54:23.7189754Z Build Date: 2026-10-21T00:45:21Z
+2026-11-02T10:54:23.7190170Z Worker ID: {4e4d40df-0740-494f-a0a1-2f2b85d53bfb}
+2026-11-02T10:54:23.7190588Z Region: southcentralus
+2026-11-02T10:54:23.7190968Z Cloud: Azure
+2026-11-02T10:54:23.7191324Z ##[endgroup]
+2026-11-02T10:54:23.7192277Z ##[group]Operating System
+2026-11-02T10:54:23.7192703Z Ubuntu
+2026-11-02T10:54:23.7193017Z 24.04.5
+2026-11-02T10:54:23.7193350Z LTS
+2026-11-02T10:54:23.7193706Z ##[endgroup]
+2026-11-02T10:54:23.7194038Z ##[group]Runner Image
+2026-11-02T10:54:23.7194472Z Image: ubuntu-24.04
+2026-11-02T10:54:23.7194815Z Version: 20261025.353.1
+2026-11-02T10:54:23.7195614Z Included Software: https://github.com/actions/runner-images/blob/ubuntu24/20261025.353/images/ubuntu/Ubuntu2404-Readme.md
+2026-11-02T10:54:23.7196504Z Image Release: https://github.com/actions/runner-images/releases/tag/ubuntu24%2F20261025.353
+2026-11-02T10:54:23.7197101Z ##[endgroup]
+2026-11-02T10:54:23.7197737Z ##[group]GITHUB_TOKEN Permissions
+2026-11-02T10:54:23.7198993Z Contents: read
+2026-11-02T10:54:23.7199335Z Metadata: read
+2026-11-02T10:54:23.7199709Z ##[endgroup]
+2026-11-02T10:54:23.7201056Z Secret source: Actions
+2026-11-02T10:54:23.7201871Z Cache mode: write
+2026-11-02T10:54:23.7202342Z Prepare workflow directory
+2026-11-02T10:54:23.7430957Z Prepare all required actions
+2026-11-02T10:54:23.7475596Z Getting action download info
+2026-11-02T10:54:23.9836939Z Download action repository 'actions/checkout@v4' (SHA:11d5960a326750d5838078e36cf38b85af677262)
+2026-11-02T10:54:24.0960787Z Download action repository 'actions/setup-python@v5' (SHA:a26af69be951a213d495a4c3e4e4022e16d87065)
+2026-11-02T10:54:24.2558150Z Complete job name: Real OPA and OpenTelemetry component controls (no agent claim)
+2026-11-02T10:54:24.3197729Z ##[group]Run actions/checkout@v4
+2026-11-02T10:54:24.3198164Z with:
+2026-11-02T10:54:24.3198417Z   persist-credentials: false
+2026-11-02T10:54:24.3198782Z   repository: richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-02T10:54:24.3201085Z   token: ***
+2026-11-02T10:54:24.3201318Z   ssh-strict: true
+2026-11-02T10:54:24.3201679Z   ssh-user: git
+2026-11-02T10:54:24.3201907Z   clean: true
+2026-11-02T10:54:24.3202149Z   sparse-checkout-cone-mode: true
+2026-11-02T10:54:24.3202440Z   fetch-depth: 1
+2026-11-02T10:54:24.3202674Z   fetch-tags: false
+2026-11-02T10:54:24.3202917Z   show-progress: true
+2026-11-02T10:54:24.3203160Z   lfs: false
+2026-11-02T10:54:24.3203384Z   submodules: false
+2026-11-02T10:54:24.3203631Z   set-safe-directory: true
+2026-11-02T10:54:24.3203906Z   allow-unsafe-pr-checkout: false
+2026-11-02T10:54:24.3204262Z ##[endgroup]
+2026-11-02T10:54:24.5166642Z Syncing repository: richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-02T10:54:24.5168377Z ##[group]Getting Git version info
+2026-11-02T10:54:24.5169256Z Working directory is '/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-'
+2026-11-02T10:54:24.5170113Z [command]/usr/bin/git version
+2026-11-02T10:54:24.5231105Z git version 2.56.0
+2026-11-02T10:54:24.5251238Z ##[endgroup]
+2026-11-02T10:54:24.5257350Z Temporarily overriding HOME='/home/runner/work/_temp/bdc57a85-eac8-44b8-98da-52a8f94c6219' before making global git config changes
+2026-11-02T10:54:24.5258570Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T10:54:24.5261998Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-02T10:54:24.5308331Z Deleting the contents of '/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-'
+2026-11-02T10:54:24.5311561Z ##[group]Initializing the repository
+2026-11-02T10:54:24.5315119Z [command]/usr/bin/git init /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-02T10:54:24.5429059Z hint: Using 'master' as the name for the initial branch. This default branch name
+2026-11-02T10:54:24.5429927Z hint: will change to "main" in Git 3.0. To configure the initial branch name
+2026-11-02T10:54:24.5430430Z hint: to use in all of your new repositories, which will suppress this warning,
+2026-11-02T10:54:24.5430828Z hint: call:
+2026-11-02T10:54:24.5431156Z hint:
+2026-11-02T10:54:24.5431655Z hint: 	git config --global init.defaultBranch <name>
+2026-11-02T10:54:24.5431992Z hint:
+2026-11-02T10:54:24.5432305Z hint: Names commonly chosen instead of 'master' are 'main', 'trunk' and
+2026-11-02T10:54:24.5432805Z hint: 'development'. The just-created branch can be renamed via this command:
+2026-11-02T10:54:24.5433190Z hint:
+2026-11-02T10:54:24.5433479Z hint: 	git branch -m <name>
+2026-11-02T10:54:24.5433862Z hint:
+2026-11-02T10:54:24.5434374Z hint: Disable this message with "git config set advice.defaultBranchName false"
+2026-11-02T10:54:24.5435534Z Initialized empty Git repository in /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/.git/
+2026-11-02T10:54:24.5445345Z [command]/usr/bin/git remote add origin https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-02T10:54:24.5489205Z ##[endgroup]
+2026-11-02T10:54:24.5489877Z ##[group]Disabling automatic garbage collection
+2026-11-02T10:54:24.5493443Z [command]/usr/bin/git config --local gc.auto 0
+2026-11-02T10:54:24.5529399Z ##[endgroup]
+2026-11-02T10:54:24.5530099Z ##[group]Setting up auth
+2026-11-02T10:54:24.5536522Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T10:54:24.5573233Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T10:54:24.5888114Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T10:54:24.5928675Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T10:54:24.6128424Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T10:54:24.6171048Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T10:54:24.6373966Z [command]/usr/bin/git config --local http.https://github.com/.extraheader AUTHORIZATION: basic ***
+2026-11-02T10:54:24.6420035Z ##[endgroup]
+2026-11-02T10:54:24.6429126Z ##[group]Fetching the repository
+2026-11-02T10:54:24.6430031Z [command]/usr/bin/git -c protocol.version=2 fetch --no-tags --prune --no-recurse-submodules --depth=1 origin +83ccc8412745fce7ad089c092caa3606e07248c5:refs/remotes/pull/8/merge
+2026-11-02T10:54:26.0773559Z From https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-
+2026-11-02T10:54:26.0802776Z  * [new ref]         83ccc8412745fce7ad089c092caa3606e07248c5 -> pull/8/merge
+2026-11-02T10:54:26.0804701Z ##[endgroup]
+2026-11-02T10:54:26.0805339Z ##[group]Determining the checkout info
+2026-11-02T10:54:26.0806040Z ##[endgroup]
+2026-11-02T10:54:26.0806473Z [command]/usr/bin/git sparse-checkout disable
+2026-11-02T10:54:26.0840588Z [command]/usr/bin/git config --local --unset-all extensions.worktreeConfig
+2026-11-02T10:54:26.0878575Z ##[group]Checking out the ref
+2026-11-02T10:54:26.0881514Z [command]/usr/bin/git checkout --progress --force refs/remotes/pull/8/merge
+2026-11-02T10:54:26.4233671Z Note: switching to 'refs/remotes/pull/8/merge'.
+2026-11-02T10:54:26.4234716Z 
+2026-11-02T10:54:26.4235358Z You are in 'detached HEAD' state. You can look around, make experimental
+2026-11-02T10:54:26.4235973Z changes and commit them, and you can discard any commits you make in this
+2026-11-02T10:54:26.4237606Z state without impacting any branches by switching back to a branch.
+2026-11-02T10:54:26.4238252Z 
+2026-11-02T10:54:26.4238500Z If you want to create a new branch to retain commits you create, you may
+2026-11-02T10:54:26.4239010Z do so (now or later) by using -c with the switch command. Example:
+2026-11-02T10:54:26.4239276Z 
+2026-11-02T10:54:26.4239421Z   git switch -c <new-branch-name>
+2026-11-02T10:54:26.4239624Z 
+2026-11-02T10:54:26.4239763Z Or undo this operation with:
+2026-11-02T10:54:26.4239942Z 
+2026-11-02T10:54:26.4240065Z   git switch -
+2026-11-02T10:54:26.4240241Z 
+2026-11-02T10:54:26.4240490Z Turn off this advice by setting config variable advice.detachedHead to false
+2026-11-02T10:54:26.4240833Z 
+2026-11-02T10:54:26.4241211Z HEAD is now at 83ccc84 Merge 3e6c1794000fa23006ef623722e37700e49582b7 into 65b6ff7fdad5ae70546a57216a497399091c7dc7
+2026-11-02T10:54:26.4286707Z ##[endgroup]
+2026-11-02T10:54:26.4337285Z [command]/usr/bin/git log -1 --format=%H
+2026-11-02T10:54:26.4369010Z 83ccc8412745fce7ad089c092caa3606e07248c5
+2026-11-02T10:54:26.4377203Z ##[group]Removing auth
+2026-11-02T10:54:26.4379949Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T10:54:26.4415092Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T10:54:26.4614924Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T10:54:26.4647063Z http.https://github.com/.extraheader
+2026-11-02T10:54:26.4652908Z [command]/usr/bin/git config --local --unset-all http.https://github.com/.extraheader
+2026-11-02T10:54:26.4690397Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T10:54:26.4888334Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T10:54:26.4925608Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T10:54:26.5120277Z ##[endgroup]
+2026-11-02T10:54:26.5395167Z ##[group]Run actions/setup-python@v5
+2026-11-02T10:54:26.5395393Z with:
+2026-11-02T10:54:26.5395539Z   python-version: 3.12
+2026-11-02T10:54:26.5395701Z   check-latest: false
+2026-11-02T10:54:26.5397241Z   token: ***
+2026-11-02T10:54:26.5397385Z   update-environment: true
+2026-11-02T10:54:26.5397551Z   allow-prereleases: false
+2026-11-02T10:54:26.5397718Z   freethreaded: false
+2026-11-02T10:54:26.5397871Z ##[endgroup]
+2026-11-02T10:54:26.6320281Z ##[group]Installed versions
+2026-11-02T10:54:26.6387012Z (node:2164) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-02T10:54:26.6387730Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-02T10:54:26.6388078Z Successfully set up CPython (3.12.15)
+2026-11-02T10:54:26.6388495Z ##[endgroup]
+2026-11-02T10:54:26.6534078Z ##[group]Run python integrations/governance/prepare.py --root "$RUNNER_TEMP/governance"
+2026-11-02T10:54:26.6534548Z [36;1mpython integrations/governance/prepare.py --root "$RUNNER_TEMP/governance"[0m
+2026-11-02T10:54:26.6566248Z shell: /usr/bin/bash -e {0}
+2026-11-02T10:54:26.6566497Z env:
+2026-11-02T10:54:26.6566696Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-02T10:54:26.6566963Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-02T10:54:26.6567223Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-02T10:54:26.6567460Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-02T10:54:26.6567698Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-02T10:54:26.6567936Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-02T10:54:26.6568144Z ##[endgroup]
+2026-11-02T10:54:34.6027871Z {"classification": "EXPLICIT_PUBLIC_GOVERNANCE_ASSET_BOOTSTRAP", "model_or_production_credentials_used": false, "opa_engine": "opa/opa-1.22.0-linux_amd64", "opa": {"version": "1.22.0", "platform": "linux_amd64", "sha256": "ab4d4f59b3f2e64bfc8b4bde7a1eeb2eb08480dffea685b4bd8297c553769a3a", "source_commit": "d4c8d0c8812290c3e3715ca4cf958f75283f6ec4", "verification": "FULL_FILE_SHA256_AND_SIZE", "network_used": false}, "telemetry": {"status": "PASS", "classification": "ROOT_CONTROLLER_APPLICATION_TELEMETRY", "collector_version": "0.164.0", "collector_archive_sha256": "f0c1ce9f661399beb4a58b711924716e08ea70c3802db0715fcfde3cbbada2d4", "collector_binary_sha256": "57911a9d902cfe2c287dac09fcee4b054630b4ec248fa190a3115d860a32f81f", "sdk_version": "1.45.2", "sdk_isolated": true, "root": "/home/runner/work/_temp/governance/otel", "binary": "/home/runner/work/_temp/governance/otel/otelcol-contrib", "python": "/home/runner/work/_temp/governance/otel/sdk-venv/bin/python", "production_or_remote_export": "UNVALIDATED"}, "workload_execution_claimed": false, "independent_administrative_custody_claimed": false}
+2026-11-02T10:54:34.6163413Z ##[group]Run opa_binary="$(python -c 'import json,os,pathlib; p=pathlib.Path(os.environ["RUNNER_TEMP"])/"governance"; print(p/json.loads((p/"assets-manifest.json").read_text())["opa_engine"])')"
+2026-11-02T10:54:34.6164162Z [36;1mopa_binary="$(python -c 'import json,os,pathlib; p=pathlib.Path(os.environ["RUNNER_TEMP"])/"governance"; print(p/json.loads((p/"assets-manifest.json").read_text())["opa_engine"])')"[0m
+2026-11-02T10:54:34.6164658Z [36;1mAIP_OPA_BINARY="$opa_binary" AIP_GOVERNANCE_TEST_ROOT="$RUNNER_TEMP/governance" \[0m
+2026-11-02T10:54:34.6164944Z [36;1m  python integrations/governance/check_components.py[0m
+2026-11-02T10:54:34.6165177Z [36;1mpython -m compileall -q integrations/governance[0m
+2026-11-02T10:54:34.6183275Z shell: /usr/bin/bash -e {0}
+2026-11-02T10:54:34.6183420Z env:
+2026-11-02T10:54:34.6183577Z   pythonLocation: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-02T10:54:34.6183854Z   PKG_CONFIG_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib/pkgconfig
+2026-11-02T10:54:34.6184117Z   Python_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-02T10:54:34.6184346Z   Python2_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-02T10:54:34.6184561Z   Python3_ROOT_DIR: /opt/hostedtoolcache/Python/3.12.15/x64
+2026-11-02T10:54:34.6184782Z   LD_LIBRARY_PATH: /opt/hostedtoolcache/Python/3.12.15/x64/lib
+2026-11-02T10:54:34.6184977Z ##[endgroup]
+2026-11-02T10:54:34.8653053Z test_privacy_veto_precedes_controller_record_publication (test_join.ControllerPublicationBoundary.test_privacy_veto_precedes_controller_record_publication) ... ok
+2026-11-02T10:54:34.8673767Z test_policy_allow_does_not_override_an_aip_signer_denial (test_join.PolicySigningBoundary.test_policy_allow_does_not_override_an_aip_signer_denial) ... ok
+2026-11-02T10:54:34.8680106Z test_policy_denial_never_reaches_the_aip_signer (test_join.PolicySigningBoundary.test_policy_denial_never_reaches_the_aip_signer) ... ok
+2026-11-02T10:54:34.8689077Z test_bool_numeric_extra_arguments_and_identity_injection_are_denied_before_engine (test_opa.FailClosedControls.test_bool_numeric_extra_arguments_and_identity_injection_are_denied_before_engine) ... ok
+2026-11-02T10:54:34.8695716Z test_changed_policy_is_refused_even_with_valid_asset_identity (test_opa.FailClosedControls.test_changed_policy_is_refused_even_with_valid_asset_identity) ... ok
+2026-11-02T10:54:34.8702433Z test_missing_mismatched_or_symlink_engine_cannot_allow (test_opa.FailClosedControls.test_missing_mismatched_or_symlink_engine_cannot_allow) ... ok
+2026-11-02T10:54:34.8728942Z test_nonboolean_undefined_error_and_oversized_outputs_never_allow (test_opa.FailClosedControls.test_nonboolean_undefined_error_and_oversized_outputs_never_allow) ... ok
+2026-11-02T10:54:34.9705869Z test_actual_rego_default_denies_bool_and_extra_arguments_too (test_opa.RealOPAComponent.test_actual_rego_default_denies_bool_and_extra_arguments_too) ... ok
+2026-11-02T10:54:35.0700852Z test_cached_preparation_verifies_real_binary_and_license_without_network (test_opa.RealOPAComponent.test_cached_preparation_verifies_real_binary_and_license_without_network) ... ok
+2026-11-02T10:54:35.1527538Z test_offline_verify_and_evaluate_do_not_download (test_opa.RealOPAComponent.test_offline_verify_and_evaluate_do_not_download) ... ok
+2026-11-02T10:54:35.2026584Z test_real_engine_allows_exact_configured_call_only (test_opa.RealOPAComponent.test_real_engine_allows_exact_configured_call_only) ... ok
+2026-11-02T10:54:35.5487464Z test_real_engine_denies_wrong_record_tool_amount_and_peer (test_opa.RealOPAComponent.test_real_engine_denies_wrong_record_tool_amount_and_peer) ... ok
+2026-11-02T10:54:36.1918220Z test_actual_failed_controller_operation_exports_only_numeric_error_status (test_telemetry.ActualCollectorRoundTrip.test_actual_failed_controller_operation_exports_only_numeric_error_status) ... ok
+2026-11-02T10:54:36.7601164Z test_late_unapproved_tail_after_actual_collector_exit_is_private_and_never_published (test_telemetry.ActualCollectorRoundTrip.test_late_unapproved_tail_after_actual_collector_exit_is_private_and_never_published) ... ok
+2026-11-02T10:54:37.9089379Z test_real_sdk_collector_receives_measured_controller_times_without_privacy_canaries (test_telemetry.ActualCollectorRoundTrip.test_real_sdk_collector_receives_measured_controller_times_without_privacy_canaries) ... ok
+2026-11-02T10:54:37.9112709Z test_chronology_count_types_and_single_run_are_enforced (test_telemetry.TelemetryContracts.test_chronology_count_types_and_single_run_are_enforced) ... ok
+2026-11-02T10:54:37.9113422Z test_collector_config_has_only_loopback_receiver_and_file_exporter (test_telemetry.TelemetryContracts.test_collector_config_has_only_loopback_receiver_and_file_exporter) ... ok
+2026-11-02T10:54:37.9114041Z test_exact_phase_attribute_and_value_allowlists_reject_privacy_canary (test_telemetry.TelemetryContracts.test_exact_phase_attribute_and_value_allowlists_reject_privacy_canary) ... ok
+2026-11-02T10:54:37.9512565Z test_import_does_not_import_sdk_into_controller (test_telemetry.TelemetryContracts.test_import_does_not_import_sdk_into_controller) ... ok
+2026-11-02T10:54:38.1891207Z test_original_collector_correlation_rejects_tamper_and_extra_data (test_telemetry.TelemetryContracts.test_original_collector_correlation_rejects_tamper_and_extra_data) ... ok
+2026-11-02T10:54:38.1893559Z test_regular_bounded_input_refuses_symlinks (test_telemetry.TelemetryContracts.test_regular_bounded_input_refuses_symlinks) ... ok
+2026-11-02T10:54:38.1893985Z 
+2026-11-02T10:54:38.1894940Z {"classification": "FRAMEWORK_COMPONENT_CONTROLS_NOT_AGENT_EXECUTION", "tests": 21, "failures": 0, "errors": 0, "skipped": 0, "status": "PASS"}
+2026-11-02T10:54:38.1911978Z ----------------------------------------------------------------------
+2026-11-02T10:54:38.1912279Z Ran 21 tests in 3.326s
+2026-11-02T10:54:38.1912421Z 
+2026-11-02T10:54:38.1912493Z OK
+2026-11-02T10:54:38.3187496Z Post job cleanup.
+2026-11-02T10:54:38.3966852Z (node:2346) [DEP0040] DeprecationWarning: The `punycode` module is deprecated. Please use a userland alternative instead.
+2026-11-02T10:54:38.3967374Z (Use `node --trace-deprecation ...` to show where the warning was created)
+2026-11-02T10:54:38.4396933Z Post job cleanup.
+2026-11-02T10:54:38.4949620Z [command]/usr/bin/git version
+2026-11-02T10:54:38.4986129Z git version 2.56.0
+2026-11-02T10:54:38.5012640Z Temporarily overriding HOME='/home/runner/work/_temp/3658919d-b723-44c9-a425-03b141063aa5' before making global git config changes
+2026-11-02T10:54:38.5013554Z Adding repository directory to the temporary git global config as a safe directory
+2026-11-02T10:54:38.5016676Z [command]/usr/bin/git config --global --add safe.directory /home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-
+2026-11-02T10:54:38.5102414Z [command]/usr/bin/git config --local --name-only --get-regexp core\.sshCommand
+2026-11-02T10:54:38.5136222Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'core\.sshCommand' && git config --local --unset-all 'core.sshCommand' || :"
+2026-11-02T10:54:38.5385842Z [command]/usr/bin/git config --local --name-only --get-regexp http\.https\:\/\/github\.com\/\.extraheader
+2026-11-02T10:54:38.5413235Z [command]/usr/bin/git submodule foreach --recursive sh -c "git config --local --name-only --get-regexp 'http\.https\:\/\/github\.com\/\.extraheader' && git config --local --unset-all 'http.https://github.com/.extraheader' || :"
+2026-11-02T10:54:38.5649118Z [command]/usr/bin/git config --local --name-only --get-regexp ^includeIf\.gitdir:
+2026-11-02T10:54:38.5688944Z [command]/usr/bin/git submodule foreach --recursive git config --local --show-origin --name-only --get-regexp remote.origin.url
+2026-11-02T10:54:38.6048205Z Cleaning up orphan processes
+2026-11-02T10:54:38.6351620Z ##[warning]Node.js 20 is deprecated. The following actions target Node.js 20 but are being forced to run on Node.js 24: actions/checkout@v4, actions/setup-python@v5. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/

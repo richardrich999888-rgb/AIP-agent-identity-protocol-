@@ -111,6 +111,7 @@ fn batch(events: Vec<KernelLifecycleEvent>, with_anchor: bool) -> AttestedBatch 
     signer()
         .attest_at(
             ObservationBatch {
+                filter_report: None,
                 version: OBSERVE_PROTOCOL_VERSION,
                 probe_id: PROBE_ID.into(),
                 batch_id: [7; 16],

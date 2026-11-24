@@ -1,0 +1,40 @@
+Traceback (most recent call last):
+  File "/Users/richardrich/.codex/worktrees/88b4/AIP/examples/bank-ai-execution-assurance/loan_agent.py", line 104, in <module>
+    main()
+  File "/Users/richardrich/.codex/worktrees/88b4/AIP/examples/bank-ai-execution-assurance/loan_agent.py", line 98, in main
+    result = graph.compile().invoke({})
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/richardrich/.codex/worktrees/88b4/AIP/.local/bank-agent-venv/lib/python3.12/site-packages/langgraph/pregel/main.py", line 3913, in invoke
+    for chunk in self.stream(
+                 ^^^^^^^^^^^^
+  File "/Users/richardrich/.codex/worktrees/88b4/AIP/.local/bank-agent-venv/lib/python3.12/site-packages/langgraph/pregel/main.py", line 2967, in stream
+    for _ in runner.tick(
+             ^^^^^^^^^^^^
+  File "/Users/richardrich/.codex/worktrees/88b4/AIP/.local/bank-agent-venv/lib/python3.12/site-packages/langgraph/pregel/_runner.py", line 207, in tick
+    run_with_retry(
+  File "/Users/richardrich/.codex/worktrees/88b4/AIP/.local/bank-agent-venv/lib/python3.12/site-packages/langgraph/pregel/_retry.py", line 617, in run_with_retry
+    return task.proc.invoke(task.input, config)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/richardrich/.codex/worktrees/88b4/AIP/.local/bank-agent-venv/lib/python3.12/site-packages/langgraph/_internal/_runnable.py", line 707, in invoke
+    input = context.run(step.invoke, input, config, **kwargs)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/richardrich/.codex/worktrees/88b4/AIP/.local/bank-agent-venv/lib/python3.12/site-packages/langgraph/_internal/_runnable.py", line 447, in invoke
+    ret = self.func(*args, **kwargs)
+          ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/richardrich/.codex/worktrees/88b4/AIP/examples/bank-ai-execution-assurance/loan_agent.py", line 41, in choose_tool
+    selection = model([
+                ^^^^^^^
+  File "/Users/richardrich/.codex/worktrees/88b4/AIP/examples/bank-ai-execution-assurance/loan_agent.py", line 37, in model
+    return json.loads(reply["message"]["content"])
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/__init__.py", line 346, in loads
+    return _default_decoder.decode(s)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/decoder.py", line 338, in decode
+    obj, end = self.raw_decode(s, idx=_w(s, 0).end())
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/opt/homebrew/Cellar/python@3.12/3.12.12/Frameworks/Python.framework/Versions/3.12/lib/python3.12/json/decoder.py", line 354, in raw_decode
+    obj, end = self.scan_once(s, idx)
+               ^^^^^^^^^^^^^^^^^^^^^^
+json.decoder.JSONDecodeError: Expecting ',' delimiter: line 29 column 1 (char 566)
+During task with name 'choose_tool' and id '40f3ce78-7072-375a-6626-34b6fe68d851'

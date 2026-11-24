@@ -1,0 +1,29 @@
+{
+  "observer_id": "collector.hosted.smoke",
+  "key_version": 1,
+  "public_key": "3ffe791d0881dd873a6b446925f5f9a0bab8351dc98f06cbd5d2aa32352a9b87",
+  "batches": {
+    "records": 102,
+    "first_sequence": 1,
+    "last_sequence": 102,
+    "start": "Epoch",
+    "final_head": "2050d1271f56359a68178da47eae50af15509074cd158ba1f4d06ddb0e52215f",
+    "observations": 0,
+    "kernel_events": 6907
+  },
+  "health": {
+    "records": 5,
+    "states": [
+      "ContinuityUnverified",
+      "Active"
+    ],
+    "with_coverage": 4,
+    "without_coverage": 1,
+    "cross_checked_against_batches": 4,
+    "clock_synchronised": 5,
+    "clock_unsynchronised": 0,
+    "clock_not_stated": 0,
+    "clock_worst_max_error_us": 3520
+  },
+  "findings": []
+}

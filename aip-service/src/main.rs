@@ -2,6 +2,7 @@
 //!
 //! Environment variables:
 //!   AIP_PORT                — listen port (default 8081)
+//!   AIP_BIND_ADDRESS        — literal listen IP (default 0.0.0.0)
 //!   AIP_KEY_PATH            — Ed25519 seed path (default /var/lib/aip/signing.key)
 //!   AIP_REVOCATION_LOG_PATH — revocation JSONL log (default /var/lib/aip/revocation.jsonl)
 //!   AIP_VAULT_PATH          — JSONL evidence vault (jsonl backend)
@@ -58,11 +59,8 @@ fn build_artifact_store(
             Arc::new(s)
         }
         Err(e) => {
-            // In memory rather than refusing to start: this tier is additive,
-            // and an unwritable path must not take down evidence ingest. It
-            // is logged at warn because anything filed here is lost on exit.
-            tracing::warn!(path, error = %e, "verdict/ledger store unavailable; using memory");
-            Arc::new(airon_aip::artifacts::JsonlArtifactStore::in_memory())
+            tracing::error!(path, error = %e, "verdict/ledger store unavailable; refusing to start");
+            std::process::exit(1);
         }
     }
 }
@@ -116,6 +114,19 @@ async fn main() {
         .ok()
         .and_then(|v| v.parse().ok())
         .unwrap_or(8081);
+
+    let bind_ip = match std::env::var("AIP_BIND_ADDRESS") {
+        Ok(value) => value,
+        Err(std::env::VarError::NotPresent) => "0.0.0.0".to_owned(),
+        Err(_) => {
+            eprintln!("aip-service: AIP_BIND_ADDRESS must be a literal IP address");
+            std::process::exit(1);
+        }
+    };
+    let bind_ip: std::net::IpAddr = bind_ip.parse().unwrap_or_else(|_| {
+        eprintln!("aip-service: AIP_BIND_ADDRESS must be a literal IP address");
+        std::process::exit(1);
+    });
 
     let key_path =
         std::env::var("AIP_KEY_PATH").unwrap_or_else(|_| "/var/lib/aip/signing.key".to_owned());
@@ -177,6 +188,15 @@ async fn main() {
     let (store, evidence_pool) = build_store().await;
     let artifacts = build_artifact_store(evidence_pool);
     let api_keys = auth::ApiKeyStore::load(&api_keys_path);
+    let observer_trust_path = std::env::var("AIP_OBSERVER_TRUST_PATH").ok();
+    let observer_trust =
+        airon_aip::observations::ObserverTrustStore::load(observer_trust_path.as_deref())
+            .unwrap_or_else(|e| {
+                eprintln!("aip-service: observer trust configuration: {e}");
+                std::process::exit(1)
+            });
+    tracing::info!(source_sha256 = observer_trust.source_sha256(),
+        "observer public trust configuration loaded; no caller-provided observer anchors are admitted");
     if api_keys.is_empty() {
         tracing::warn!(
             "no API keys configured (AIP_API_KEYS_PATH) — authenticated routes \
@@ -209,6 +229,12 @@ async fn main() {
         "AIP v2 state loaded"
     );
 
+    let run_trust =
+        airon_aip::runs::RunTrustStore::load(std::env::var("AIP_RUN_TRUST_PATH").ok().as_deref())
+            .unwrap_or_else(|e| {
+                eprintln!("aip-service: same-run trust configuration: {e}");
+                std::process::exit(1)
+            });
     let state = Arc::new(AppState {
         encoding_key,
         decoding_key,
@@ -225,12 +251,14 @@ async fn main() {
         signer: Arc::new(kp),
         metrics: Arc::new(Default::default()),
         managed_signing,
+        observer_trust,
+        run_trust,
     });
 
-    let addr = format!("0.0.0.0:{port}");
+    let addr = std::net::SocketAddr::new(bind_ip, port);
     tracing::info!(port, fingerprint = %state.fingerprint, key_path, "airon-aip v2 starting");
 
-    let listener = tokio::net::TcpListener::bind(&addr)
+    let listener = tokio::net::TcpListener::bind(addr)
         .await
         .unwrap_or_else(|e| panic!("failed to bind {addr}: {e}"));
     let limits = ingress::IngressLimits::from_env().unwrap_or_else(|e| {

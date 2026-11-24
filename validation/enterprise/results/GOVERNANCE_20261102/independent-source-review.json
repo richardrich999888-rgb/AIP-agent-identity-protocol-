@@ -1,0 +1,54 @@
+{
+  "classification": "INDEPENDENT_READ_ONLY_GOVERNANCE_WIRING_REVIEW_AND_REAL_COMPONENT_CONTROLS",
+  "review_at_utc": "2026-11-02T10:52:55.463056+00:00",
+  "source_status": "UNCOMMITTED_FILES_HASHED_BELOW",
+  "result": "PASS_NO_REMAINING_CONCRETE_BLOCKER_FOUND",
+  "issues_fixed_before_final_review": [
+    "Governance constructor moved inside try after pendingmanifest; initialization failure now reaches manifest/fd cleanup.",
+    "Collector stopped/reaped before final whole-file verification; failed/unvalidated originals remain private and never enter publicdestination; raw Collector logs never published.",
+    "Recursive duplicateobject keys and nonfinitenumbers rejected so hidden raw fields cannot bypass the strict publication schema."
+  ],
+  "code_checks": [
+    "Actual SO_PEERCRED stays mandatory before root-supplied OPA context; caller cannot choose PID/UID/GID/keys/allowlist.",
+    "OPA false/error denies before signer. OPA true cannot bypass unchanged Rust authorizer or signature rules; policy result/correlation hashes explicitly unsigned.",
+    "Runtime asset verification is offline; explicit verified public bootstrap occurs before workload keys and isolation. SDK stays in separate pinned environment.",
+    "Only six reviewed controller phases and exact typed status/hash/ID attributes accepted; no prompts, headers, businessrecords or raw errors admitted.",
+    "Controller timestamps are actual operation boundaries, but export is explicitly a delayed batch after workload cleanup; metadata is never signed/kernel/identity/custody evidence.",
+    "Collector output publication verifies nonce, trace/parent IDs, all spans, exact originaltimestamps and exact field/attribute schema, then preserves validated bytes atomically.",
+    "Original AIP signatures/checkpoints/coverage/reconciliation predicates remain unchanged. TelemetrydeliveryPASS never promotes underlying FAIL.",
+    "Strict component CI rejects skipped or zero tests; Linux governance-enabled missing-assets and genuine3profiles remain separate live acceptance gates."
+  ],
+  "actual_component_check": {
+    "command": "AIP_OPA_BINARY=<verifiedDarwinOPA> AIP_GOVERNANCE_TEST_ROOT=<isolatedpreparedassets> Python3.12 integrations/governance/check_components.py",
+    "tests": 21,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "seconds": 2.826,
+    "exit_code": 0,
+    "transcript": "/private/tmp/snifferdog-governance-independent-controls.log",
+    "transcript_sha256": "af5c38921b5d388cfea9222674b05e234b41e54f588f2b4af7ff1fb9f914e908",
+    "scope": "Real pinned OPA + real isolatedSDK/Collector localroundtrip and fault controls; broker peer/signing tests are explicit fixtures. Not genuine agent execution."
+  },
+  "reviewed_file_sha256": {
+    "integrations/governance/run.py": "b2913e2b88853c678385061d080e7c525166b713755d0cce62e16cc00f3bdb9b",
+    "integrations/governance/prepare.py": "9b2260ec8f1ea1d5bf541587e8c38cd1110b3d5eb9da4bd552b8237023437847",
+    "integrations/governance/check_components.py": "574c17d4d820bb3d60132c0d8f0c34448d621c6867db4337ed3d36781aceed9f",
+    "integrations/governance/opa.py": "1eacf02af7bf3c809c5588322d831be5d42da98d9da5a96d79a4e482e6569a00",
+    "integrations/governance/opa.rego": "4412a347279d1372a423ef75f5f37ca936eeca73f63db9b0ef445b785c20fb86",
+    "integrations/governance/opa.lock.json": "6d9fa38123091cb9351217f2f4391328760c5cae16cc29bd05564e7e7e20fa7b",
+    "integrations/governance/telemetry.py": "71b7a77bc5b1e314adef767640b172c3d93cd77aea14811da8185bc1d57f71ca",
+    "integrations/governance/otel_worker.py": "7a48cc2361865f7bedeb5901ddcf588ff83318cba1cb163ff769c8613f6c8e46",
+    "integrations/governance/otel.lock.json": "50bf537c92959def5eb11265606329732f04990bbde33a55ed59cd1ae7cdc59f",
+    "integrations/governance/otel-collector.json": "34d65b92c5cc3477e513c3ccae783586fe75a5797912f7d9c088032162bac7e2",
+    "validation/enterprise/same_run_validation.py": "1a00b485778d1e818547a6292a6b661f539ec19a384ecdea3e7ecbeadfdddfc6",
+    ".github/workflows/same-run-validation.yml": "b3c364ac6a6f9002334e76f5cdfb7752219f864b71b1a720eab054fef0836515",
+    ".github/workflows/real-agent-contracts.yml": "88b5d2916a978f880915bffb2fe070b151ab2aac4143e89993ea28332f93e4a9"
+  },
+  "collector_provenance_review": "/private/tmp/snifferdog-otel-v164-independent-review.json",
+  "limits": [
+    "No full-source CI or live governance-enabled agent workflow result inferred from local component success.",
+    "No independent institutioncustody, logicaldelegation, productionapproval or authoritative business outcome established.",
+    "Shared trusted hostroot/kernel/GitHubadministration remain the declared boundary; telemetry is unsigned rootcontrollerapplication testimony."
+  ]
+}

@@ -53,37 +53,60 @@ const AGENT: &str = env!("CARGO_BIN_EXE_ghost-demo-agent");
 /// built here rather than assumed. Cargo has released the target lock by
 /// the time tests run, so the nested build is safe.
 fn verifier_path() -> std::path::PathBuf {
-    let exe = std::env::current_exe().expect("the test binary has a path");
-    let profile_dir = exe
-        .parent()
-        .and_then(|deps| deps.parent())
-        .expect("target/<profile>/deps/<test>");
-    let profile = profile_dir.file_name().unwrap().to_str().unwrap();
-    static BUILD: std::sync::Once = std::sync::Once::new();
-    BUILD.call_once(|| {
-        let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".into());
-        let out = std::process::Command::new(cargo)
-            .args([
-                "build",
-                "--locked",
-                "-p",
-                "aip-nexora",
-                "--bin",
-                "nexora-verify",
-                "--profile",
-                if profile == "debug" { "dev" } else { profile },
-            ])
-            .output()
-            .expect("cargo must be runnable to build the offline verifier");
-        assert!(
-            out.status.success(),
-            "could not build nexora-verify:\n{}",
-            String::from_utf8_lossy(&out.stderr)
-        );
-    });
-    let p = profile_dir.join("nexora-verify");
-    assert!(p.is_file(), "no offline verifier at {}", p.display());
-    p
+    static BUILD: std::sync::OnceLock<std::path::PathBuf> = std::sync::OnceLock::new();
+    BUILD
+        .get_or_init(|| {
+            let cargo = std::env::var("CARGO").unwrap_or_else(|_| "cargo".into());
+            // Cargo owns the artifact layout; the test executable may live below
+            // additional hashed directories. Build the verifier in the standard
+            // debug/release mode under test and use Cargo's actual artifact path.
+            // https://doc.rust-lang.org/cargo/reference/external-tools.html#artifact-messages
+            let profile = if cfg!(debug_assertions) {
+                "dev"
+            } else {
+                "release"
+            };
+            let out = std::process::Command::new(cargo)
+                .args([
+                    "build",
+                    "--locked",
+                    "-p",
+                    "aip-nexora",
+                    "--bin",
+                    "nexora-verify",
+                    "--profile",
+                    profile,
+                    "--message-format=json",
+                ])
+                .output()
+                .expect("cargo must be runnable to build the offline verifier");
+            assert!(
+                out.status.success(),
+                "could not build nexora-verify:\n{}\n{}",
+                String::from_utf8_lossy(&out.stderr),
+                String::from_utf8_lossy(&out.stdout),
+            );
+            let artifacts: Vec<std::path::PathBuf> = String::from_utf8(out.stdout)
+                .expect("Cargo JSON output must be UTF-8")
+                .lines()
+                .filter_map(|line| serde_json::from_str::<serde_json::Value>(line).ok())
+                .filter(|message| {
+                    message["reason"] == "compiler-artifact"
+                        && message["target"]["name"] == "nexora-verify"
+                        && message["target"]["kind"] == serde_json::json!(["bin"])
+                })
+                .filter_map(|message| message["executable"].as_str().map(std::path::PathBuf::from))
+                .collect();
+            assert_eq!(
+                artifacts.len(),
+                1,
+                "Cargo must identify exactly one current offline verifier"
+            );
+            let path = artifacts.into_iter().next().unwrap();
+            assert!(path.is_file(), "no offline verifier at {}", path.display());
+            path
+        })
+        .clone()
 }
 
 /// Package a live run exactly as it happened. Nothing is substituted: the

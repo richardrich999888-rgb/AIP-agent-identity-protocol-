@@ -1,0 +1,14 @@
+{
+  "case": 3,
+  "question": "Summarize the recovered record. Distinguish verified signatures from kernel action proof.",
+  "profile": "same-run-recovery",
+  "model_raw_outputs": [
+    "{\n  \"run_id\": \"b889faf232eef32bf07241c9cbc727aedab0851b85b04ef21dcd363106ad6036\",\n  \"tool\": \"inspect_recorded_run\"\n}",
+    "{\"answer\": \"The recovered record is a Linux evidence, not a fresh Mac capture. Verified signatures establish integrity and signed request authority. Gateway forwarding and process identity do not prove the application action. Independent collector custody and business effects are not established.\"}"
+  ],
+  "status": "FAIL",
+  "failure_type": "AgentBoundaryError",
+  "safe_boundary_code": "model_answer_missing_required_evidence_label",
+  "seconds": 2.642,
+  "completed_model_responses": 2
+}

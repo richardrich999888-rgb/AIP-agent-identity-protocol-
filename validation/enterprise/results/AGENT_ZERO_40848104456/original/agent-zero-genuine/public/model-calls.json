@@ -1,0 +1,16 @@
+{
+  "source_authority": "separate_local_model_container_access_log",
+  "successful_chat_or_generate_requests_including_policy": 6,
+  "successful_policy_chat_capability_requests": 2,
+  "successful_framework_period_requests_excluding_policy": 4,
+  "original_access_lines": [
+    "[GIN] 2026/10/29 - 09:22:09 | 200 |    2.11s |      172.18.0.3 | POST     \"/api/chat\"",
+    "[GIN] 2026/10/29 - 09:22:10 | 200 | 134.45ms |      172.18.0.3 | POST     \"/api/chat\"",
+    "[GIN] 2026/10/29 - 09:26:17 | 200 |    3m20s |      172.18.0.3 | POST     \"/api/generate\"",
+    "[GIN] 2026/10/29 - 09:29:43 | 200 |    3m20s |      172.18.0.3 | POST     \"/api/generate\"",
+    "[GIN] 2026/10/29 - 09:33:11 | 200 |    3m20s |      172.18.0.3 | POST     \"/api/generate\"",
+    "[GIN] 2026/10/29 - 09:36:44 | 200 |    3m30s |      172.18.0.3 | POST     \"/api/generate\""
+  ],
+  "not_cryptographically_signed": true,
+  "scope": "exact model service used only by the restricted workload and the counted root policy probes; does not prove logical subagent attribution"
+}

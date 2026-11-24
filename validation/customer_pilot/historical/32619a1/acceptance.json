@@ -1,0 +1,143 @@
+{
+  "status": "NOT_READY",
+  "local_platform": "macOS",
+  "focused_rust": {
+    "passed": 350,
+    "failed": 0,
+    "ignored": 1
+  },
+  "python_agent_harness": {
+    "passed": 138
+  },
+  "packaging": {
+    "passed": 24
+  },
+  "harness_build": {
+    "passed": 3
+  },
+  "collector_release": {
+    "passed": 25
+  },
+  "spool_checkpoint": {
+    "passed": 26
+  },
+  "strict_clippy_on_changed_packages": "PASS; complete Linux workspace --all-targets --all-features -D warnings also passed",
+  "legacy_archives": {
+    "batches": 93,
+    "health": 6,
+    "verified": true
+  },
+  "linux_ci": "COMPLETE_WITH_SECURITY_FAILURES",
+  "full_sensor_service": "BLOCKED_APPROVAL",
+  "separate_administration": "BLOCKED_INFRASTRUCTURE",
+  "fresh_customer_pilot_workload": "NOT_RUN",
+  "limitations": [
+    "Mac sensor-dependent cases return unavailable and are not Linux runtime validation.",
+    "Full workspace Mac check fails on Linux-only APIs; complete Linux debug/release/coverage suites subsequently passed.",
+    "Spool and collector release counts overlap the focused Rust suite; do not sum these totals."
+  ],
+  "implementation_source": "32619a16b102d14d9cca667699a3b64394ca644f",
+  "g14_04_release_repetitions": {
+    "passed": 20,
+    "failed": 0,
+    "assertions_unchanged": true
+  },
+  "fresh_hosted_genuine_workload": {
+    "status": "PASS",
+    "workflow_run_id": 44916522554,
+    "source": "32619a16b102d14d9cca667699a3b64394ca644f",
+    "artifact_id": 14711609978,
+    "public_artifact": "evidence/32619a1/genuine-agent-public.zip",
+    "local_offline_receipt": "evidence/32619a1/genuine-agent-offline-local.json",
+    "network_disabled": true,
+    "separate_administration": false,
+    "normal": {
+      "batches": 47,
+      "health": 4,
+      "controller_model_calls": 2,
+      "verifier_findings": 0
+    },
+    "interruption": {
+      "batches": 18,
+      "health": 3,
+      "controller_model_calls": 2,
+      "coverage": "UNAVAILABLE_OBSERVER_INTERRUPTED",
+      "verifier_findings": 0
+    },
+    "recovery": {
+      "batches": 46,
+      "health": 4,
+      "controller_model_calls": 2,
+      "verifier_findings": 0
+    },
+    "middle_record_deletion_rejected_in_all_profiles": true
+  },
+  "fresh_linux_interference_rehearsal": {
+    "status": "PASS",
+    "workflow_run_id": 44916522539,
+    "artifact_id": 14711873252,
+    "batches": 85,
+    "kernel_events": 3696,
+    "health": 4,
+    "local_offline_receipt": "evidence/32619a1/rbi-offline-local.json"
+  },
+  "ci_security": "FAIL_NO_NEW_WAIVERS",
+  "functional_linux_ci": "PASS",
+  "linux_coverage": {
+    "status": "PASS",
+    "passed": 3322,
+    "failed": 0,
+    "ignored": 7,
+    "artifact_id": 14712177239
+  },
+  "linux_workspace_debug": {
+    "tests": {
+      "passed": 3322,
+      "failed": 0,
+      "ignored": 7
+    },
+    "doctests": {
+      "passed": 2,
+      "failed": 0,
+      "ignored": 2
+    },
+    "result_lines": 335
+  },
+  "linux_workspace_release": {
+    "tests": {
+      "passed": 3324,
+      "failed": 0,
+      "ignored": 5
+    },
+    "doctests": {
+      "passed": 2,
+      "failed": 0,
+      "ignored": 2
+    },
+    "result_lines": 335
+  },
+  "linux_ci_job_totals": {
+    "success": 16,
+    "failure": 3,
+    "skipped": 3
+  },
+  "linux_ci_summary": "ci/32619a1-FINAL-OUTCOMES.md",
+  "security_findings": {
+    "gitleaks": 217,
+    "trivy_high": 4,
+    "cargo_deny": "RUSTSEC-2026-0543 chrono unmaintained",
+    "audit_additional_warning": "RUSTSEC-2026-0486 rustix unsound",
+    "new_waivers": false
+  },
+  "red_ledger": {
+    "runnable_reproduced": 43,
+    "blocked": 10,
+    "notes": 2
+  },
+  "blocked_pilot_requirements": [
+    "Approve and actually qualify the inactive full-sensor service profile on disposable Linux.",
+    "Configure a separately administered Linux collector with independent signing-key, state and checkpoint control.",
+    "Execute selected/unselected agents, collector outage/replay, probe/collector restart and offline acceptance against those approved hosts.",
+    "Qualify capacity and persistent customer-host behavior; resolve CI security gates."
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "links": [
+    {
+      "ifindex": 1,
+      "ifname": "lo",
+      "flags": [
+        "LOOPBACK",
+        "UP",
+        "LOWER_UP"
+      ],
+      "mtu": 65536,
+      "qdisc": "noqueue",
+      "operstate": "UNKNOWN",
+      "group": "default",
+      "txqlen": 1000,
+      "link_type": "loopback",
+      "address": "00:00:00:00:00:00",
+      "broadcast": "00:00:00:00:00:00",
+      "addr_info": [
+        {
+          "family": "inet",
+          "local": "127.0.0.1",
+          "prefixlen": 8,
+          "scope": "host",
+          "label": "lo",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        },
+        {
+          "family": "inet6",
+          "local": "::1",
+          "prefixlen": 128,
+          "scope": "host",
+          "valid_life_time": 4294967295,
+          "preferred_life_time": 4294967295
+        }
+      ]
+    }
+  ],
+  "routes": [],
+  "agent_rules": "-P OUTPUT ACCEPT\n-A OUTPUT -d 127.0.0.1/32 -p tcp -m owner --uid-owner 10001 -m multiport --dports 11436,18880 -j ACCEPT\n-A OUTPUT -m owner --uid-owner 10001 -j REJECT --reject-with icmp-port-unreachable\n",
+  "agent_tcp_allowlist": [
+    "127.0.0.1:11436",
+    "127.0.0.1:18880"
+  ],
+  "external_route": "NONE"
+}

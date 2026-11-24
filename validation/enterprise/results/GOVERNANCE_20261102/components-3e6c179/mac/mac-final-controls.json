@@ -1,0 +1,60 @@
+{
+  "scope": "MACOS_ARM64_REAL_CONTROLLER_SDK_COLLECTOR_COMPONENT_AND_CONTROLLED_PRIVACY_TESTS_ONLY",
+  "claim_limits": {
+    "genuine_agent_validation": false,
+    "kernel_evidence": false,
+    "independent_custody": false,
+    "linux_validation": "PENDING"
+  },
+  "observed_telemetry_test_result": {
+    "total": 9,
+    "passed": 9,
+    "failed": 0,
+    "actual_sdk_collector_cases": 3,
+    "actual_cases": [
+      "measured_asset_verification_with_environment_privacy_canary",
+      "controlled_missing_assets_failure_numeric_span_status",
+      "injected_unapproved_tail_only_after_actual_collector_reap"
+    ]
+  },
+  "unchanged_original_final_replay": {
+    "span_count": 2,
+    "trace_id": "6e9733df73c8471967e1e7ea880dc1b6",
+    "phase_correlations_verified": true,
+    "actual_timestamps_preserved": true,
+    "original_collector_file_sha256": "9b5023868b9b1b6b6bab990905787dc42f37dae37184fb400cd37c6d751d06a2"
+  },
+  "retained_roundtrip_report": "/private/tmp/snifferdog-otel-build/mac-final-roundtrip.json",
+  "controlled_duplicate_negative": {
+    "path": "/private/tmp/snifferdog-otel-duplicate-envelope-controlled-negative.jsonl",
+    "sha256": "a89399b434ee2d020ad97d9a0e816793e3951ba759c7f9dfc204f6e3190f1832",
+    "result": "REJECTED",
+    "reason": "duplicate telemetry JSON object key"
+  },
+  "source_files": [
+    {
+      "path": "otel-collector.json",
+      "sha256": "34d65b92c5cc3477e513c3ccae783586fe75a5797912f7d9c088032162bac7e2"
+    },
+    {
+      "path": "otel.lock.json",
+      "sha256": "50bf537c92959def5eb11265606329732f04990bbde33a55ed59cd1ae7cdc59f"
+    },
+    {
+      "path": "otel_worker.py",
+      "sha256": "7a48cc2361865f7bedeb5901ddcf588ff83318cba1cb163ff769c8613f6c8e46"
+    },
+    {
+      "path": "requirements-otel.lock",
+      "sha256": "8414d104f5db15d262a6453d00cc5da414c03d1cce7fabdf3b540f98211a1935"
+    },
+    {
+      "path": "telemetry.py",
+      "sha256": "71b7a77bc5b1e314adef767640b172c3d93cd77aea14811da8185bc1d57f71ca"
+    },
+    {
+      "path": "tests/test_telemetry.py",
+      "sha256": "fd477512298c187595215d94e388bac1d08bfc65126b336bc10b4aa9c36c96f3"
+    }
+  ]
+}

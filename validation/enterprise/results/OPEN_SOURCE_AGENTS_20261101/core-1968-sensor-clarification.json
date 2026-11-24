@@ -1,0 +1,125 @@
+{
+  "classification": "DERIVED_SENSOR_SCOPE_CLARIFICATION",
+  "original_workflow_gate_mechanisms": [
+    "SchedTracepoint",
+    "Fanotify",
+    "SockSendTracepoint"
+  ],
+  "independent_replay_requested_mechanisms": [
+    "SchedTracepoint",
+    "CgroupTracepoint",
+    "ProcConnector",
+    "Fanotify",
+    "SockStateTracepoint",
+    "SockSendTracepoint"
+  ],
+  "method": "After original signature/chain/checkpoint verification, evidence.covered checks FINAL retained signed health only, whole task epoch bounds, all6covered_by, Active/Verified continuity, monotonic health emission, no in-tasknonActive state, synchronizedclock/error<=1000000us. Does not union epochs or use oldhealth. All6is a separate independent replay assertion, not a claim about original3mechanism workflow acceptance.",
+  "profiles": [
+    {
+      "profile": "same-run",
+      "original_health_member": "same-run/public/health.archive.jsonl",
+      "original_health_sha256": "3b4abb50e78c2443307889993969488b188a680f036b116150c226afb1f0276f",
+      "task_interval_ms": {
+        "from": 1793529150142,
+        "to": 1793529166647
+      },
+      "latest_signed_health": {
+        "observer_id": "collector.same-run",
+        "key_version": 1,
+        "sequence": 39,
+        "emitted_at_ms": 1793529208968,
+        "state": "Active",
+        "continuity": "Verified",
+        "attested_coverage": {
+          "from_ms": 1793529132559,
+          "to_ms": 1793529179076
+        },
+        "covered_by": [
+          "ProcConnector",
+          "SockStateTracepoint",
+          "SchedTracepoint",
+          "SockSendTracepoint",
+          "Fanotify",
+          "CgroupTracepoint"
+        ],
+        "clock": {
+          "synchronized": true,
+          "max_error_us": 1076,
+          "state": 0
+        }
+      },
+      "independent_all_six_result": true
+    },
+    {
+      "profile": "same-run-interruption",
+      "original_health_member": "same-run-interruption/public/health.archive.jsonl",
+      "original_health_sha256": "de66b8e23cd5ec14a018d422e362102bfd431abd0603e6a5c068dbb6b709f3df",
+      "task_interval_ms": {
+        "from": 1793529306669,
+        "to": 1793529322598
+      },
+      "latest_signed_health": {
+        "observer_id": "collector.same-run",
+        "key_version": 1,
+        "sequence": 17,
+        "emitted_at_ms": 1793529334511,
+        "state": "Active",
+        "continuity": "Verified",
+        "attested_coverage": {
+          "from_ms": 1793529256626,
+          "to_ms": 1793529275809
+        },
+        "covered_by": [
+          "ProcConnector",
+          "SockStateTracepoint",
+          "SchedTracepoint",
+          "SockSendTracepoint",
+          "Fanotify",
+          "CgroupTracepoint"
+        ],
+        "clock": {
+          "synchronized": true,
+          "max_error_us": 4007,
+          "state": 0
+        }
+      },
+      "independent_all_six_result": false
+    },
+    {
+      "profile": "same-run-recovery",
+      "original_health_member": "same-run-recovery/public/health.archive.jsonl",
+      "original_health_sha256": "652f07fffbbd4328cc2961400128d416539410a3698691c2f622b44c9102a54c",
+      "task_interval_ms": {
+        "from": 1793529385974,
+        "to": 1793529401528
+      },
+      "latest_signed_health": {
+        "observer_id": "collector.same-run",
+        "key_version": 1,
+        "sequence": 41,
+        "emitted_at_ms": 1793529445724,
+        "state": "Active",
+        "continuity": "Verified",
+        "attested_coverage": {
+          "from_ms": 1793529368436,
+          "to_ms": 1793529416434
+        },
+        "covered_by": [
+          "ProcConnector",
+          "SockStateTracepoint",
+          "SchedTracepoint",
+          "SockSendTracepoint",
+          "Fanotify",
+          "CgroupTracepoint"
+        ],
+        "clock": {
+          "synchronized": true,
+          "max_error_us": 3511,
+          "state": 0
+        }
+      },
+      "independent_all_six_result": true
+    }
+  ],
+  "payload_limit": "Eight exact-process SocketSend events are physicalTCPsend metadata only; they are not joined to particular businesspayloads/URLs/receipts or promoted to canonical actionproof."
+}

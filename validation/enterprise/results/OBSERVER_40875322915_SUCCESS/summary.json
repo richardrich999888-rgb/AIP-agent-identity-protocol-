@@ -1,0 +1,149 @@
+{
+  "source_commit": "8d38d77fa3bf1c3b0670f584feaf75f34bf69a07",
+  "classification": "ACTUAL_HOSTED_OS_OBSERVATION_COMPONENT_TEST_NOT_AUTONOMOUS_AGENT",
+  "status": "PASS",
+  "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40875322915",
+  "job_id": 123452538061,
+  "artifact_id": 12897976926,
+  "artifact_sha256": "85eec9bb0e2dd3054aa81eac9ca734bea2f555d0ff027c1e1504415f9a45f59b",
+  "original_members": 14,
+  "controller_result": {
+    "kind": "kernel/collector/audit capability smoke",
+    "autonomous_workload_executed": false,
+    "kernel": "7.0.0-1017-azure",
+    "status": "PASS",
+    "trust": "ephemeral key isolated from uid 10001; host kernel/root trusted; not institutional custody",
+    "coverage_requested_from_ms": 1793277762938,
+    "component_child_pid": 3232,
+    "component_child_exit_code": 0,
+    "coverage_requested_to_ms": 1793277766941,
+    "from_ms": 1793277762938,
+    "to_ms": 1793277766941,
+    "signed_batches": 51
+  },
+  "workflow_offline_verification": {
+    "observer_id": "collector.hosted.smoke",
+    "key_version": 1,
+    "public_key": "86431dc73e27d28899507adec3c5999df91c761de54fa86dfe65dcb7b371e802",
+    "batches": {
+      "records": 51,
+      "first_sequence": 1,
+      "last_sequence": 51,
+      "start": "Epoch",
+      "final_head": "ab06560bd0b2d58eb4f3ce25347ce3ecf4998830ee5446d29cc0860dbbfec09e",
+      "observations": 0,
+      "kernel_events": 1000
+    },
+    "health": {
+      "records": 3,
+      "states": [
+        "ContinuityUnverified",
+        "Active"
+      ],
+      "with_coverage": 2,
+      "without_coverage": 1,
+      "cross_checked_against_batches": 2,
+      "clock_synchronised": 3,
+      "clock_unsynchronised": 0,
+      "clock_not_stated": 0,
+      "clock_worst_max_error_us": 3923
+    },
+    "findings": []
+  },
+  "controller_checkpoint_bytes_match": true,
+  "record_inspection": {
+    "batch_count": 51,
+    "signed_health_records": 3,
+    "batches_with_unverifiable_integrity": 0,
+    "batches_with_any_nonverified_integrity": 0,
+    "batches_with_reported_loss": 0,
+    "loss_unknown_batches": 0,
+    "reported_drop_sum": 0,
+    "terminal_health_sequence": 51,
+    "terminal_batch_sequence": 51
+  },
+  "independent_local_verifier_execution": "NOT_PERFORMED_FOR_THIS_RETAINED_RUN",
+  "retention_origin": "Original ZIP and all14 public members copied byte-for-byte. Summary and derived-record-inspection.json are controller-derived annotations. No private configuration or secret file is retained.",
+  "files": {
+    "public/aip-collector.log": {
+      "sha256": "a48859abd22ae00e8df91ef0a2991f7561ee42e6d668fe2ab2bf3ecdc8c735cd",
+      "bytes": 1028,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "public/aip-probe.log": {
+      "sha256": "31d4d50c80fdae18b58d1e93a986a09c46439bddfc12218e8cce6402ef208c43",
+      "bytes": 3170,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "public/audit-rules-before.json": {
+      "sha256": "11924d0dd8182a40e93984e8679dea5e38d9037b09d7aa6c323b86d2fbfe66d1",
+      "bytes": 28,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "public/attested.archive.jsonl": {
+      "sha256": "3aff08cf5036fe6b5581af16e248b97a7a6367c98c508e614aaabddb440c4c9b",
+      "bytes": 738826,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "public/audit-status.json": {
+      "sha256": "4d844bbc38faf5fe33927c5f3ba4ced8a4dc8a82e35347ab490c591b5d0120ba",
+      "bytes": 336,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "public/auditd.log": {
+      "sha256": "2f1f44811cf8e7a6ce24b67f2771a6ae89966d5722d5de694b08e3126b0653b5",
+      "bytes": 2199,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "public/corroboration.json": {
+      "sha256": "65d842ffd034eb7562e7788b3efd85c8442ce3bd043e320fc30634ddad35f4a7",
+      "bytes": 532,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "public/health.archive.jsonl": {
+      "sha256": "0c2ecb2a56e92dd24f7b9a58acfc86f1fa8c839c5b8c078da954de79ab32446d",
+      "bytes": 3292,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "public/observer.pub": {
+      "sha256": "f6076d0f53c19038e2755105b752e151567bae38a4f8c38b533174c994764b3b",
+      "bytes": 65,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "public/tamper.json": {
+      "sha256": "a19a6644fe05466faec296b5e4fb3147d5d7191c82e707aa292e4537485179f4",
+      "bytes": 654,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "public/result.json": {
+      "sha256": "41120e65b8fc595ed2f0fc38847618a9ba3dcde0660222c745a80c7ecb173840",
+      "bytes": 489,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "public/verification.json": {
+      "sha256": "1f5763dba6509534540cf49d89016405a41f36b3d4be1673cb787795cf54b3c1",
+      "bytes": 734,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "anchor.json": {
+      "sha256": "ccbb493f434223379d13815357a6911c8a9773eb259ff4273f8949730478416c",
+      "bytes": 150,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "checkpoint.json": {
+      "sha256": "c21d6b591f1306f7375857bdb046733dc041811c8bd50d056e52937349065a8f",
+      "bytes": 215,
+      "origin": "unaltered GitHub public artifact member"
+    },
+    "original-artifact.zip": {
+      "sha256": "85eec9bb0e2dd3054aa81eac9ca734bea2f555d0ff027c1e1504415f9a45f59b",
+      "bytes": 47183,
+      "origin": "unaltered downloaded GitHub public artifact ZIP"
+    },
+    "derived-record-inspection.json": {
+      "sha256": "72cbb31ccd0a53241d780292a4d9b74dfa08721d200c6fe1ddec50e05a0f5085",
+      "bytes": 2294,
+      "origin": "derived read-only ZIP and record inspection; not independent signature verification"
+    }
+  }
+}

@@ -1,0 +1,414 @@
+{
+  "format": "customer-pilot-ci-summary/v1",
+  "recorded_at_utc": "2026-11-24 05:34:43 UTC",
+  "source_head": "ae7943192905b0abaecb705f90837a4222420dd6",
+  "base_sha": "65b6ff7fdad5ae70546a57216a497399091c7dc7",
+  "merge_checkout": "525a03030c1ddab35ce56df945869590e0485574",
+  "scope": "Six completed implementation/integration workflows. Full-sensor qualification and the separate Security workflow are reported separately; this file is not pilot acceptance.",
+  "customer_pilot_ready": false,
+  "independent_administrative_custody_established": false,
+  "verification_method": "Read completed GitHub job status and decoded logs through the GitHub connector. Coverage ZIP additionally downloaded and checked against GitHub SHA256. No evidence replay was performed by this summary collector.",
+  "workflow_results": [
+    {
+      "name": "ci",
+      "run_id": 45332571748,
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45332571748",
+      "checkout": "merge_checkout",
+      "jobs": [
+        {
+          "job_id": 138236951146,
+          "name": "cargo audit \u00b7 cargo deny",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 138236951161,
+          "name": "coverage",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 138236951180,
+          "name": "fmt \u00b7 clippy \u00b7 test",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 138236951205,
+          "name": "RED suite (adversarial ledger reproducible)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 138236951261,
+          "name": "Python SDK regression and parity tests",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 138236951421,
+          "name": "postgres backend integration",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "enterprise",
+      "run_id": 45332571749,
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45332571749",
+      "checkout": "merge_checkout",
+      "jobs": [
+        {
+          "job_id": 138236950246,
+          "name": "contracts",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 138236950668,
+          "name": "contextforge",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "contracts",
+      "run_id": 45332572115,
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45332572115",
+      "checkout": "merge_checkout",
+      "jobs": [
+        {
+          "job_id": 138236951310,
+          "name": "Real OPA and OpenTelemetry component controls (no agent claim)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 138236951596,
+          "name": "contracts",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "genuine",
+      "run_id": 45332571842,
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45332571842",
+      "checkout": "source_head",
+      "jobs": [
+        {
+          "job_id": 138236950690,
+          "name": "local-model-linux",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 138236952340,
+          "name": "local-evidence-agent-offline",
+          "status": "completed",
+          "conclusion": "skipped"
+        },
+        {
+          "job_id": 138236952344,
+          "name": "local-evidence-agent-linux",
+          "status": "completed",
+          "conclusion": "skipped"
+        }
+      ]
+    },
+    {
+      "name": "rbi",
+      "run_id": 45332571841,
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45332571841",
+      "checkout": "merge_checkout",
+      "jobs": [
+        {
+          "job_id": 138236950586,
+          "name": "script-regressions",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 138237089739,
+          "name": "live-rehearsal",
+          "status": "completed",
+          "conclusion": "success"
+        }
+      ]
+    },
+    {
+      "name": "opensource",
+      "run_id": 45332571845,
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45332571845",
+      "checkout": "merge_checkout",
+      "jobs": [
+        {
+          "job_id": 138236950606,
+          "name": "image (agent_zero)",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 138236950800,
+          "name": "release-regression",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 138236950863,
+          "name": "hosted-observer-capabilities",
+          "status": "completed",
+          "conclusion": "success"
+        },
+        {
+          "job_id": 138238403899,
+          "name": "genuine-task",
+          "status": "completed",
+          "conclusion": "skipped"
+        }
+      ]
+    }
+  ],
+  "tests": {
+    "workspace": {
+      "format": "PASS",
+      "clippy_all_targets_all_features_deny_warnings": "PASS",
+      "debug_tests": {
+        "suites": 282,
+        "passed": 3325,
+        "failed": 0,
+        "ignored": 7
+      },
+      "debug_doctest": {
+        "suites": 53,
+        "passed": 2,
+        "failed": 0,
+        "ignored": 2
+      },
+      "release_tests": {
+        "suites": 282,
+        "passed": 3327,
+        "failed": 0,
+        "ignored": 5
+      },
+      "release_doctest": {
+        "suites": 53,
+        "passed": 2,
+        "failed": 0,
+        "ignored": 2
+      }
+    },
+    "coverage": {
+      "status": "PASS",
+      "test_invocations": {
+        "passed": 3325,
+        "failed": 0,
+        "ignored": 7
+      },
+      "LF": 64406,
+      "LH": 53403,
+      "FNF": 6859,
+      "FNH": 5376,
+      "BRF": 0,
+      "BRH": 0,
+      "line_percent": 82.9161879328013,
+      "function_percent": 78.37877241580405,
+      "branch_percent": null,
+      "configured_threshold": null,
+      "artifact_id": 14893395841,
+      "artifact_sha256": "096439a49cdfc1faa56b30fd5bb02e90c42f26420c1509cc9a6a111b0da365c0"
+    },
+    "python_sdk": {
+      "passed": 76,
+      "failed": 0
+    },
+    "real_agent_contracts": {
+      "passed": 138,
+      "failed": 0
+    },
+    "opa_opentelemetry_components": {
+      "passed": 21,
+      "failed": 0,
+      "autonomous_agent_claim": false
+    },
+    "postgres": {
+      "default_feature_invocation": {
+        "passed": 145,
+        "failed": 0,
+        "ignored": 17
+      },
+      "explicit_previously_ignored_storage_controls": {
+        "passed": 14,
+        "failed": 0,
+        "ignored": 0
+      },
+      "note": "Invocation counts; the explicit 14 storage-control tests are among the 17 default-ignored tests."
+    },
+    "enterprise_contracts": {
+      "rust_invocation_aggregate": {
+        "passed": 429,
+        "failed": 0,
+        "ignored": 3
+      },
+      "python_suites": [
+        {
+          "name": "packaging",
+          "passed": 33
+        },
+        {
+          "name": "harness",
+          "passed": 3
+        },
+        {
+          "name": "additional_contract",
+          "passed": 1
+        },
+        {
+          "name": "shell_regressions",
+          "passed": 20
+        },
+        {
+          "name": "python_sdk",
+          "passed": 76
+        },
+        {
+          "name": "restricted_mcp",
+          "passed": 12
+        }
+      ],
+      "actual_client_and_tenant_boundary": "PASS",
+      "package_lifecycle": "PASS_STAGING_ONLY",
+      "note": "Rust totals aggregate multiple phases and are not unique test counts; explicit real-HTTP tests run after their default ignored invocation."
+    },
+    "contextforge": {
+      "authorization_policy_tests": 11,
+      "actual_interoperability_checks": 27,
+      "failed": 0,
+      "autonomous_agent_claim": false
+    },
+    "release_cannot_prove_regression": {
+      "test": "g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too",
+      "passed_repetitions": 20,
+      "failed": 0
+    },
+    "red_suite": {
+      "reproduced": 43,
+      "blocked": 10,
+      "notes": 2,
+      "failed": 0,
+      "blocked_are_not_passes": true
+    },
+    "supply_chain": {
+      "cargo_audit": "PASS",
+      "scanned_dependencies": 312,
+      "cargo_deny": "PASS",
+      "existing_advisory_ignore": [
+        "RUSTSEC-2026-0097"
+      ],
+      "new_ignores": []
+    },
+    "rbi_rehearsal": {
+      "status": "PASS",
+      "shell_suites": [
+        20,
+        6
+      ],
+      "cross_sensor_tests": 13,
+      "integrity_recovery_tests": 6,
+      "resource_assertions": 11,
+      "tool_boundary_assertions": 38,
+      "actual_honest_coverage": true,
+      "actual_interference_withdrawal": true,
+      "live_signed_receipts": true,
+      "offline_verifier_workflow_status": "PASS",
+      "artifact_id": 14892627585,
+      "artifact_sha256": "04f69c0a9352cffbe707a540ce689938761215856e7d7422b51bf393755371a0"
+    },
+    "open_source_components": {
+      "agent_zero_image_and_tool_component": "PASS",
+      "model_calls_in_smoke": 0,
+      "genuine_agent_zero_task": "SKIPPED",
+      "hosted_kernel_collector_audit_smoke": "PASS",
+      "smoke_signed_batches": 56,
+      "component_tests_are_not_autonomous_workload_validation": true
+    }
+  },
+  "genuine_local_model": {
+    "status": "PASS",
+    "task": "Read synthetic loan 1 and recommend human review, without approving or changing records.",
+    "source_checkout": "ae7943192905b0abaecb705f90837a4222420dd6",
+    "artifact_id": 14892822901,
+    "artifact_sha256": "6953c64d76e458ecb484358ba4220787aad4897e2d7daa60bfd2fea93809d218",
+    "profiles": [
+      {
+        "phase": "normal",
+        "status": "PASS",
+        "run_id": "same-run-7ca162cdbbdd4d623c249d11",
+        "model_calls": 2,
+        "signed_batches": 40,
+        "signed_health_records": 4,
+        "signed_receipts": 2,
+        "coverage": "SIGNED_ACTIVE_FOR_WINDOW",
+        "reconciliation_result": "CannotProve",
+        "reconciliation_reason": "ActionEvidenceUnavailable",
+        "identity": {
+          "Match": {
+            "observations": 7
+          }
+        },
+        "workflow_reported_archive_verified": true,
+        "workflow_reported_checkpoint_verified": true,
+        "workflow_reported_signed_reconciliation_verified": true
+      },
+      {
+        "phase": "observer_interruption",
+        "status": "PASS",
+        "run_id": "same-run-15b0630cc5a456e10534cf16",
+        "model_calls": 2,
+        "signed_batches": 14,
+        "signed_health_records": 4,
+        "signed_receipts": 2,
+        "coverage": "UNAVAILABLE_OBSERVER_INTERRUPTED",
+        "reconciliation_result": "CannotProve",
+        "reconciliation_reason": "WindowNotCovered",
+        "identity": "NoReference",
+        "workflow_reported_archive_verified": true,
+        "workflow_reported_checkpoint_verified": true,
+        "workflow_reported_signed_reconciliation_verified": true
+      },
+      {
+        "phase": "recovery",
+        "status": "PASS",
+        "run_id": "same-run-c7615d4925304b5b0e7a5dee",
+        "model_calls": 2,
+        "signed_batches": 42,
+        "signed_health_records": 4,
+        "signed_receipts": 2,
+        "coverage": "SIGNED_ACTIVE_FOR_WINDOW",
+        "reconciliation_result": "CannotProve",
+        "reconciliation_reason": "ActionEvidenceUnavailable",
+        "identity": {
+          "Match": {
+            "observations": 7
+          }
+        },
+        "workflow_reported_archive_verified": true,
+        "workflow_reported_checkpoint_verified": true,
+        "workflow_reported_signed_reconciliation_verified": true
+      }
+    ],
+    "separate_local_evidence_agent_jobs": "SKIPPED",
+    "separate_administrative_custody": "INCOMPLETE",
+    "business_outcome": "Synthetic read only; no loan approval or bank transaction."
+  },
+  "remaining_boundaries": [
+    "All six listed workflows completed for this exact source head; subsequent edits require their own qualification.",
+    "Full-sensor service qualification is a separate controlled OS workload, not these genuine agent runs.",
+    "The exact-range security scanner now covers the full PR history and current tree; unresolved findings and its result are reported separately.",
+    "Dedicated separately administered collector acceptance is not established.",
+    "Agent Zero genuine task and the two local-evidence-agent jobs were skipped."
+  ]
+}

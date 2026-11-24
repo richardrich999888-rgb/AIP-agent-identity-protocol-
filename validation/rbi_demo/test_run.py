@@ -7,6 +7,7 @@ binary is built or executed; no service, clock, mount or kernel is touched.
 """
 
 import json
+import os
 from pathlib import Path
 import re
 import shutil
@@ -202,7 +203,7 @@ class RehearsalControlFlowTests(unittest.TestCase):
             self.assertNotIn("mount", [name for name, _ in invoked])
             build_log = "" if bad_build_log else (out / "build.log").read_text()
             clock_log = (out / "clock.log").read_text() if (out / "clock.log").exists() else ""
-            return result.returncode, transcript, invoked, build_log, clock_log
+            return result.returncode, transcript, invoked, build_log, clock_log, result.stdout
 
     def assert_not_rehearsed(self, result):
         self.assertNotEqual(result[0], 0, result[1])
@@ -284,6 +285,9 @@ class RehearsalControlFlowTests(unittest.TestCase):
         self.assert_not_rehearsed(result)
         self.assertIn("1 check(s) failed; system run: fail", result[1])
         self.assertEqual(result[1].count("fail (full system)"), 3)
+        self.assertIn("failure diagnostic: system_run.log", result[5])
+        self.assertIn("PASS fixture system result -- not a live run", result[5])
+        self.assertIn("control_check.log was not created", result[5])
 
     def test_pilot_build_failure_stops_before_compiling_interferer(self):
         result = self.run_fixture(pilot=True, build_rc=101, build_output="error: compiler failed\n")
@@ -331,6 +335,28 @@ class RehearsalControlFlowTests(unittest.TestCase):
         self.assert_not_rehearsed(result)
         self.assertIn("1 check(s) failed; system run: fail", result[1])
         self.assertNotIn("PASS Act 1 honest path:", result[1])
+
+
+class ProbeReadinessTests(unittest.TestCase):
+    def readiness(self, content, pid=None):
+        helper = RUN_SH.parent.parent / "pilot_e2e/wait_probe_ack.sh"
+        with tempfile.TemporaryDirectory(prefix="probe-readiness-") as directory:
+            log = Path(directory) / "probe.log"; log.write_text(content)
+            return subprocess.run([BASH, "-c", 'source "$1"; wait_probe_ack "$2" "$3" 1',
+                "probe-readiness-test", str(helper), str(os.getpid() if pid is None else pid), str(log)],
+                capture_output=True, timeout=5).returncode
+
+    def test_durable_collector_ack_is_ready_even_without_legacy_connected_log(self):
+        self.assertEqual(self.readiness("aip-probe: batch acked (frame seq 1, attested_sequence 42)\n"), 0)
+
+    def test_connection_or_queue_messages_cannot_replace_an_ack(self):
+        for text in ["aip-probe: connected\n", "aip-probe: durably queued; pending 1 batches / 100 bytes\n",
+                     "aip-probe: batch acked (frame seq 0, attested_sequence 0)\n", ""]:
+            with self.subTest(text=text): self.assertNotEqual(self.readiness(text), 0)
+
+    def test_old_ack_cannot_make_a_dead_probe_ready(self):
+        child = subprocess.Popen([sys.executable, "-c", "pass"]); child.wait(timeout=5)
+        self.assertNotEqual(self.readiness("aip-probe: batch acked (frame seq 1, attested_sequence 1)\n", child.pid), 0)
 
 
 if __name__ == "__main__":

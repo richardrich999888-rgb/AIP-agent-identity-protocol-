@@ -18,7 +18,192 @@
 //! order. That file is what an auditor verifies with the collector's public
 //! key and nothing else — no service, no network, no trust in this daemon.
 
+use std::collections::HashMap;
+use std::io::{BufRead, BufReader, Read, Seek, SeekFrom};
 use std::sync::{Arc, Mutex};
+
+use aip_crypto::sha256;
+use aip_observe::{verify_attested_batch, AttestedBatch, ObserverTrustAnchors};
+
+#[derive(Debug, Clone, Hash, PartialEq, Eq)]
+struct BatchIdentity([u8; 32], [u8; 16], [u8; 16]);
+
+/// Bounded pilot receipt retention. Never evict a receipt and accidentally
+/// re-attest a delayed replay. Exhaustion refuses new batches before signing;
+/// already committed retries can still drain probe spools.
+/// 1,000,000 batches is about 11.6 days at one batch/second across all probes.
+pub const MAX_REPLAY_RECEIPTS: usize = 1_000_000;
+const MAX_ARCHIVE_RECORD_BYTES: u64 = 16 * 1024 * 1024;
+
+impl BatchIdentity {
+    fn of(batch: &ObservationBatch) -> Self {
+        Self(
+            sha256(batch.probe_id.as_bytes()),
+            batch.probe_run_id,
+            batch.batch_id,
+        )
+    }
+}
+
+#[derive(Debug, Clone)]
+struct Receipt {
+    digest: [u8; 32],
+    ack: BatchAckData,
+    offset: u64,
+    record_bytes: u64,
+    record_digest: [u8; 32],
+}
+
+#[derive(Debug, Default)]
+struct ArchiveIndex {
+    receipts: HashMap<BatchIdentity, Receipt>,
+    bytes: u64,
+    failed: bool,
+}
+
+impl ArchiveIndex {
+    /// Rebuild only from signatures anchored in this collector's configured
+    /// evidence key and a complete chain matching its persisted position. A
+    /// raw JSON receipt cache is never a source of acknowledgement authority.
+    fn load_with_limit(
+        path: &std::path::Path,
+        runtime: &CollectorRuntime,
+        limit: usize,
+    ) -> Result<Self, SinkError> {
+        let mut index = Self::default();
+        let snapshot = runtime.snapshot();
+        let signer = runtime.signer();
+        let anchors = ObserverTrustAnchors::new().trust(
+            signer.observer_id(),
+            signer.key_version(),
+            signer.public_key(),
+        );
+        let mut sequence = 0u64;
+        let mut head = [0u8; 32];
+        match archive_options().read(true).open(path) {
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => {}
+            Err(e) => {
+                return Err(SinkError(format!(
+                    "cannot read replay archive {}: {e}",
+                    path.display()
+                )))
+            }
+            Ok(file) => {
+                if !file
+                    .metadata()
+                    .map_err(|e| SinkError(format!("inspect replay archive: {e}")))?
+                    .is_file()
+                {
+                    return Err(SinkError("replay archive must be a regular file".into()));
+                }
+                let mut reader = BufReader::new(file);
+                loop {
+                    // A bounded line reader refuses hostile/corrupt local
+                    // storage before allocating an unbounded JSON record.
+                    let mut line = Vec::new();
+                    let count = reader
+                        .by_ref()
+                        .take(MAX_ARCHIVE_RECORD_BYTES + 1)
+                        .read_until(b'\n', &mut line)
+                        .map_err(|e| SinkError(format!("read replay archive: {e}")))?;
+                    if count == 0 {
+                        break;
+                    }
+                    if count as u64 > MAX_ARCHIVE_RECORD_BYTES || line.last() != Some(&b'\n') {
+                        return Err(SinkError(
+                            "oversized or torn replay archive record; refusing recovery".into(),
+                        ));
+                    }
+                    if index.receipts.len() >= limit {
+                        return Err(SinkError("replay receipt capacity exhausted; archive retained, new collector epoch requires operator planning".into()));
+                    }
+                    let attested: AttestedBatch = serde_json::from_slice(&line)
+                        .map_err(|e| SinkError(format!("invalid replay archive record: {e}")))?;
+                    verify_attested_batch(&attested, &anchors).map_err(|e| {
+                        SinkError(format!("untrusted replay archive record: {e:?}"))
+                    })?;
+                    if attested.sequence != sequence + 1 || attested.prev_head != head {
+                        return Err(SinkError(
+                            "replay archive chain is not contiguous; refusing recovery".into(),
+                        ));
+                    }
+                    sequence = attested.sequence;
+                    head = attested.head();
+                    let receipt = Receipt {
+                        digest: sha256(&attested.batch.canonical_bytes()),
+                        ack: BatchAckData {
+                            attested_sequence: sequence,
+                            head,
+                        },
+                        offset: index.bytes,
+                        record_bytes: count as u64,
+                        record_digest: sha256(&line),
+                    };
+                    let id = BatchIdentity::of(&attested.batch);
+                    if index.receipts.insert(id, receipt).is_some() {
+                        return Err(SinkError(
+                            "duplicate batch identity in archive; refusing ambiguous recovery"
+                                .into(),
+                        ));
+                    }
+                    index.bytes += count as u64;
+                }
+            }
+        }
+        let archive_position = if sequence == 0 {
+            (None, None)
+        } else {
+            (Some(sequence), Some(head))
+        };
+        if archive_position != (snapshot.sequence, snapshot.head) {
+            return Err(SinkError("replay archive does not match the collector's persisted chain position; refusing recovery".into()));
+        }
+        Ok(index)
+    }
+}
+
+fn verify_retained_receipt(
+    path: &std::path::Path,
+    expected_bytes: u64,
+    receipt: &Receipt,
+) -> Result<(), SinkError> {
+    let mut file = archive_options()
+        .read(true)
+        .open(path)
+        .map_err(|e| SinkError(format!("cannot confirm retained replay evidence: {e}")))?;
+    let metadata = file
+        .metadata()
+        .map_err(|e| SinkError(format!("cannot inspect retained replay evidence: {e}")))?;
+    if !metadata.is_file()
+        || metadata.len() != expected_bytes
+        || receipt.record_bytes > MAX_ARCHIVE_RECORD_BYTES
+    {
+        return Err(SinkError(
+            "retained replay archive changed; ACK refused".into(),
+        ));
+    }
+    file.seek(SeekFrom::Start(receipt.offset))
+        .map_err(|e| SinkError(format!("cannot seek retained replay evidence: {e}")))?;
+    let mut bytes = vec![0u8; receipt.record_bytes as usize];
+    file.read_exact(&mut bytes)
+        .map_err(|e| SinkError(format!("cannot read retained replay evidence: {e}")))?;
+    if sha256(&bytes) != receipt.record_digest {
+        return Err(SinkError(
+            "retained replay evidence is corrupt; ACK refused".into(),
+        ));
+    }
+    Ok(())
+}
+
+fn archive_options() -> std::fs::OpenOptions {
+    let mut options = std::fs::OpenOptions::new();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::OpenOptionsExt;
+        options.mode(0o600).custom_flags(libc::O_NOFOLLOW);
+    }
+    options
+}
 
 use aip_observe::{CollectorRuntime, MechanismIntegrity, ObservationBatch, SourceMechanism};
 use aip_transport::{BatchAckData, BatchSink, SinkError};
@@ -26,12 +211,17 @@ use aip_transport::{BatchAckData, BatchSink, SinkError};
 /// Bridges [`aip_transport`]'s [`BatchSink`] to a shared [`CollectorRuntime`].
 /// The lock is held only for the attest+persist of one batch, so concurrent
 /// probe connections serialize per batch rather than per connection.
+#[derive(Clone)]
 pub struct RuntimeSink {
     runtime: Arc<Mutex<CollectorRuntime>>,
     /// Where attested batches are appended. `None` keeps the old
     /// drop-after-ack behaviour, which exists only so a deployment that has
     /// its own sink can opt out deliberately rather than by omission.
     archive: Option<std::path::PathBuf>,
+    /// Shared by all connections; the runtime lock serializes archive commits
+    /// with attestations, and this index makes ACK-loss replay idempotent.
+    index: Arc<Mutex<Option<ArchiveIndex>>>,
+    receipt_limit: usize,
 }
 
 impl RuntimeSink {
@@ -42,6 +232,8 @@ impl RuntimeSink {
         Self {
             runtime,
             archive: None,
+            index: Arc::new(Mutex::new(None)),
+            receipt_limit: MAX_REPLAY_RECEIPTS,
         }
     }
 
@@ -53,7 +245,32 @@ impl RuntimeSink {
         Self {
             runtime,
             archive: Some(archive.into()),
+            index: Arc::new(Mutex::new(None)),
+            receipt_limit: MAX_REPLAY_RECEIPTS,
         }
+    }
+
+    /// Validate the durable replay index before accepting connections. A
+    /// cloned sink shares the same validated index and failure latch.
+    pub fn initialize_archive(&mut self) -> Result<(), SinkError> {
+        if let Some(path) = self.archive.as_ref() {
+            let runtime = self
+                .runtime
+                .lock()
+                .map_err(|_| SinkError("collector runtime lock poisoned".into()))?;
+            let mut index = self
+                .index
+                .lock()
+                .map_err(|_| SinkError("collector archive lock poisoned".into()))?;
+            if index.is_none() {
+                *index = Some(ArchiveIndex::load_with_limit(
+                    path,
+                    &runtime,
+                    self.receipt_limit,
+                )?);
+            }
+        }
+        Ok(())
     }
 
     /// Append one attested batch, one JSON object per line.
@@ -62,24 +279,41 @@ impl RuntimeSink {
     /// batch has been attested and the chain has moved; if the evidence
     /// cannot be written, the probe must learn that its batch was not
     /// durably kept instead of being told everything is fine.
-    fn archive_batch(&self, attested: &aip_observe::AttestedBatch) -> Result<(), SinkError> {
+    fn archive_batch(
+        &self,
+        attested: &aip_observe::AttestedBatch,
+        expected_bytes: u64,
+    ) -> Result<(u64, [u8; 32]), SinkError> {
         let Some(path) = self.archive.as_ref() else {
-            return Ok(());
+            return Ok((0, [0; 32]));
         };
         use std::io::Write;
         let mut line = serde_json::to_vec(attested)
             .map_err(|e| SinkError(format!("cannot encode attested batch: {e}")))?;
         line.push(b'\n');
-        let mut f = std::fs::OpenOptions::new()
+        let mut f = archive_options()
             .create(true)
             .append(true)
             .open(path)
             .map_err(|e| SinkError(format!("cannot open {}: {e}", path.display())))?;
+        let metadata = f
+            .metadata()
+            .map_err(|e| SinkError(format!("cannot inspect {}: {e}", path.display())))?;
+        if !metadata.is_file() || metadata.len() != expected_bytes {
+            return Err(SinkError(
+                "archive changed outside the serialized collector writer".into(),
+            ));
+        }
         f.write_all(&line)
             .map_err(|e| SinkError(format!("cannot append to {}: {e}", path.display())))?;
         f.sync_all()
             .map_err(|e| SinkError(format!("cannot flush {}: {e}", path.display())))?;
-        Ok(())
+        if let Some(parent) = path.parent() {
+            std::fs::File::open(parent)
+                .and_then(|directory| directory.sync_all())
+                .map_err(|e| SinkError(format!("cannot flush archive directory: {e}")))?;
+        }
+        Ok((line.len() as u64, sha256(&line)))
     }
 }
 
@@ -139,6 +373,58 @@ impl BatchSink for RuntimeSink {
             .lock()
             .map_err(|_| SinkError("collector runtime lock poisoned".into()))?;
 
+        // Idempotent retry is permitted only for a signed, durably archived
+        // batch with identical canonical content. It does not call attest,
+        // refresh health, widen coverage, or clear any probe/clock fault.
+        if !batch.content_fits_version() {
+            return Err(SinkError(
+                "batch carries content outside its signed protocol version".into(),
+            ));
+        }
+        let id = BatchIdentity::of(&batch);
+        let digest = sha256(&batch.canonical_bytes());
+        let mut shared_index = self
+            .index
+            .lock()
+            .map_err(|_| SinkError("collector archive lock poisoned".into()))?;
+        if let Some(path) = self.archive.as_ref() {
+            if shared_index.is_none() {
+                *shared_index = Some(ArchiveIndex::load_with_limit(
+                    path,
+                    &rt,
+                    self.receipt_limit,
+                )?);
+            }
+        }
+        if let Some(index) = shared_index.as_ref() {
+            if index.failed {
+                return Err(SinkError(
+                    "collector archive failed; restart and integrity recovery required".into(),
+                ));
+            }
+            if let Some(receipt) = index.receipts.get(&id) {
+                if receipt.digest != digest {
+                    return Err(SinkError(
+                        "batch identity reused with different content; replay refused".into(),
+                    ));
+                }
+                // A cached receipt is not proof that its durable record
+                // still exists. Check the exact signed bytes originally
+                // verified/committed before acknowledging a retry.
+                let path = self
+                    .archive
+                    .as_ref()
+                    .expect("archive index has an archive path");
+                if let Err(error) = verify_retained_receipt(path, index.bytes, receipt) {
+                    if let Some(index) = shared_index.as_mut() {
+                        index.failed = true;
+                    }
+                    return Err(error);
+                }
+                return Ok(receipt.ack.clone());
+            }
+        }
+
         // Completeness of the probe's integrity reports. `aip-probe` reports
         // a finding for every perf-tracepoint sensor it has open, every
         // cycle. A batch that declares such a sensor active and carries no
@@ -163,16 +449,61 @@ impl BatchSink for RuntimeSink {
             }
         }
 
-        let attested = rt
-            .attest(batch)
-            .map_err(|e| SinkError(format!("attest refused: {e:?}")))?;
-        let head = rt.snapshot().head.unwrap_or([0u8; 32]);
-        // Keep the evidence, not just the position it advanced the chain to.
-        self.archive_batch(&attested)?;
-        Ok(BatchAckData {
+        if shared_index
+            .as_ref()
+            .is_some_and(|index| index.receipts.len() >= self.receipt_limit)
+        {
+            return Err(SinkError("replay receipt capacity exhausted; archive and receipts retained; refusing new batches before signing".into()));
+        }
+        let before = rt.snapshot();
+        let attested = match rt.attest(batch) {
+            Ok(attested) => attested,
+            Err(error) => {
+                // A persistence error may have advanced the signer before the
+                // position reached disk. Refuse all further ACKs until strict
+                // recovery; do not improvise another sequence on retry.
+                // Malformed/unauthorized submissions rejected before chain
+                // advancement do not poison all other probe sessions. Store
+                // failures and any signer advance remain fatal to replay.
+                let after = rt.snapshot();
+                if matches!(error, aip_observe::RuntimeError::Store(_))
+                    || (before.sequence, before.head) != (after.sequence, after.head)
+                {
+                    if let Some(index) = shared_index.as_mut() {
+                        index.failed = true;
+                    }
+                }
+                return Err(SinkError(format!("attest refused: {error:?}")));
+            }
+        };
+        let ack = BatchAckData {
             attested_sequence: attested.sequence,
-            head,
-        })
+            head: attested.head(),
+        };
+        let expected_bytes = shared_index.as_ref().map(|i| i.bytes).unwrap_or(0);
+        let (record_bytes, record_digest) = match self.archive_batch(&attested, expected_bytes) {
+            Ok(record) => record,
+            Err(error) => {
+                if let Some(index) = shared_index.as_mut() {
+                    index.failed = true;
+                }
+                return Err(error);
+            }
+        };
+        if let Some(index) = shared_index.as_mut() {
+            index.bytes = expected_bytes + record_bytes;
+            index.receipts.insert(
+                id,
+                Receipt {
+                    digest,
+                    ack: ack.clone(),
+                    offset: expected_bytes,
+                    record_bytes,
+                    record_digest,
+                },
+            );
+        }
+        Ok(ack)
     }
 }
 
@@ -426,5 +757,283 @@ mod tests {
             .accept_batch("probe-1", 1, b"not json")
             .expect_err("garbage must be refused");
         assert!(err.0.contains("not a valid ObservationBatch"), "{}", err.0);
+    }
+
+    struct ReplayDirectory(std::path::PathBuf);
+    impl ReplayDirectory {
+        fn new() -> Self {
+            let path = std::env::temp_dir().join(format!(
+                "aip-replay-{}-{}",
+                std::process::id(),
+                std::time::SystemTime::now()
+                    .duration_since(std::time::UNIX_EPOCH)
+                    .unwrap()
+                    .as_nanos()
+            ));
+            std::fs::create_dir(&path).unwrap();
+            Self(path)
+        }
+        fn archive(&self) -> std::path::PathBuf {
+            self.0.join("attested.archive.jsonl")
+        }
+        fn start(
+            &self,
+            private: &[u8],
+            public: &[u8],
+        ) -> (Arc<Mutex<CollectorRuntime>>, RuntimeSink) {
+            let started = CollectorRuntime::start(
+                CollectorStore::open(&self.0).unwrap(),
+                "replay-test",
+                1,
+                private,
+                public,
+                ContinuityPolicy::Strict,
+            )
+            .unwrap();
+            let runtime = match started {
+                Started::Running(rt, _) => Arc::new(Mutex::new(rt)),
+                Started::Refused(reason) => panic!("strict restart refused: {reason:?}"),
+            };
+            let sink = RuntimeSink::with_archive(runtime.clone(), self.archive());
+            (runtime, sink)
+        }
+    }
+    impl Drop for ReplayDirectory {
+        fn drop(&mut self) {
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
+    }
+
+    fn assert_same_receipt(left: &BatchAckData, right: &BatchAckData) {
+        assert_eq!(left.attested_sequence, right.attested_sequence);
+        assert_eq!(left.head, right.head);
+    }
+
+    #[test]
+    fn lost_ack_replay_across_sessions_returns_original_receipt_without_new_health_or_chain_position(
+    ) {
+        use aip_observe::ObserverAttestor;
+        let dir = ReplayDirectory::new();
+        let key = aip_crypto::generate_ed25519_keypair();
+        let (rt, mut sink) = dir.start(&key.private_key, &key.public_key);
+        let bytes = batch_bytes("probe-1");
+        let first = sink.accept_batch("probe-1", 7, &bytes).unwrap();
+        let second = sink
+            .accept_batch("probe-1", 8, &batch_bytes("probe-1"))
+            .unwrap();
+        let archive = std::fs::read(dir.archive()).unwrap();
+        let before = rt.lock().unwrap().signer().health(999).unwrap();
+        // A new confidential transport session starts its own frame sequence.
+        let mut reconnect = sink.clone();
+        let retry = reconnect.accept_batch("probe-1", 1, &bytes).unwrap();
+        assert_same_receipt(&first, &retry);
+        assert_eq!(
+            rt.lock().unwrap().snapshot().sequence,
+            Some(second.attested_sequence)
+        );
+        assert_eq!(
+            before.health,
+            rt.lock().unwrap().signer().health(999).unwrap().health
+        );
+        assert_eq!(archive, std::fs::read(dir.archive()).unwrap());
+    }
+
+    #[test]
+    fn collector_restart_rebuilds_ack_only_from_the_trusted_complete_signed_archive() {
+        let dir = ReplayDirectory::new();
+        let key = aip_crypto::generate_ed25519_keypair();
+        let bytes = batch_bytes("probe-1");
+        let first = {
+            let (rt, mut sink) = dir.start(&key.private_key, &key.public_key);
+            let receipt = sink.accept_batch("probe-1", 1, &bytes).unwrap();
+            rt.lock().unwrap().health(300).unwrap();
+            receipt
+        };
+        let (rt, mut sink) = dir.start(&key.private_key, &key.public_key);
+        rt.lock()
+            .unwrap()
+            .signer_mut()
+            .begin_live_coverage_epoch(500);
+        sink.initialize_archive().unwrap();
+        let retry = sink.accept_batch("probe-1", 1, &bytes).unwrap();
+        assert_same_receipt(&first, &retry);
+        let health = rt.lock().unwrap().health(600).unwrap();
+        assert_eq!(health.health.attested_coverage, None);
+        assert_eq!(health.health.state, ObserverState::Recovering);
+        assert_eq!(health.health.sequence, first.attested_sequence);
+        assert_eq!(
+            std::fs::read_to_string(dir.archive())
+                .unwrap()
+                .lines()
+                .count(),
+            1
+        );
+    }
+
+    #[test]
+    fn reused_batch_identity_with_changed_content_is_refused_without_poisoning_other_batches() {
+        let dir = ReplayDirectory::new();
+        let key = aip_crypto::generate_ed25519_keypair();
+        let (rt, mut sink) = dir.start(&key.private_key, &key.public_key);
+        let bytes = batch_bytes("probe-1");
+        sink.accept_batch("probe-1", 1, &bytes).unwrap();
+        let mut altered: ObservationBatch = serde_json::from_slice(&bytes).unwrap();
+        altered.claimed_to_ms += 1;
+        assert!(sink
+            .accept_batch("probe-1", 2, &serde_json::to_vec(&altered).unwrap())
+            .unwrap_err()
+            .0
+            .contains("different content"));
+        assert_eq!(rt.lock().unwrap().snapshot().sequence, Some(1));
+        sink.accept_batch("probe-1", 3, &batch_bytes("probe-1"))
+            .unwrap();
+        assert_eq!(rt.lock().unwrap().snapshot().sequence, Some(2));
+    }
+
+    #[test]
+    fn malformed_version_rejection_does_not_poison_the_durable_writer() {
+        let dir = ReplayDirectory::new();
+        let key = aip_crypto::generate_ed25519_keypair();
+        let (rt, mut sink) = dir.start(&key.private_key, &key.public_key);
+        sink.initialize_archive().unwrap();
+        let mut batch: ObservationBatch = serde_json::from_slice(&batch_bytes("probe-1")).unwrap();
+        batch.version = 65535;
+        assert!(sink
+            .accept_batch("probe-1", 1, &serde_json::to_vec(&batch).unwrap())
+            .is_err());
+        assert_eq!(rt.lock().unwrap().snapshot().sequence, None);
+        sink.accept_batch("probe-1", 2, &batch_bytes("probe-1"))
+            .unwrap();
+    }
+
+    #[test]
+    fn receipt_capacity_refuses_before_signing_and_preserves_earlier_ack_retries() {
+        let dir = ReplayDirectory::new();
+        let key = aip_crypto::generate_ed25519_keypair();
+        let (rt, mut sink) = dir.start(&key.private_key, &key.public_key);
+        sink.receipt_limit = 2;
+        let bytes = batch_bytes("probe-1");
+        let first = sink.accept_batch("probe-1", 1, &bytes).unwrap();
+        sink.accept_batch("probe-1", 2, &batch_bytes("probe-1"))
+            .unwrap();
+        let saved = std::fs::read(dir.archive()).unwrap();
+        assert!(sink
+            .accept_batch("probe-1", 3, &batch_bytes("probe-1"))
+            .unwrap_err()
+            .0
+            .contains("capacity exhausted"));
+        assert_eq!(rt.lock().unwrap().snapshot().sequence, Some(2));
+        assert_eq!(saved, std::fs::read(dir.archive()).unwrap());
+        assert_same_receipt(&first, &sink.accept_batch("probe-1", 1, &bytes).unwrap());
+        assert!(
+            ArchiveIndex::load_with_limit(&dir.archive(), &rt.lock().unwrap(), 1)
+                .unwrap_err()
+                .0
+                .contains("capacity exhausted")
+        );
+    }
+
+    #[test]
+    fn torn_archive_is_retained_and_refuses_replay_reconstruction() {
+        use std::io::Write;
+        let dir = ReplayDirectory::new();
+        let key = aip_crypto::generate_ed25519_keypair();
+        let (rt, mut sink) = dir.start(&key.private_key, &key.public_key);
+        sink.accept_batch("probe-1", 1, &batch_bytes("probe-1"))
+            .unwrap();
+        std::fs::OpenOptions::new()
+            .append(true)
+            .open(dir.archive())
+            .unwrap()
+            .write_all(b"{\"version\":")
+            .unwrap();
+        let saved = std::fs::read(dir.archive()).unwrap();
+        assert!(ArchiveIndex::load_with_limit(
+            &dir.archive(),
+            &rt.lock().unwrap(),
+            MAX_REPLAY_RECEIPTS
+        )
+        .unwrap_err()
+        .0
+        .contains("torn"));
+        assert_eq!(saved, std::fs::read(dir.archive()).unwrap());
+    }
+
+    #[test]
+    fn mutated_or_missing_durable_record_cannot_be_acknowledged_from_cache() {
+        for delete in [false, true] {
+            let dir = ReplayDirectory::new();
+            let key = aip_crypto::generate_ed25519_keypair();
+            let (rt, mut sink) = dir.start(&key.private_key, &key.public_key);
+            let bytes = batch_bytes("probe-1");
+            sink.accept_batch("probe-1", 1, &bytes).unwrap();
+            if delete {
+                std::fs::remove_file(dir.archive()).unwrap();
+            } else {
+                let mut saved = std::fs::read(dir.archive()).unwrap();
+                saved[5] ^= 1;
+                std::fs::write(dir.archive(), saved).unwrap();
+            }
+            assert!(sink.accept_batch("probe-1", 1, &bytes).is_err());
+            assert!(sink
+                .accept_batch("probe-1", 2, &batch_bytes("probe-1"))
+                .unwrap_err()
+                .0
+                .contains("archive failed"));
+            assert_eq!(rt.lock().unwrap().snapshot().sequence, Some(1));
+        }
+    }
+
+    #[test]
+    fn rewritten_signed_content_or_truncated_complete_archive_refuses_recovery() {
+        for truncate in [false, true] {
+            let dir = ReplayDirectory::new();
+            let key = aip_crypto::generate_ed25519_keypair();
+            let (rt, mut sink) = dir.start(&key.private_key, &key.public_key);
+            sink.accept_batch("probe-1", 1, &batch_bytes("probe-1"))
+                .unwrap();
+            sink.accept_batch("probe-1", 2, &batch_bytes("probe-1"))
+                .unwrap();
+            let data = std::fs::read_to_string(dir.archive()).unwrap();
+            let mut records: Vec<AttestedBatch> = data
+                .lines()
+                .map(|line| serde_json::from_str(line).unwrap())
+                .collect();
+            if truncate {
+                records.pop();
+            } else {
+                records[0].batch.claimed_to_ms += 1;
+            }
+            let data = records
+                .iter()
+                .map(|r| serde_json::to_string(r).unwrap() + "\n")
+                .collect::<String>();
+            std::fs::write(dir.archive(), &data).unwrap();
+            assert!(ArchiveIndex::load_with_limit(
+                &dir.archive(),
+                &rt.lock().unwrap(),
+                MAX_REPLAY_RECEIPTS
+            )
+            .is_err());
+            assert_eq!(data.as_bytes(), std::fs::read(dir.archive()).unwrap());
+        }
+    }
+
+    #[test]
+    fn failed_archive_append_latches_before_any_retry_can_advance_again() {
+        let dir = ReplayDirectory::new();
+        let key = aip_crypto::generate_ed25519_keypair();
+        let (rt, mut sink) = dir.start(&key.private_key, &key.public_key);
+        sink.initialize_archive().unwrap();
+        std::fs::create_dir(dir.archive()).unwrap();
+        let bytes = batch_bytes("probe-1");
+        assert!(sink.accept_batch("probe-1", 1, &bytes).is_err());
+        let position = rt.lock().unwrap().snapshot();
+        assert!(sink
+            .accept_batch("probe-1", 2, &bytes)
+            .unwrap_err()
+            .0
+            .contains("archive failed"));
+        assert_eq!(position, rt.lock().unwrap().snapshot());
     }
 }

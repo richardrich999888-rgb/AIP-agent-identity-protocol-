@@ -1,0 +1,428 @@
+{
+  "classification": "COMPLETE_CI_REGISTER_WITH_STRICT_SECURITY_FAILURES",
+  "source_commit": "bce0037d6ca5eb1b85a9f2d242f4b2650dd2e6d9",
+  "repository": "richardrich999888-rgb/AIP-agent-identity-protocol-",
+  "observed_at_utc": "2026-11-02T19:43:34.510Z",
+  "provenance": {
+    "tested_pull_request_merge": "671bc037be711debaea2f8c74b8759f638ad0fe7",
+    "source_tree": "1a2c0e9c881a4c4885367cf57a35bad0d1583c64",
+    "tested_merge_tree": "1a2c0e9c881a4c4885367cf57a35bad0d1583c64",
+    "trees_equal": true,
+    "basis": "Merge checkout recorded in completed main log; official GitHub git-commit tree compared with local source tree during completed read-only review."
+  },
+  "status": "FAILED_SECURITY_GATES",
+  "all_pr_jobs": {
+    "total": 22,
+    "completed": 22,
+    "passed": 17,
+    "failed": 2,
+    "guarded_skips": 3,
+    "pending": 0
+  },
+  "component_and_security_checks": {
+    "total": 18,
+    "passed": 16,
+    "failed": 2,
+    "skipped": 0,
+    "definition": "Excludes separately executed ordinary same-run core job and three guarded genuine-task/capture/offline PR jobs."
+  },
+  "separate_same_run_core_job": {
+    "job_id": 125494082437,
+    "status": "PASS"
+  },
+  "guarded_pr_skips": [
+    {
+      "job_id": 125496312038,
+      "name": "genuine-task",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556794/job/125496312038"
+    },
+    {
+      "job_id": 125494084301,
+      "name": "local-evidence-agent-linux",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556781/job/125494084301"
+    },
+    {
+      "job_id": 125494086853,
+      "name": "local-evidence-agent-offline",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556781/job/125494086853"
+    }
+  ],
+  "rust_tests": {
+    "main_job_id": 125494085882,
+    "debug_unit_integration": {
+      "passed": 3268,
+      "failed": 0,
+      "ignored": 7,
+      "measured": 0,
+      "filtered_out": 0,
+      "summary_lines": 279
+    },
+    "debug_doctests": {
+      "passed": 2,
+      "failed": 0,
+      "ignored": 2,
+      "measured": 0,
+      "filtered_out": 0,
+      "summary_lines": 53
+    },
+    "release_unit_integration": {
+      "passed": 3270,
+      "failed": 0,
+      "ignored": 5,
+      "measured": 0,
+      "filtered_out": 0,
+      "summary_lines": 279
+    },
+    "release_doctests": {
+      "passed": 2,
+      "failed": 0,
+      "ignored": 2,
+      "measured": 0,
+      "filtered_out": 0,
+      "summary_lines": 53
+    },
+    "coverage_job_id": 125494085850,
+    "coverage_unit_integration": {
+      "passed": 3268,
+      "failed": 0,
+      "ignored": 7,
+      "measured": 0,
+      "filtered_out": 0,
+      "summary_lines": 279
+    },
+    "unknown_summary_lines": 0,
+    "counting_limit": "Coverage repeats debug tests; profiles, repetitions and doctests are not a count of unique tests."
+  },
+  "required_regressions": {
+    "main_profile_pass_occurrences": {
+      "g14_04_a_live_execution_that_did_not_happen_is_cannot_prove_offline_too": 2,
+      "b05_another_observers_records_do_not_bind": 2,
+      "b13_coincident_health_metadata_does_not_bypass_signature_or_envelope_verification": 2,
+      "d_wrong_process_instance_is_identity_divergence_never_verified": 2
+    },
+    "expected_two_occurrences_mean": "One debug and one release pass each.",
+    "focused_release_g14_04_repetitions": 20,
+    "focused_release_job_id": 125494092473
+  },
+  "component_results": {
+    "harness": {
+      "job_id": 125494082495,
+      "passed": 138,
+      "failed": 0
+    },
+    "governance_real_opa_sdk_collector": {
+      "job_id": 125494082774,
+      "passed": 21,
+      "failed": 0,
+      "skipped": 0
+    },
+    "python_sdk": {
+      "job_id": 125494085731,
+      "passed": 76,
+      "failed": 0
+    },
+    "contextforge_policy": {
+      "job_id": 125494083214,
+      "passed": 11,
+      "failed": 0
+    },
+    "contextforge_actual_interoperability": {
+      "job_id": 125494083214,
+      "passed": 27,
+      "failed": 0
+    },
+    "red": {
+      "job_id": 125494085362,
+      "runnable": 43,
+      "notes": 2,
+      "blocked": 10,
+      "failed": 0,
+      "limit": "Blocked ledger rows were not executed and do not become validated by the job passing."
+    }
+  },
+  "security": {
+    "status": "FAILED",
+    "gitleaks": {
+      "job_id": 125494082187,
+      "results": 217,
+      "status": "FAIL"
+    },
+    "trivy": {
+      "job_id": 125494082550,
+      "high_results": 4,
+      "status": "FAIL"
+    },
+    "baseline_commit": "75e75bb0aae36def2ba13b18717b0a00b7ec2558",
+    "complete_result_object_multisets_equal_to_baseline": true,
+    "new_results": 0,
+    "missing_results": 0,
+    "comparison_is_not_waiver": true,
+    "raw_values_published": false,
+    "safe_summary_path": "/private/tmp/snifferdog-security-bce0037-summary.json",
+    "safe_summary_sha256": "3e8a4cbcca48faa9750c4cb4e7b8ad85412948ec44fa060d6c656350c9e1479a",
+    "cargo_audit": {
+      "status": "PASS",
+      "reported_vulnerabilities": 0,
+      "inherited_ignored_advisories": [
+        "RUSTSEC-2026-0097"
+      ],
+      "new_exception": false
+    }
+  },
+  "scope_limits": [
+    "This register reports completed PR CI, not independent collector custody, production acceptance or all-framework business success.",
+    "Manual local-evidence-agent capture run 41508547378 is separate and is not counted among these PR jobs; its artifacts and independent verification are owned by the separate acceptance report.",
+    "No runtime edits, waiver, scanner suppression, rerun or artifact mutation was performed for this register."
+  ],
+  "workflows": [
+    {
+      "id": 41508556856,
+      "name": "Real-agent harness contracts (no live agent claim)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556856"
+    },
+    {
+      "id": 41508556865,
+      "name": "Enterprise integration",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556865"
+    },
+    {
+      "id": 41508556789,
+      "name": "RBI rehearsal",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556789"
+    },
+    {
+      "id": 41508556783,
+      "name": "Security",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556783"
+    },
+    {
+      "id": 41508556794,
+      "name": "Open-source agents and Linux observation",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556794"
+    },
+    {
+      "id": 41508556781,
+      "name": "Genuine same-run execution assurance",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556781"
+    },
+    {
+      "id": 41508556780,
+      "name": "CI",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556780"
+    }
+  ],
+  "jobs": [
+    {
+      "workflow": "Real-agent harness contracts (no live agent claim)",
+      "run_id": 41508556856,
+      "id": 125494082495,
+      "name": "contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556856/job/125494082495"
+    },
+    {
+      "workflow": "Real-agent harness contracts (no live agent claim)",
+      "run_id": 41508556856,
+      "id": 125494082774,
+      "name": "Real OPA and OpenTelemetry component controls (no agent claim)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556856/job/125494082774"
+    },
+    {
+      "workflow": "Enterprise integration",
+      "run_id": 41508556865,
+      "id": 125494082576,
+      "name": "contracts",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556865/job/125494082576"
+    },
+    {
+      "workflow": "Enterprise integration",
+      "run_id": 41508556865,
+      "id": 125494083214,
+      "name": "contextforge",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556865/job/125494083214"
+    },
+    {
+      "workflow": "RBI rehearsal",
+      "run_id": 41508556789,
+      "id": 125494082017,
+      "name": "script-regressions",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556789/job/125494082017"
+    },
+    {
+      "workflow": "RBI rehearsal",
+      "run_id": 41508556789,
+      "id": 125494297236,
+      "name": "live-rehearsal",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556789/job/125494297236"
+    },
+    {
+      "workflow": "Security",
+      "run_id": 41508556783,
+      "id": 125494082187,
+      "name": "gitleaks (secret scan)",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556783/job/125494082187"
+    },
+    {
+      "workflow": "Security",
+      "run_id": 41508556783,
+      "id": 125494082517,
+      "name": "cargo audit (RUSTSEC)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556783/job/125494082517"
+    },
+    {
+      "workflow": "Security",
+      "run_id": 41508556783,
+      "id": 125494082550,
+      "name": "trivy filesystem scan",
+      "status": "completed",
+      "conclusion": "failure",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556783/job/125494082550"
+    },
+    {
+      "workflow": "Open-source agents and Linux observation",
+      "run_id": 41508556794,
+      "id": 125494091812,
+      "name": "image (agent_zero)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556794/job/125494091812"
+    },
+    {
+      "workflow": "Open-source agents and Linux observation",
+      "run_id": 41508556794,
+      "id": 125494092249,
+      "name": "hosted-observer-capabilities",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556794/job/125494092249"
+    },
+    {
+      "workflow": "Open-source agents and Linux observation",
+      "run_id": 41508556794,
+      "id": 125494092473,
+      "name": "release-regression",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556794/job/125494092473"
+    },
+    {
+      "workflow": "Open-source agents and Linux observation",
+      "run_id": 41508556794,
+      "id": 125496312038,
+      "name": "genuine-task",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556794/job/125496312038"
+    },
+    {
+      "workflow": "Genuine same-run execution assurance",
+      "run_id": 41508556781,
+      "id": 125494082437,
+      "name": "local-model-linux",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556781/job/125494082437"
+    },
+    {
+      "workflow": "Genuine same-run execution assurance",
+      "run_id": 41508556781,
+      "id": 125494084301,
+      "name": "local-evidence-agent-linux",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556781/job/125494084301"
+    },
+    {
+      "workflow": "Genuine same-run execution assurance",
+      "run_id": 41508556781,
+      "id": 125494086853,
+      "name": "local-evidence-agent-offline",
+      "status": "completed",
+      "conclusion": "skipped",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556781/job/125494086853"
+    },
+    {
+      "workflow": "CI",
+      "run_id": 41508556780,
+      "id": 125494085362,
+      "name": "RED suite (adversarial ledger reproducible)",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556780/job/125494085362"
+    },
+    {
+      "workflow": "CI",
+      "run_id": 41508556780,
+      "id": 125494085731,
+      "name": "Python SDK regression and parity tests",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556780/job/125494085731"
+    },
+    {
+      "workflow": "CI",
+      "run_id": 41508556780,
+      "id": 125494085765,
+      "name": "postgres backend integration",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556780/job/125494085765"
+    },
+    {
+      "workflow": "CI",
+      "run_id": 41508556780,
+      "id": 125494085850,
+      "name": "coverage",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556780/job/125494085850"
+    },
+    {
+      "workflow": "CI",
+      "run_id": 41508556780,
+      "id": 125494085882,
+      "name": "fmt · clippy · test",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556780/job/125494085882"
+    },
+    {
+      "workflow": "CI",
+      "run_id": 41508556780,
+      "id": 125494085959,
+      "name": "cargo audit · cargo deny",
+      "status": "completed",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/41508556780/job/125494085959"
+    }
+  ]
+}

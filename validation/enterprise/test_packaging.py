@@ -1,0 +1,642 @@
+#!/usr/bin/env python3
+"""Packaging/control-flow regressions; fixture ELF headers are not Linux tests."""
+
+import argparse
+import contextlib
+import hashlib
+import importlib.util
+import io
+import json
+from pathlib import Path
+import tarfile
+import tempfile
+import unittest
+from unittest import mock
+
+ROOT = Path(__file__).resolve().parents[2]
+SPEC = importlib.util.spec_from_file_location("runtime_package", ROOT / "deploy/enterprise/linux/package.py")
+PACKAGE = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(PACKAGE)
+
+
+class Packaging(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.work = Path(self.temp.name).resolve()
+        self.bins = self.work / "bin"
+        self.bins.mkdir()
+        for name in PACKAGE.BINARIES:
+            data = bytearray(64)
+            data[:6] = b"\x7fELF\x02\x01"
+            data[18:20] = (62).to_bytes(2, "little")
+            path = self.bins / name
+            path.write_bytes(data)
+            path.chmod(0o755)
+        self.archive = self.work / "runtime.tar"
+        self.build(self.archive)
+        self.expected = PACKAGE.digest(self.archive.read_bytes())
+        self.probe = self.work / "probe.env"
+        self.probe.write_text("\n".join([
+            "AIP_PROBE_ID=approved-host.example", "AIP_PROBE_COLLECTOR_ENDPOINT=collector.bank.example:8443",
+            "AIP_PROBE_COLLECTOR_NOISE_PUBKEY=" + "ab" * 32,
+            "AIP_PROBE_KEY_PATH=/var/lib/aip-probe/transport.key.json",
+            "AIP_PROBE_SENSORS=sched,connector", "AIP_PROBE_BATCH_INTERVAL_MS=2000", ""]))
+        self.collector = self.work / "collector.env"
+        self.collector.write_text("\n".join([
+            "AIP_COLLECTOR_OBSERVER_ID=collector.bank.example",
+            "AIP_COLLECTOR_KEY_PATH=/var/lib/aip-collector/collector.key.wrapped",
+            "AIP_COLLECTOR_STATE_DIR=/var/lib/aip-collector/state",
+            "AIP_COLLECTOR_LISTEN=0.0.0.0:8443", "AIP_COLLECTOR_PROBES_PATH=/etc/aip/probes.json",
+            "AIP_COLLECTOR_NOISE_KEY_PATH=/var/lib/aip-collector/noise.key.json", ""]))
+
+    def build(self, output):
+        with contextlib.redirect_stdout(io.StringIO()):
+            PACKAGE.build(argparse.Namespace(bin_dir=str(self.bins), source_commit="a" * 40,
+                target="x86_64-unknown-linux-gnu", output=str(output)))
+
+    def verify(self, archive=None, expected=None):
+        return PACKAGE.verified_package(archive or self.archive, expected or self.expected)
+
+    def args(self, role="probe"):
+        root = self.work / (role + "-root")
+        root.mkdir(exist_ok=True)
+        return argparse.Namespace(archive=str(self.archive), expected_sha256=self.expected,
+            role=role, root=str(root), config=str(self.probe if role == "probe" else self.collector),
+            confirm_separate_host=False)
+
+    def install(self, args):
+        with contextlib.redirect_stdout(io.StringIO()):
+            PACKAGE.install(args)
+
+    def replace_tar(self, mutate):
+        with tarfile.open(self.archive) as archive:
+            members = [(member, archive.extractfile(member).read()) for member in archive]
+        output = self.work / "changed.tar"
+        mutate(members)
+        with tarfile.open(output, "w") as archive:
+            for member, data in members:
+                member.size = len(data)
+                archive.addfile(member, io.BytesIO(data) if member.isfile() else None)
+        return output, PACKAGE.digest(output.read_bytes())
+
+    def test_reproducible_archive_manifest_and_exact_members(self):
+        other = self.work / "second.tar"
+        self.build(other)
+        self.assertEqual(self.archive.read_bytes(), other.read_bytes())
+        manifest, files = self.verify()
+        self.assertEqual(manifest["mode"], "OBSERVER_ONLY")
+        self.assertEqual(manifest["source_commit"], "a" * 40)
+        self.assertEqual(set(files), set(manifest["files"]) | {"manifest.json"})
+
+    def test_wrong_or_absent_trusted_hash_refused(self):
+        for anchor in (None, "", "0" * 64, "oops"):
+            with self.subTest(anchor=anchor), self.assertRaises(ValueError):
+                PACKAGE.verified_package(self.archive, anchor)
+
+    def test_altered_binary_refused_even_with_new_archive_digest(self):
+        def mutate(members):
+            index = next(i for i, (member, _) in enumerate(members) if member.name == "bin/aip-probe")
+            member, data = members[index]
+            members[index] = member, data + b"tampered"
+        archive, expected = self.replace_tar(mutate)
+        with self.assertRaisesRegex(ValueError, "integrity"):
+            self.verify(archive, expected)
+
+    def test_unsafe_paths_symlinks_duplicates_extra_files_and_modes_refused(self):
+        for attack in ("traversal", "symlink", "duplicate", "extra", "mode"):
+            with self.subTest(attack=attack):
+                def mutate(members):
+                    member, data = members[0]
+                    if attack == "traversal":
+                        member.name = "../escape"
+                    elif attack == "symlink":
+                        member.type, member.linkname = tarfile.SYMTYPE, "/etc/passwd"
+                    elif attack == "duplicate":
+                        members.append((member, data))
+                    elif attack == "mode":
+                        member.mode |= 0o4000
+                    else:
+                        members.append((tarfile.TarInfo("unexpected"), b""))
+                archive, expected = self.replace_tar(mutate)
+                with self.assertRaises(ValueError):
+                    self.verify(archive, expected)
+
+    def test_macos_or_wrong_arch_binary_and_invalid_commit_refused(self):
+        with self.assertRaises(ValueError):
+            PACKAGE.elf_check(b"macho" * 20, "x86_64-unknown-linux-gnu")
+        with self.assertRaises(ValueError):
+            PACKAGE.elf_check((self.bins / "aip-probe").read_bytes(), "aarch64-unknown-linux-gnu")
+        with self.assertRaises(ValueError):
+            PACKAGE.build(argparse.Namespace(bin_dir=str(self.bins), source_commit="HEAD",
+                target="x86_64-unknown-linux-gnu", output=str(self.work / "bad.tar")))
+
+    def test_valid_probe_and_collector_config(self):
+        with mock.patch.object(PACKAGE.socket, "getfqdn", side_effect=AssertionError("offline validation attempted DNS")):
+            self.assertEqual(PACKAGE.parse_config(self.probe, "probe")["AIP_PROBE_SENSORS"], "sched,connector")
+        self.assertIn("AIP_COLLECTOR_KEY_PATH", PACKAGE.parse_config(self.collector, "collector"))
+
+    def test_config_placeholders_shell_expansion_duplicates_and_cross_role_refused(self):
+        original = self.probe.read_text()
+        for extra in ("AIP_PROBE_ID=again", "AIP_PROBE_NOT_REAL=1", "AIP_COLLECTOR_KEY_PATH=/tmp/key",
+                      "RUST_LOG=$(id)", "RUST_LOG=info # comment"):
+            with self.subTest(extra=extra):
+                self.probe.write_text(original + extra + "\n")
+                with self.assertRaises(ValueError):
+                    PACKAGE.parse_config(self.probe, "probe")
+        self.probe.write_text(original.replace("ab" * 32, "<PIN_PUBLIC_KEY>"))
+        with self.assertRaises(ValueError):
+            PACKAGE.parse_config(self.probe, "probe")
+
+    def test_collection_interval_cannot_disable_sensor_draining(self):
+        original = self.probe.read_text()
+        for value in ("99", "60001", "18446744073709551615", "not-a-number"):
+            self.probe.write_text(original.replace("BATCH_INTERVAL_MS=2000", "BATCH_INTERVAL_MS=" + value))
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                PACKAGE.parse_config(self.probe, "probe")
+        self.probe.write_text(original.replace("BATCH_INTERVAL_MS=2000", "BATCH_INTERVAL_MS=60000"))
+        self.assertEqual(PACKAGE.parse_config(self.probe, "probe")["AIP_PROBE_BATCH_INTERVAL_MS"], "60000")
+
+    def test_no_loopback_collector_or_silent_sensor_fallback(self):
+        original = self.probe.read_text()
+        for endpoint in ("localhost:8443", "127.0.0.1:8443", "[::1]:8443", "0.0.0.0:8443", "host:99999"):
+            self.probe.write_text(original.replace("collector.bank.example:8443", endpoint))
+            with self.subTest(endpoint=endpoint), self.assertRaises(ValueError):
+                PACKAGE.parse_config(self.probe, "probe")
+        for sensors in ("sched,bogus", "", "sched,sched", "fanotify", "sched,afpacket,"):
+            self.probe.write_text(original.replace("sched,connector", sensors))
+            with self.subTest(sensors=sensors), self.assertRaises(ValueError):
+                PACKAGE.parse_config(self.probe, "probe")
+
+    def test_strict_clock_continuity_key_separation_and_unit_paths_enforced(self):
+        original = self.collector.read_text()
+        for extra in ("AIP_COLLECTOR_REQUIRE_SYNCED_CLOCK=0", "AIP_COLLECTOR_CONTINUITY=advisory",
+                      "AIP_COLLECTOR_KEY_VERSION=0", "AIP_COLLECTOR_ATTESTED_ARCHIVE_PATH=/tmp/archive",
+                      "AIP_COLLECTOR_PASSPHRASE_FILE=/run/secrets/unprovisioned"):
+            self.collector.write_text(original + extra + "\n")
+            with self.subTest(extra=extra), self.assertRaises(ValueError):
+                PACKAGE.parse_config(self.collector, "collector")
+        self.collector.write_text(original.replace("noise.key.json", "collector.key.wrapped"))
+        with self.assertRaisesRegex(ValueError, "separate"):
+            PACKAGE.parse_config(self.collector, "collector")
+
+    def test_preflight_never_reports_runtime_pass_on_darwin(self):
+        args = argparse.Namespace(config=str(self.probe), role="probe", config_only=False)
+        with mock.patch.object(PACKAGE.platform, "system", return_value="Darwin"):
+            with self.assertRaisesRegex(ValueError, "BLOCKED"):
+                PACKAGE.preflight(args)
+
+    def test_staged_install_is_role_separate_bounded_and_no_service_start(self):
+        for role in ("probe", "collector"):
+            args = self.args(role)
+            with mock.patch.object(PACKAGE.subprocess, "run") as run:
+                self.install(args)
+                run.assert_not_called()
+            root = Path(args.root)
+            unit = (root / f"etc/systemd/system/aip-{role}.service").read_text()
+            self.assertIn("MemoryMax=512M", unit)
+            self.assertIn("TasksMax=128", unit)
+            self.assertIn("UMask=0077", unit)
+            self.assertIn(f"ExecStart=/opt/vanian/snifferdog/bin/aip-{role}", unit)
+            self.assertFalse((root / f"opt/vanian/snifferdog/bin/aip-{'collector' if role == 'probe' else 'probe'}").exists())
+            if role == "probe":
+                self.assertIn("AmbientCapabilities=CAP_PERFMON CAP_NET_ADMIN\n", unit)
+                self.assertNotIn("AmbientCapabilities=CAP_PERFMON CAP_NET_ADMIN CAP_NET_RAW\n", unit)
+            with self.assertRaisesRegex(ValueError, "already installed"):
+                self.install(args)
+
+    def test_symlink_and_existing_file_are_refused_before_writes(self):
+        args = self.args()
+        root = Path(args.root)
+        (root / "opt").symlink_to(self.work, target_is_directory=True)
+        with self.assertRaisesRegex(ValueError, "symbolic link"):
+            self.install(args)
+        self.assertFalse((root / "var").exists())
+        (root / "opt").unlink()
+        target = root / "etc/systemd/system/aip-probe.service"
+        target.parent.mkdir(parents=True)
+        target.write_text("existing operator unit")
+        with self.assertRaisesRegex(ValueError, "overwrite"):
+            self.install(args)
+        self.assertEqual(target.read_text(), "existing operator unit")
+        self.assertFalse((root / "opt").exists())
+
+    def test_other_role_configuration_refused(self):
+        args = self.args()
+        path = Path(args.root) / "etc/aip/collector.env"
+        path.parent.mkdir(parents=True)
+        path.write_text("preserved collector config")
+        with self.assertRaisesRegex(ValueError, "separate hosts"):
+            self.install(args)
+
+    def test_uninstall_retains_keys_evidence_config_and_service_account(self):
+        args = self.args()
+        self.install(args)
+        root = Path(args.root)
+        state = root / "var/lib/aip-probe"
+        (state / "transport.key.json").write_text("test key placeholder")
+        (state / "archive.jsonl").write_text("test evidence placeholder")
+        with contextlib.redirect_stdout(io.StringIO()):
+            PACKAGE.uninstall(args)
+        self.assertEqual((state / "transport.key.json").read_text(), "test key placeholder")
+        self.assertTrue((state / "archive.jsonl").exists())
+        self.assertEqual((root / "etc/aip/probe.env").read_text(), self.probe.read_text())
+        self.assertFalse((root / "opt/vanian/snifferdog/bin/aip-probe").exists())
+        # A reviewed replacement package can now install over the retained,
+        # identical configuration without touching continuity or key files.
+        self.install(args)
+        self.assertTrue((state / "archive.jsonl").exists())
+
+    def test_uninstall_refuses_locally_modified_software_and_forged_paths(self):
+        args = self.args()
+        self.install(args)
+        root = Path(args.root)
+        unit = root / "etc/systemd/system/aip-probe.service"
+        unit.write_text(unit.read_text() + "# local override\n")
+        with self.assertRaisesRegex(ValueError, "local change"):
+            PACKAGE.uninstall(args)
+        self.assertTrue((root / "opt/vanian/snifferdog/bin/aip-probe").exists())
+        path = root / "etc/aip/vanian-runtime-install.json"
+        receipt = json.loads(path.read_text())
+        receipt["installed"]["/etc/passwd"] = hashlib.sha256(b"anything").hexdigest()
+        path.write_text(json.dumps(receipt))
+        with self.assertRaisesRegex(ValueError, "unexpected paths"):
+            PACKAGE.uninstall(args)
+
+
+    def full_sensor_config(self):
+        original = self.probe.read_text()
+        self.probe.write_text(original.replace("sched,connector", "sched,cgroup,sockstate,socksend,connector,fanotify,afpacket") +
+            "AIP_PROBE_FANOTIFY_PATH=/srv/aip-pilot-workspace\nAIP_PROBE_AFPACKET_INTERFACE=eth0\n" +
+            "AIP_PROBE_FILTER_PATH=/etc/aip/agent-filter.json\nAIP_PROBE_SPOOL_DIR=/var/lib/aip-probe/spool\n" +
+            "AIP_PROBE_SPOOL_MAX_BYTES=268435456\nAIP_PROBE_SPOOL_MAX_BATCHES=10000\n")
+        return PACKAGE.parse_config(self.probe, "probe")
+
+    def test_full_sensor_profile_is_inert_and_preserves_namespace_controls(self):
+        config = self.full_sensor_config()
+        unit = PACKAGE.proposed_probe_unit((ROOT / "deploy/pilot/systemd/aip-probe.service").read_text(), config)
+        self.assertIn("ProtectSystem=strict", unit)
+        self.assertIn("ProtectHome=yes", unit)
+        self.assertIn("PrivateTmp=yes", unit)
+        self.assertIn("ReadWritePaths=/var/lib/aip-probe", unit)
+        self.assertIn("User=aip-probe", unit)
+        self.assertIn("NoNewPrivileges=yes", unit)
+        self.assertIn("CAP_DAC_READ_SEARCH CAP_SYS_PTRACE CAP_PERFMON CAP_NET_ADMIN CAP_SYS_ADMIN CAP_NET_RAW", unit)
+        self.assertIn("RestrictNamespaces=yes", unit)
+        self.assertIn("SystemCallFilter=~@mount", unit)
+        self.assertIn("ptrace process_vm_writev pidfd_getfd", unit)
+        self.assertIn("ExecStart=/usr/bin/env AIP_PROBE_FANOTIFY_PATH=/proc/1/root/srv/aip-pilot-workspace", unit)
+        self.assertNotIn("CAP_DAC_OVERRIDE", unit)
+        self.assertNotIn("User=root", unit)
+        args = self.args()
+        with self.assertRaisesRegex(ValueError, "review-only"), mock.patch.object(PACKAGE.subprocess, "run") as run:
+            PACKAGE.install(args)
+        run.assert_not_called()
+        self.assertEqual(list(Path(args.root).iterdir()), [])
+        output = self.work / "unit-review.json"
+        with contextlib.redirect_stdout(io.StringIO()), mock.patch.object(PACKAGE.subprocess, "run") as run:
+            PACKAGE.review_probe_unit(argparse.Namespace(archive=str(self.archive), expected_sha256=self.expected,
+                config=str(self.probe), output=str(output)))
+        run.assert_not_called()
+        review = json.loads(output.read_text())
+        self.assertFalse(review["installable_by_this_tool"])
+        self.assertEqual(review["explicit_activation_scope"], "APPROVED_DISPOSABLE_RUNNER_VALIDATION_ONLY")
+        self.assertEqual(review["status"], "NEEDS_EXACT_DIGEST_APPROVAL")
+        self.assertEqual(review["config_sha256"], PACKAGE.digest(self.probe.read_bytes()))
+        self.assertEqual(review["unit_sha256"], PACKAGE.digest(review["unit"].encode()))
+        self.assertEqual(review["unit"], unit)
+        self.assertEqual(review["apparmor_sha256"], PACKAGE.digest(review["apparmor_policy"].encode()))
+        self.assertIn("AppArmorProfile=aip-probe-full-sensor\n", unit)
+        self.assertIn(review["apparmor_sha256"], unit)
+        with self.assertRaises(FileExistsError):
+            PACKAGE.review_probe_unit(argparse.Namespace(archive=str(self.archive), expected_sha256=self.expected,
+                config=str(self.probe), output=str(output)))
+
+    def approved_full_sensor_args(self):
+        config = self.full_sensor_config()
+        args = self.args()
+        unit = PACKAGE.proposed_probe_unit((ROOT / "deploy/pilot/systemd/aip-probe.service").read_text(), config)
+        args.approved_probe_unit_sha256 = PACKAGE.digest(unit.encode())
+        args.approved_probe_config_sha256 = PACKAGE.digest(self.probe.read_bytes())
+        args.approved_probe_apparmor_sha256 = PACKAGE.digest((ROOT / "deploy/enterprise/linux/aip-probe.full-sensor.apparmor.review").read_bytes())
+        args.disposable_runner_validation = True
+        return args, unit
+
+    def test_approved_full_sensor_staging_installs_exact_reviewed_bytes_without_starting(self):
+        args, reviewed = self.approved_full_sensor_args()
+        original_config = self.probe.read_bytes()
+        with mock.patch.object(PACKAGE.subprocess, "run") as run:
+            self.install(args)
+        run.assert_not_called()
+        root = Path(args.root)
+        self.assertEqual((root / "etc/systemd/system/aip-probe.service").read_bytes(), reviewed.encode())
+        self.assertEqual((root / "etc/aip/probe.env").read_bytes(), original_config)
+        receipt = json.loads((root / "etc/aip/vanian-runtime-install.json").read_text())
+        self.assertEqual(receipt["unit_sha256"], args.approved_probe_unit_sha256)
+        self.assertEqual(receipt["config_sha256"], args.approved_probe_config_sha256)
+        self.assertEqual(receipt["service_profile"], "APPROVED_DISPOSABLE_FULL_SENSOR")
+        self.assertTrue(receipt["disposable_runner_validation"])
+        self.assertFalse(receipt["live_installation"])
+        self.assertFalse(receipt["independent_administrative_custody_established"])
+        self.assertFalse(receipt["operator_separate_host_assertion"])
+        self.assertEqual(receipt["apparmor_sha256"], args.approved_probe_apparmor_sha256)
+        self.assertFalse(receipt["apparmor_enforcing_checked"])
+        policy = root / PACKAGE.APPARMOR_PATH.lstrip("/")
+        self.assertEqual(PACKAGE.digest(policy.read_bytes()), receipt["apparmor_sha256"])
+        self.assertEqual(reviewed.count("MemoryMax="), 1)
+        self.assertEqual(reviewed.count("SystemCallFilter="), 1)
+
+    def test_full_sensor_activation_requires_three_exact_digests_and_disposable_scope(self):
+        cases = [("approved_probe_apparmor_sha256", None, "all three independently approved"),
+                 ("approved_probe_apparmor_sha256", "00" * 32, "AppArmor policy differs"),
+                 ("approved_probe_unit_sha256", None, "all three independently approved"),
+                 ("approved_probe_config_sha256", None, "all three independently approved"),
+                 ("approved_probe_unit_sha256", "00" * 32, "unit differs"),
+                 ("approved_probe_config_sha256", "00" * 32, "configuration differs"),
+                 ("disposable_runner_validation", False, "requires --disposable"),
+                 ("confirm_separate_host", True, "cannot assert separate")]
+        original = self.probe.read_text()
+        for attribute, value, error in cases:
+            with self.subTest(attribute=attribute, value=value):
+                self.probe.write_text(original)
+                args, _ = self.approved_full_sensor_args()
+                setattr(args, attribute, value)
+                with mock.patch.object(PACKAGE.subprocess, "run") as run:
+                    with self.assertRaisesRegex(ValueError, error):
+                        PACKAGE.install(args)
+                run.assert_not_called()
+                self.assertEqual(list(Path(args.root).iterdir()), [])
+
+    def test_config_approval_covers_endpoint_filter_and_limits_not_only_unit_bytes(self):
+        args, _ = self.approved_full_sensor_args()
+        original = self.probe.read_text()
+        for old, new in [("collector.bank.example", "elsewhere.example"),
+                         ("/etc/aip/agent-filter.json", "/etc/aip/different-agent.json"),
+                         ("SPOOL_MAX_BATCHES=10000", "SPOOL_MAX_BATCHES=1")]:
+            self.probe.write_text(original.replace(old, new))
+            with self.subTest(new=new), self.assertRaisesRegex(ValueError, "configuration differs"):
+                PACKAGE.install(args)
+            self.assertEqual(list(Path(args.root).iterdir()), [])
+
+    def test_approved_config_is_not_reread_after_approval(self):
+        args, reviewed = self.approved_full_sensor_args()
+        original = self.probe.read_bytes()
+        approve = PACKAGE.approved_probe_profile
+        def mutate_after_approval(*values):
+            selected = approve(*values)
+            self.probe.write_bytes(original.replace(b"collector.bank.example", b"changed.example"))
+            return selected
+        with mock.patch.object(PACKAGE, "approved_probe_profile", side_effect=mutate_after_approval):
+            self.install(args)
+        root = Path(args.root)
+        self.assertEqual((root / "etc/aip/probe.env").read_bytes(), original)
+        self.assertEqual((root / "etc/systemd/system/aip-probe.service").read_text(), reviewed)
+
+    def test_live_profile_requires_declared_github_hosted_context_without_claiming_attestation(self):
+        args, reviewed = self.approved_full_sensor_args()
+        raw = self.probe.read_bytes(); config = PACKAGE.parse_config_bytes(raw, "probe")
+        template = (ROOT / "deploy/pilot/systemd/aip-probe.service").read_text()
+        for context in ({}, {"GITHUB_ACTIONS": "true", "RUNNER_ENVIRONMENT": "self-hosted"},
+                        {"GITHUB_ACTIONS": "false", "RUNNER_ENVIRONMENT": "github-hosted"}):
+            with self.subTest(context=context), mock.patch.dict(PACKAGE.os.environ, context, clear=True):
+                with self.assertRaisesRegex(ValueError, "declared disposable"):
+                    PACKAGE.approved_probe_profile(args, Path("/"), config, raw, template)
+        with mock.patch.dict(PACKAGE.os.environ, {"GITHUB_ACTIONS": "true", "RUNNER_ENVIRONMENT": "github-hosted"}, clear=True):
+            self.assertEqual(PACKAGE.approved_probe_profile(args, Path("/"), config, raw, template), reviewed)
+
+    def test_full_sensor_activation_rejects_collector_role_and_placeholder_pin(self):
+        args, _ = self.approved_full_sensor_args()
+        args.role = "collector"; args.config = str(self.collector)
+        with self.assertRaisesRegex(ValueError, "only to the probe"):
+            PACKAGE.install(args)
+        args.role = "probe"; args.config = str(self.probe)
+        self.probe.write_text(self.probe.read_text().replace("ab" * 32, "0" * 64))
+        args.approved_probe_config_sha256 = PACKAGE.digest(self.probe.read_bytes())
+        with self.assertRaisesRegex(ValueError, "all-zero placeholder"):
+            PACKAGE.install(args)
+        self.assertEqual(list(Path(args.root).iterdir()), [])
+
+    def test_apparmor_hardlinks_cannot_widen_state_access_to_external_targets(self):
+        # Static policy boundary regression; actual Linux enforces this in the
+        # outside-hardlink negative control and normal durable spool workload.
+        policy = (ROOT / "deploy/enterprise/linux/aip-probe.full-sensor.apparmor.review").read_text()
+        rules = [line.strip() for line in policy.splitlines() if line.strip() and not line.lstrip().startswith("#")]
+        links = [line for line in rules if " link " in " " + line]
+        self.assertEqual(links, ["owner link subset /var/lib/aip-probe/** -> /var/lib/aip-probe/**,"])
+        for line in rules:
+            if line.endswith(",") and " link " not in " " + line and not line.startswith("deny "):
+                permissions = line.rsplit(" ", 1)[-1].rstrip(",")
+                if set(permissions) <= set("rwakmlx"):
+                    self.assertNotIn("l", permissions, "bare link permission permits unbounded targets")
+
+    def test_disconnected_mount_paths_cannot_alias_state_write_or_exec_rules(self):
+        # Fanotify event FDs can refer to another mount namespace. Their policy
+        # names must remain under a separate, explicitly read-only prefix even
+        # when the original pathname looks like approved state or an executable.
+        policy = (ROOT / "deploy/enterprise/linux/aip-probe.full-sensor.apparmor.review").read_text()
+        rules = [line.strip() for line in policy.splitlines() if line.strip() and not line.lstrip().startswith("#")]
+        prefix = "/__aip_readonly_disconnected__/"
+        self.assertIn("attach_disconnected.path=" + prefix, rules[0])
+        self.assertNotRegex(rules[0], r"attach_disconnected(?:[, )]|\.path=/[, )])")
+        self.assertIn(prefix + "{,**} r,", rules)
+        self.assertIn("deny " + prefix + "{,**} wklmx,", rules)
+        # Every non-read file grant remains anchored outside the synthetic path.
+        for rule in rules[1:]:
+            if rule.startswith("deny ") or " link " in " " + rule or not rule.endswith(","):
+                continue
+            words = rule[:-1].split()
+            if len(words) < 2 or not words[-2].startswith("/"):
+                continue
+            if set(words[-1]) - {"r"}:
+                self.assertNotIn(prefix, words[-2])
+                self.assertNotIn(words[-2], ("/", "/**", "/*"))
+        # Neither a state-shaped nor executable-shaped disconnected name matches
+        # the only writable hierarchy or the literal inherited execution paths.
+        import fnmatch
+        for original in ("/var/lib/aip-probe/spool/batch", "/usr/bin/python3", "/opt/vanian/snifferdog/bin/aip-probe"):
+            attached = prefix + original
+            self.assertFalse(fnmatch.fnmatchcase(attached, "/var/lib/aip-probe/**"))
+            self.assertFalse(attached.startswith("/usr/bin/"))
+            self.assertFalse(attached.startswith("/opt/vanian/"))
+
+    def test_disconnected_path_kernel_minimum_refuses_old_or_unknown_releases(self):
+        enabled, profiles = self.work / "enabled", self.work / "profiles"
+        enabled.write_text("Y\n"); profiles.write_text("")
+        with mock.patch.object(PACKAGE.shutil, "which", return_value="/usr/sbin/apparmor_parser"):
+            for release in ("4.12.99", "3.19.0", "unknown", "4.13garbage", ""):
+                with self.subTest(release=release), mock.patch.object(PACKAGE.platform, "release", return_value=release):
+                    with self.assertRaisesRegex(ValueError, "kernel release >= 4.13"):
+                        PACKAGE.apparmor_support(enabled, profiles)
+            for release in ("4.13", "4.13.0", "6.8.0-101-generic", "7.0.0-generic"):
+                with self.subTest(release=release), mock.patch.object(PACKAGE.platform, "release", return_value=release):
+                    self.assertEqual(PACKAGE.apparmor_support(enabled, profiles)[1], [])
+
+    def test_apparmor_support_is_required_and_loaded_profile_must_enforce(self):
+        enabled, profiles = self.work / "enabled", self.work / "profiles"
+        enabled.write_text("Y\n"); profiles.write_text("")
+        with mock.patch.object(PACKAGE.shutil, "which", return_value=None):
+            with self.assertRaisesRegex(ValueError, "apparmor_parser"):
+                PACKAGE.apparmor_support(enabled, profiles)
+        with mock.patch.object(PACKAGE.shutil, "which", return_value="/usr/sbin/apparmor_parser"):
+            enabled.write_text("N\n")
+            with self.assertRaisesRegex(ValueError, "enabled"):
+                PACKAGE.apparmor_support(enabled, profiles)
+            enabled.write_text("Y\n"); profiles.unlink()
+            with self.assertRaisesRegex(ValueError, "inspected"):
+                PACKAGE.apparmor_support(enabled, profiles)
+            profiles.write_text("")
+            self.assertEqual(PACKAGE.apparmor_support(enabled, profiles)[1], [])
+        for mode in ("enforce", "complain"):
+            with mock.patch.object(PACKAGE, "apparmor_support", return_value=("parser", [PACKAGE.APPARMOR_NAME + " (" + mode + ")"])):
+                with self.assertRaisesRegex(ValueError, "already loaded"):
+                    PACKAGE.apparmor_preflight()
+        for lines in ([], [PACKAGE.APPARMOR_NAME + " (complain)"], ["other (enforce)"]):
+            with mock.patch.object(PACKAGE, "apparmor_support", return_value=("parser", lines)):
+                with self.assertRaisesRegex(ValueError, "enforce mode"):
+                    PACKAGE.apparmor_require_enforcing()
+        with mock.patch.object(PACKAGE, "apparmor_support", return_value=("parser", [PACKAGE.APPARMOR_NAME + " (enforce)"])):
+            PACKAGE.apparmor_require_enforcing()
+
+    def test_apparmor_policy_tamper_refused_and_owned_uninstall_preserves_state(self):
+        args, _ = self.approved_full_sensor_args()
+        self.install(args)
+        root = Path(args.root)
+        policy = root / PACKAGE.APPARMOR_PATH.lstrip("/")
+        original = policy.read_bytes()
+        state = root / "var/lib/aip-probe/spool"
+        state.mkdir(); (state / "preserved").write_bytes(b"original queued bytes")
+        policy.write_bytes(original + b"# locally changed\n")
+        with self.assertRaisesRegex(ValueError, "local change"):
+            PACKAGE.uninstall(args)
+        policy.write_bytes(original)
+        with contextlib.redirect_stdout(io.StringIO()):
+            PACKAGE.uninstall(args)
+        self.assertFalse(policy.exists())
+        self.assertEqual((state / "preserved").read_bytes(), b"original queued bytes")
+
+    def test_legacy_v1_package_still_verifies_but_cannot_activate_full_sensor_profile(self):
+        def legacy(members):
+            members[:] = [(entry, data) for entry, data in members if entry.name != PACKAGE.APPARMOR_MEMBER]
+            for index, (entry, data) in enumerate(members):
+                if entry.name == "manifest.json":
+                    manifest = json.loads(data); manifest["format"] = PACKAGE.LEGACY_FORMAT
+                    del manifest["files"][PACKAGE.APPARMOR_MEMBER]
+                    members[index] = entry, PACKAGE.canonical(manifest)
+        archive, digest = self.replace_tar(legacy)
+        self.assertEqual(self.verify(archive, digest)[0]["format"], PACKAGE.LEGACY_FORMAT)
+        args, _ = self.approved_full_sensor_args()
+        args.archive, args.expected_sha256 = str(archive), digest
+        with self.assertRaisesRegex(ValueError, "v2 package"):
+            PACKAGE.install(args)
+
+    def test_full_sensor_scope_rejects_broad_paths_and_unspecified_interface(self):
+        self.full_sensor_config()
+        original = self.probe.read_text()
+        for path in ("/", "/var/lib", "/tmp/workload", "/proc/1/root/srv/data", "/etc", "/srv/../etc", "/srv/%n"):
+            self.probe.write_text(original.replace("/srv/aip-pilot-workspace", path))
+            with self.subTest(path=path), self.assertRaises(ValueError):
+                PACKAGE.parse_config(self.probe, "probe")
+        for interface in ("", "../eth0", "%n", "abcdefghijklmnop"):
+            self.probe.write_text(original.replace("AFPACKET_INTERFACE=eth0", "AFPACKET_INTERFACE=" + interface))
+            with self.subTest(interface=interface), self.assertRaises(ValueError):
+                PACKAGE.parse_config(self.probe, "probe")
+
+    def test_spool_limits_and_placement_and_filter_ownership_boundary_config(self):
+        self.full_sensor_config()
+        original = self.probe.read_text()
+        for old, new in (("SPOOL_MAX_BYTES=268435456", "SPOOL_MAX_BYTES=0"),
+                         ("SPOOL_MAX_BATCHES=10000", "SPOOL_MAX_BATCHES=-1"),
+                         ("SPOOL_DIR=/var/lib/aip-probe/spool", "SPOOL_DIR=/tmp/spool"),
+                         ("FILTER_PATH=/etc/aip/agent-filter.json", "FILTER_PATH=/var/lib/aip-probe/filter.json")):
+            self.probe.write_text(original.replace(old, new))
+            with self.subTest(new=new), self.assertRaises(ValueError):
+                PACKAGE.parse_config(self.probe, "probe")
+
+    def test_mount_preflight_requires_dedicated_filesystem_not_a_subdirectory_or_alias(self):
+        location = self.work / "workload"
+        location.mkdir()
+        mountinfo = self.work / "mountinfo"
+        root = "1 0 8:1 / / rw - ext4 /dev/root rw\n"
+        workload = f"2 1 0:71 / {location} rw - tmpfs tmpfs rw\n"
+        mountinfo.write_text(root + workload)
+        self.assertEqual(PACKAGE.approved_mount(str(location), mountinfo), ("0:71", "/", str(location)))
+        for text in (root, root + workload.replace(" / ", " /subdir "),
+                     root + workload + "3 1 0:71 / /another rw - tmpfs tmpfs rw\n"):
+            mountinfo.write_text(text)
+            with self.subTest(text=text), self.assertRaisesRegex(ValueError, "BLOCKED"):
+                PACKAGE.approved_mount(str(location), mountinfo)
+        mountinfo.write_text(root + workload)
+        alias = self.work / "alias"
+        alias.symlink_to(location, target_is_directory=True)
+        with self.assertRaisesRegex(ValueError, "without symlinks"):
+            PACKAGE.approved_mount(str(alias), mountinfo)
+
+    def test_filter_metadata_requires_exact_operator_permissions_and_bounded_size(self):
+        for mode in (0o600, 0o640):
+            PACKAGE.private_filter_metadata(mock.Mock(st_uid=0, st_mode=0o100000 | mode, st_size=100))
+        for uid, mode, size in ((1000, 0o600, 100), (0, 0o750, 100), (0, 0o660, 100),
+                                (0, 0o644, 100), (0, 0o4600, 100), (0, 0o600, 262145)):
+            with self.subTest(uid=uid, mode=mode, size=size), self.assertRaisesRegex(ValueError, "BLOCKED"):
+                PACKAGE.private_filter_metadata(mock.Mock(st_uid=uid, st_mode=0o100000 | mode, st_size=size))
+
+    def test_filter_schema_is_deferred_without_binary_and_delegated_when_installed(self):
+        path = self.work / "filter.json"
+        path.write_text('{"version":1,"targets":[]}')
+        binary = self.work / "installed-probe"
+        output = io.StringIO()
+        with mock.patch.object(PACKAGE, "private_filter_metadata"), contextlib.redirect_stdout(output), \
+                mock.patch.object(PACKAGE.subprocess, "run") as run:
+            PACKAGE.filter_preflight(path, binary)
+        run.assert_not_called()
+        self.assertIn("FILTER_SCHEMA_DEFERRED", output.getvalue())
+        self.assertNotIn("FILTER_SCHEMA_VALIDATED", output.getvalue())
+        binary.write_bytes(b"test fixture; never executed")
+        binary.chmod(0o755)
+        with mock.patch.object(PACKAGE, "private_filter_metadata"), \
+                mock.patch.object(PACKAGE.subprocess, "run", return_value=mock.Mock(returncode=1)) as run:
+            with self.assertRaisesRegex(ValueError, "refused the filter schema"):
+                PACKAGE.filter_preflight(path, binary)
+        self.assertEqual(run.call_args.args[0], [str(binary), "validate-filter", str(path)])
+        self.assertEqual(run.call_args.kwargs["env"], {"PATH": PACKAGE.os.defpath})
+        output = io.StringIO()
+        with mock.patch.object(PACKAGE, "private_filter_metadata"), contextlib.redirect_stdout(output), \
+                mock.patch.object(PACKAGE.subprocess, "run", return_value=mock.Mock(returncode=0)):
+            PACKAGE.filter_preflight(path, binary)
+        self.assertIn("FILTER_SCHEMA_VALIDATED", output.getvalue())
+        self.assertIn("still require runtime checks", output.getvalue())
+
+    def test_filter_preflight_refuses_symlinks_oversized_and_malformed_enrollment_before_exec(self):
+        path = self.work / "filter.json"
+        path.write_text("{}")
+        alias = self.work / "filter-alias.json"
+        alias.symlink_to(path)
+        binary = self.work / "absent-probe"
+        with mock.patch.object(PACKAGE.subprocess, "run") as run:
+            with self.assertRaisesRegex(ValueError, "without symlinks"):
+                PACKAGE.filter_preflight(alias, binary)
+            with mock.patch.object(PACKAGE, "private_filter_metadata"):
+                path.write_bytes(b" " * (PACKAGE.MAX_FILTER_BYTES + 1))
+                with self.assertRaisesRegex(ValueError, "256 KiB"):
+                    PACKAGE.filter_preflight(path, binary)
+                path.write_text("not-json")
+                with self.assertRaisesRegex(ValueError, "not valid JSON"):
+                    PACKAGE.filter_preflight(path, binary)
+        run.assert_not_called()
+
+    def test_kubernetes_template_requires_opt_in_and_retains_collector_state(self):
+        # Static safety assertions only. Helm rendering and cluster behavior
+        # still require their separate tools/infrastructure acceptance.
+        chart = ROOT / "deploy/enterprise/kubernetes/chart"
+        values = (chart / "values.yaml").read_text()
+        template = (chart / "templates/runtime.yaml").read_text()
+        self.assertEqual(values.count("enabled: false"), 2)
+        self.assertIn("confirmSeparateAdministration: false", values)
+        self.assertIn("helm.sh/resource-policy: keep", template)
+        self.assertIn("must use an institution-approved immutable sha256 digest", template)
+        self.assertNotIn("privileged: true", template)
+        self.assertNotIn("SYS_ADMIN", template)
+        self.assertIn("automountServiceAccountToken: false", template)
+
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

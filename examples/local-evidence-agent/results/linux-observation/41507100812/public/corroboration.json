@@ -1,0 +1,61 @@
+{
+  "source": "Auditd",
+  "independence": "DifferentMechanism",
+  "window_from_ms": 1793646703846,
+  "window_to_ms": 1793646765158,
+  "match_window_ms": 250,
+  "agreed": [
+    {
+      "aip": {
+        "pid": 5795,
+        "wall_ms": 1793646704848,
+        "image": "/home/runner/work/_temp/qa-python/bin/python",
+        "batch_sequence": 26
+      },
+      "external_wall_ms": 1793646704846,
+      "external_image": "/opt/hostedtoolcache/Python/3.12.15/x64/bin/python3.12",
+      "skew_ms": -2
+    }
+  ],
+  "aip_only": [
+    {
+      "pid": 5861,
+      "wall_ms": 1793646703846,
+      "image": "/usr/sbin/auditctl",
+      "batch_sequence": 26
+    },
+    {
+      "pid": 5863,
+      "wall_ms": 1793646709112,
+      "image": "/usr/bin/stat",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 5864,
+      "wall_ms": 1793646709201,
+      "image": "/usr/bin/findmnt",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 5866,
+      "wall_ms": 1793646709303,
+      "image": "/usr/bin/ls",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 5867,
+      "wall_ms": 1793646709401,
+      "image": "/usr/bin/ls",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 5880,
+      "wall_ms": 1793646763127,
+      "image": "/home/runner/work/AIP-agent-identity-protocol-/AIP-agent-identity-protocol-/target/debug/aip-observe-verify",
+      "batch_sequence": 71
+    }
+  ],
+  "external_only": [],
+  "external_unparsed": 0,
+  "external_failed_attempts": 0
+}

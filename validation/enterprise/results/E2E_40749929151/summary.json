@@ -1,0 +1,126 @@
+{
+  "source_commit": "4ca5a4d3003c385f7312c65c1053b03f48f94143",
+  "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40749929151",
+  "job_id": 123033607803,
+  "status": "FAILED_SIGNED_COVERAGE_GATE",
+  "genuine_agent_completed": true,
+  "model_calls": 2,
+  "artifact_id": 12843387724,
+  "artifact_sha256": "d2ea0d3f50dba788ad02f9f1df9475715026c76a09980db27fc32049d12b8d35",
+  "root_cause": "Batch-local cross-sensor detector received connector exec witnesses in a batch before their matching scheduler samples. Exact matching PID/timestamp samples are present in the following signed batch; no failed QUERY_BPF diagnostics were recorded. Strict collector coverage reset retained.",
+  "same_run_join_and_enterprise_clients": "NOT_REACHED",
+  "local_archive_verification": {
+    "exit_code": 0,
+    "findings": 0,
+    "signed_batches": 92,
+    "kernel_events": 2403,
+    "health_records": 5,
+    "scope": "signature/chain integrity only; whole-task coverage failed"
+  },
+  "files": {
+    "same-run-audit-initial.txt": {
+      "sha256": "61501e69a61dbbc1a41605ea15c34807e6b1d3992bee195dde36a7ebdd95dd87",
+      "bytes": 9
+    },
+    "local-model/model-manifest-layout.json": {
+      "sha256": "99035f9bde0aefc994c03ed1b22ee9b828f55e50b88176a63033e711bf9c157e",
+      "bytes": 3085
+    },
+    "local-model/model-pin.json": {
+      "sha256": "b9ed9640cfe30be524d3e42098302c9b4ca003bd8da8b17fe0d0f9e3ee69f4b9",
+      "bytes": 2984
+    },
+    "same-run/run-trust.json": {
+      "sha256": "b1416e35c6d66bee2addc6891004404ccb555907450adcd8095340fb66edc15c",
+      "bytes": 1202
+    },
+    "same-run/checkpoint.json": {
+      "sha256": "22ff9e24b5588d55ed790d41808fa182e19023f9a15f0f80dd49a57c1789f80b",
+      "bytes": 215
+    },
+    "same-run/observer-anchor.json": {
+      "sha256": "dad0548063427b8aec7fadb715539e28dacd033140eef7b26939126f0be2cebe",
+      "bytes": 146
+    },
+    "same-run/public/resource-limits.json": {
+      "sha256": "10b7b60e22c4d4d602c63eb924d015ba48b64f24cdc4c66d6861643e9d5de318",
+      "bytes": 111
+    },
+    "same-run/public/receipts.jsonl": {
+      "sha256": "e5967e33ddb56367ea3fb192acad5cb5c20844a5fef1f1894e2c7141ff77d0b7",
+      "bytes": 2324
+    },
+    "same-run/public/probe-query-diagnostics.json": {
+      "sha256": "b8acb75657c24c1ed693d7ad8d78e8926af1bb9c9a7431880bc0e28ff4bf9709",
+      "bytes": 149
+    },
+    "same-run/public/loan-1-review.json": {
+      "sha256": "b654fdfe48d20caf36b3c88c81f8725ddfcc36266fde69e3b6fbb2dde962b114",
+      "bytes": 182
+    },
+    "same-run/public/health.archive.jsonl": {
+      "sha256": "9f25a833cbabf1d96f414ba6dc28850bcedee494fa76afb61cc57a1f97059f40",
+      "bytes": 5600
+    },
+    "same-run/public/parameter-mismatch-stimulus.json": {
+      "sha256": "84dd2ad77123bd651672d8e59fa032375dde3e1ba9341c30da73e8f1c15f12f8",
+      "bytes": 690
+    },
+    "same-run/public/attested.archive.jsonl": {
+      "sha256": "356cfeae3f80fc52908d0e2ffa2f88efa1e6358b32ed18ca2d90fbf6fb716a28",
+      "bytes": 1679558
+    },
+    "same-run/public/resource-usage.json": {
+      "sha256": "70aabc44822023ae8b75f5bac121b6a43196b2775c0f04446ee48dceb41c0982",
+      "bytes": 365
+    },
+    "same-run/public/agent-events.jsonl": {
+      "sha256": "c72ecd584fa38189acfaba6ad22159a87c434f848f554a6cc2fdaf32ef8bc05d",
+      "bytes": 3568
+    },
+    "same-run/public/model-pin.json": {
+      "sha256": "b9ed9640cfe30be524d3e42098302c9b4ca003bd8da8b17fe0d0f9e3ee69f4b9",
+      "bytes": 2984
+    },
+    "same-run/public/gateway-agent-permissions.json": {
+      "sha256": "419c78b2fedea319c69f68da603c1b580d45c1b4bb51f5f1a381c8d175dff346",
+      "bytes": 158
+    },
+    "same-run/public/authority-request.json": {
+      "sha256": "97cc64b6ce5169a62a2084b39344ecfa81a9907317507d5769c28b94806e2ff0",
+      "bytes": 1634
+    },
+    "same-run/public/network-isolation.json": {
+      "sha256": "c34a6391a3ddfb39d904604c73285906b61d47acd12d2a50ef73ccb33bc287d9",
+      "bytes": 1022
+    },
+    "same-run/public/run-manifest.json": {
+      "sha256": "c96add4a2f6e8ab1dbbc9da08a58bf6616bd8824d5bf43a23db495770d4ddc8a",
+      "bytes": 1157
+    },
+    "same-run/public/tool-events.jsonl": {
+      "sha256": "b448313bf6bd412909b51dab54d3f49199e14ec4aebae0c178d6fa1912739da6",
+      "bytes": 328
+    },
+    "same-run/public/expectation.json": {
+      "sha256": "f23c660c8cd27c873e826d50c27f6e6c810406ec454c9a43fffd4936cfa58736",
+      "bytes": 3425
+    },
+    "same-run/public/registered-tool-identities.json": {
+      "sha256": "b2d96645770770e1854e06e9ef64bef14c939c6c0b9f1d2a6afd4d5704fa1c95",
+      "bytes": 232
+    },
+    "same-run/public/agent-egress-policy.json": {
+      "sha256": "f0953dbe6f06ade6e82a303a35272a78c2beb56466ec00d3faf044f79f35d29a",
+      "bytes": 422
+    },
+    "same-run/public/model-tags.json": {
+      "sha256": "46c8ecf347462aa5e1b897014c62073c9727e217363bb7670f766089ecf7062d",
+      "bytes": 653
+    },
+    "same-run/public/runtime-access.json": {
+      "sha256": "94104221dc3bd0b40bdcb05d0e0aa1fa98c9524577e40a0e3af6ec073d90b8ab",
+      "bytes": 695
+    }
+  }
+}

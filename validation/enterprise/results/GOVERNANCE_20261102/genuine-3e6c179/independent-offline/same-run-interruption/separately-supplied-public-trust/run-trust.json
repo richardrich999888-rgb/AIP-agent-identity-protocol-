@@ -1,0 +1,23 @@
+{
+  "agent_id": "aip16Q21WER7SFm1TjZHTKddHyXw2jQkEwQbUbuz2P8QbG",
+  "agent_public_key_hex": "b6fa1a485481639c60a969fb452d4997b5fc118773b3f6a76a8b5c153db7812d",
+  "decision_point_id": "aip12pgxr7aAme3Qc3JRju243jQRwGgi75zqd94r71sAtK",
+  "decision_point_public_key_hex": "09a02384ab1cf3397dd999f1de1b917a8237539c10895f90e47053658bd5be36",
+  "gateway_id": "aip16n6dVY6MchqfWs7dTcE8KCmxxyVz57WtpZZX5KhGEv",
+  "gateway_key_version": 1,
+  "gateway_public_key_hex": "e215fa3659ec485664d082aa4b7aa677138350bec8a146df465b3c6c52113c28",
+  "observer_id": "collector.same-run",
+  "observer_key_version": 1,
+  "observer_public_key_hex": "7d90043c01ec41e44735d5d927d4fe8491cb159dfd8a02312ae18e0cc51cabbe",
+  "reconciler_id": "aip1nK3ondfWhXGtiu69KHotTcw4dJA9cdXJjFj6W3To5",
+  "reconciler_key_version": 1,
+  "reconciler_public_key_hex": "2afddfb9329a99d84d9aef4970f14f39a1d514a3a73491ab7bed55d086b44ccd",
+  "checkpoints": {
+    "same-run-a051d7606eb718ede04a61e9": {
+      "batches_sha256": "bd070ad43d52cfff94b3a36fd5354e9e62e335e83a1d74dbe148e723ea79cf86",
+      "health_sha256": "2dc5e66c65a8f00ff16602f3ab8056b1565f5e7f0b90cdd49d2664c2c4250e65"
+    }
+  },
+  "health_max_age_ms": 60000,
+  "window_tolerance_ms": 0
+}

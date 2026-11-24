@@ -97,6 +97,12 @@ pub struct Config {
     pub key_path: PathBuf,
     pub sensors: SensorConfig,
     pub batch_interval_ms: u64,
+    /// Immutable approved process-instance filter; absence retains host scope.
+    pub filter_path: Option<PathBuf>,
+    /// Durable queue, separate from credentials and collector evidence.
+    pub spool_dir: PathBuf,
+    pub spool_max_bytes: u64,
+    pub spool_max_batches: usize,
 }
 
 /// An optional, non-empty environment value. An empty string is treated as
@@ -129,15 +135,38 @@ fn parse_pubkey_hex(key: &str, value: &str) -> Result<[u8; 32], String> {
     })
 }
 
+fn validate_probe_id(value: String) -> Result<String, String> {
+    if value.is_empty()
+        || value.len() > 256
+        || value.trim() != value
+        || value.chars().any(char::is_control)
+    {
+        return Err("AIP_PROBE_ID must be 1..=256 bytes without control characters or surrounding whitespace".into());
+    }
+    Ok(value)
+}
+
+fn parse_interval(value: Option<&str>) -> Result<u64, String> {
+    let interval = positive_limit("AIP_PROBE_BATCH_INTERVAL_MS", value, 2000)?;
+    if !(100..=60_000).contains(&interval) {
+        return Err("AIP_PROBE_BATCH_INTERVAL_MS must be between 100 and 60000 ms".into());
+    }
+    Ok(interval)
+}
+
+fn positive_limit(key: &str, value: Option<&str>, default: u64) -> Result<u64, String> {
+    match value {
+        None => Ok(default),
+        Some(v) => match v.parse::<u64>() {
+            Ok(n) if n > 0 => Ok(n),
+            _ => Err(format!("{key} must be a positive integer")),
+        },
+    }
+}
+
 impl Config {
     pub fn from_env() -> Result<Self, String> {
-        let batch_interval_ms = match std::env::var("AIP_PROBE_BATCH_INTERVAL_MS") {
-            Ok(v) if !v.is_empty() => v
-                .parse::<u64>()
-                .map_err(|e| format!("AIP_PROBE_BATCH_INTERVAL_MS: {e}"))?
-                .max(100),
-            _ => 2000,
-        };
+        let batch_interval_ms = parse_interval(optional("AIP_PROBE_BATCH_INTERVAL_MS").as_deref())?;
         let mut sensors = SensorConfig::parse(&require("AIP_PROBE_SENSORS")?)?;
         sensors.fanotify_path = optional("AIP_PROBE_FANOTIFY_PATH");
         sensors.afpacket_interface = optional("AIP_PROBE_AFPACKET_INTERFACE");
@@ -154,16 +183,48 @@ impl Config {
             );
         }
 
+        let key_path = PathBuf::from(require("AIP_PROBE_KEY_PATH")?);
+        let spool_dir = optional("AIP_PROBE_SPOOL_DIR")
+            .map(PathBuf::from)
+            .unwrap_or_else(|| {
+                key_path
+                    .parent()
+                    .unwrap_or_else(|| std::path::Path::new("."))
+                    .join("spool")
+            });
+        let spool_dir = if spool_dir.is_absolute() {
+            spool_dir
+        } else {
+            std::env::current_dir()
+                .map_err(|e| format!("cannot resolve spool directory: {e}"))?
+                .join(spool_dir)
+        };
+        let spool_max_bytes = positive_limit(
+            "AIP_PROBE_SPOOL_MAX_BYTES",
+            optional("AIP_PROBE_SPOOL_MAX_BYTES").as_deref(),
+            256 * 1024 * 1024,
+        )?;
+        let spool_max_batches = usize::try_from(positive_limit(
+            "AIP_PROBE_SPOOL_MAX_BATCHES",
+            optional("AIP_PROBE_SPOOL_MAX_BATCHES").as_deref(),
+            10_000,
+        )?)
+        .map_err(|_| "AIP_PROBE_SPOOL_MAX_BATCHES exceeds this platform's capacity")?;
+
         Ok(Self {
-            probe_id: require("AIP_PROBE_ID")?,
+            probe_id: validate_probe_id(require("AIP_PROBE_ID")?)?,
             collector_endpoint: require("AIP_PROBE_COLLECTOR_ENDPOINT")?,
             collector_noise_pubkey: parse_pubkey_hex(
                 "AIP_PROBE_COLLECTOR_NOISE_PUBKEY",
                 &require("AIP_PROBE_COLLECTOR_NOISE_PUBKEY")?,
             )?,
-            key_path: PathBuf::from(require("AIP_PROBE_KEY_PATH")?),
+            key_path,
             sensors,
             batch_interval_ms,
+            filter_path: optional("AIP_PROBE_FILTER_PATH").map(PathBuf::from),
+            spool_dir,
+            spool_max_bytes,
+            spool_max_batches,
         })
     }
 }
@@ -171,6 +232,39 @@ impl Config {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn collection_interval_cannot_disable_draining_with_an_unbounded_sleep() {
+        for invalid in ["0", "99", "60001", "18446744073709551615", "garbage"] {
+            assert!(parse_interval(Some(invalid)).is_err());
+        }
+        assert_eq!(parse_interval(None).unwrap(), 2000);
+        assert_eq!(parse_interval(Some("100")).unwrap(), 100);
+        assert_eq!(parse_interval(Some("60000")).unwrap(), 60000);
+    }
+
+    #[test]
+    fn probe_identity_is_bounded_for_authenticated_frame_size_and_safe_diagnostics() {
+        for invalid in [
+            String::new(),
+            "x".repeat(257),
+            "probe\nother".into(),
+            " probe".into(),
+        ] {
+            assert!(validate_probe_id(invalid).is_err());
+        }
+        assert_eq!(validate_probe_id("x".repeat(256)).unwrap().len(), 256);
+        assert!(validate_probe_id("customer.agent-1".into()).is_ok());
+    }
+
+    #[test]
+    fn buffering_cannot_be_unbounded_or_silently_disabled_by_invalid_limits() {
+        for invalid in ["0", "-1", "", "1.5", "18446744073709551616"] {
+            assert!(positive_limit("limit", Some(invalid), 10).is_err());
+        }
+        assert_eq!(positive_limit("limit", None, 10).unwrap(), 10);
+        assert_eq!(positive_limit("limit", Some("2"), 10).unwrap(), 2);
+    }
 
     #[test]
     fn the_pinned_collector_key_must_be_exactly_32_bytes_of_hex() {

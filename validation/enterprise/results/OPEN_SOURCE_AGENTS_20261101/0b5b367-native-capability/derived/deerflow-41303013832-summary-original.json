@@ -1,0 +1,96 @@
+{
+  "framework": "deerflow",
+  "run_id": 41303013832,
+  "artifact_id": 13081414571,
+  "artifact_sha256": "60affbc2e38831ea3d009f04ca132c015108195c8680ec8be2274923286b751e",
+  "original_zip_digest_matches_github": true,
+  "exact_zip_members_match_preserved_bytes": true,
+  "source_commit": "0b5b3674aa4c2bb877c8e6c497e8a721d45e9c65",
+  "actual_stage": "SEPARATE_REAL_FRAMEWORK_TOOL_CAPABILITY_STAGE",
+  "capability_status": "FAIL",
+  "successful_framework_model_http200_requests": 1,
+  "model_http_diagnostic": {
+    "source_authority": "root_read_of_separate_local_ollama_access_log",
+    "scope": "allowlisted POST /api/chat and /api/generate status metadata only",
+    "not_cryptographically_signed": true,
+    "successful_counter_semantics": "HTTP_200_ONLY",
+    "status": "AVAILABLE",
+    "request_count": 1,
+    "status_counts": [
+      {
+        "method": "POST",
+        "route": "/api/chat",
+        "status_code": 200,
+        "count": 1
+      }
+    ]
+  },
+  "pre_capability_successful_policy_generation_requests": 1,
+  "failure_type": "FileNotFoundError",
+  "failure_details": {
+    "exception_type": "FileNotFoundError",
+    "stage": "capability",
+    "errno": 2,
+    "source_frames": [
+      {
+        "source_root": "/opt/snifferdog/",
+        "file": "native_frameworks.py",
+        "function": "main",
+        "line": 420
+      },
+      {
+        "source_root": "/opt/snifferdog/",
+        "file": "native_frameworks.py",
+        "function": "assess",
+        "line": 375
+      },
+      {
+        "source_root": "/opt/snifferdog/",
+        "file": "agent_zero_capability.py",
+        "function": "read_regular_json",
+        "line": 22
+      },
+      {
+        "source_root": "/usr/local/lib/python3.12/",
+        "file": "pathlib.py",
+        "function": "lstat",
+        "line": 847
+      },
+      {
+        "source_root": "/usr/local/lib/python3.12/",
+        "file": "pathlib.py",
+        "function": "stat",
+        "line": 840
+      }
+    ]
+  },
+  "business_task_execution": "NOT_STARTED",
+  "business_task_acceptance": "NOT_ESTABLISHED",
+  "business_kernel_archive_and_checkpoint": "NOT_PRODUCED",
+  "business_offline_verification": "NOT_APPLICABLE_NO_BUSINESS_ARCHIVE",
+  "actual_32768_service_context_preflight": "SOURCE_ENFORCED_SUCCESSFUL_POLICY_ASSERTION_NO_RAW_PS_RESPONSE_RETAINED",
+  "post_framework_served_context": "NOT_REACHED",
+  "native_framework_tool_roundtrip": "NOT_ESTABLISHED",
+  "journal_records": 44,
+  "journal_kind_counts": {
+    "configuration_verified": 1,
+    "native_framework_stage": 4,
+    "deerflow_skill_scope_verified": 1,
+    "native_framework_event": 35,
+    "native_framework_end": 1,
+    "native_framework_returned": 1,
+    "capability_failed": 1
+  },
+  "cleanup_errors": [],
+  "model_quality_cause": "NOT_ESTABLISHED",
+  "diagnostic_authority": "SELF_REPORTED application diagnostics; model access aggregate root-read, neither independent kernel evidence",
+  "framework_returned": [
+    {
+      "framework": "deerflow",
+      "terminal_calls": 0,
+      "terminal_results": 0,
+      "independent_task_acceptance": false
+    }
+  ],
+  "specific_failure": "One successful model HTTP200 response ended as ordinary assistant content containing a fenced JSON-shaped read_file request. No native tool-call/result event and no capability result file were produced; no parser repair was applied."
+}

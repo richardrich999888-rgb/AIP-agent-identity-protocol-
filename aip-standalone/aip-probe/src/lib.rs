@@ -10,5 +10,8 @@
 //! See `docs/pilot/PHASE1_DAEMONS.md` for the design and the trust model.
 
 pub mod config;
+pub mod filter;
 pub mod keyfile;
 pub mod sensors;
+
+pub mod spool;

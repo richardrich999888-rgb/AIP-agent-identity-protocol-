@@ -1,0 +1,299 @@
+{
+  "source": "Auditd",
+  "independence": "DifferentMechanism",
+  "window_from_ms": 1793524072709,
+  "window_to_ms": 1793524082522,
+  "match_window_ms": 250,
+  "agreed": [
+    {
+      "aip": {
+        "pid": 5921,
+        "wall_ms": 1793524078851,
+        "image": "/bin/bash",
+        "batch_sequence": 29
+      },
+      "external_wall_ms": 1793524078849,
+      "external_image": "/usr/bin/bash",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 5921,
+        "wall_ms": 1793524078852,
+        "image": "/opt/framework/backend/.venv/bin/python",
+        "batch_sequence": 29
+      },
+      "external_wall_ms": 1793524078851,
+      "external_image": "/usr/local/bin/python3.12",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 6010,
+        "wall_ms": 1793524080921,
+        "image": "/usr/bin/git",
+        "batch_sequence": 31
+      },
+      "external_wall_ms": 1793524080920,
+      "external_image": "/usr/bin/git",
+      "skew_ms": -1
+    }
+  ],
+  "aip_only": [
+    {
+      "pid": 5709,
+      "wall_ms": 1793524073710,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5717,
+      "wall_ms": 1793524073924,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5727,
+      "wall_ms": 1793524074140,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5735,
+      "wall_ms": 1793524074354,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5743,
+      "wall_ms": 1793524074576,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5752,
+      "wall_ms": 1793524074794,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5760,
+      "wall_ms": 1793524075008,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5768,
+      "wall_ms": 1793524075226,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5778,
+      "wall_ms": 1793524075445,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5787,
+      "wall_ms": 1793524075663,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5796,
+      "wall_ms": 1793524075877,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5804,
+      "wall_ms": 1793524076093,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5814,
+      "wall_ms": 1793524076310,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5823,
+      "wall_ms": 1793524076530,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5834,
+      "wall_ms": 1793524076749,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 27
+    },
+    {
+      "pid": 5844,
+      "wall_ms": 1793524076970,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 5853,
+      "wall_ms": 1793524077193,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 5861,
+      "wall_ms": 1793524077407,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 5869,
+      "wall_ms": 1793524077623,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 5878,
+      "wall_ms": 1793524077837,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 5887,
+      "wall_ms": 1793524078052,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 5895,
+      "wall_ms": 1793524078266,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 29
+    },
+    {
+      "pid": 5903,
+      "wall_ms": 1793524078481,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 29
+    },
+    {
+      "pid": 5912,
+      "wall_ms": 1793524078697,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 29
+    },
+    {
+      "pid": 5924,
+      "wall_ms": 1793524078912,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 29
+    },
+    {
+      "pid": 5932,
+      "wall_ms": 1793524079126,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 29
+    },
+    {
+      "pid": 5941,
+      "wall_ms": 1793524079339,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 30
+    },
+    {
+      "pid": 5951,
+      "wall_ms": 1793524079556,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 30
+    },
+    {
+      "pid": 5959,
+      "wall_ms": 1793524079770,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 30
+    },
+    {
+      "pid": 5968,
+      "wall_ms": 1793524079983,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 30
+    },
+    {
+      "pid": 5976,
+      "wall_ms": 1793524080197,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 30
+    },
+    {
+      "pid": 5985,
+      "wall_ms": 1793524080410,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 30
+    },
+    {
+      "pid": 5993,
+      "wall_ms": 1793524080624,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 31
+    },
+    {
+      "pid": 6002,
+      "wall_ms": 1793524080840,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 31
+    },
+    {
+      "pid": 6011,
+      "wall_ms": 1793524081054,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 31
+    },
+    {
+      "pid": 6019,
+      "wall_ms": 1793524081269,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 31
+    },
+    {
+      "pid": 6027,
+      "wall_ms": 1793524081336,
+      "image": "/usr/bin/runc",
+      "batch_sequence": 31
+    },
+    {
+      "pid": 6033,
+      "wall_ms": 1793524081343,
+      "image": "/usr/bin/containerd-shim-runc-v2",
+      "batch_sequence": 31
+    },
+    {
+      "pid": 6041,
+      "wall_ms": 1793524081346,
+      "image": "/usr/bin/runc",
+      "batch_sequence": 31
+    },
+    {
+      "pid": 6046,
+      "wall_ms": 1793524081485,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 31
+    },
+    {
+      "pid": 6054,
+      "wall_ms": 1793524081498,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 31
+    },
+    {
+      "pid": 6062,
+      "wall_ms": 1793524081510,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 31
+    }
+  ],
+  "external_only": [],
+  "external_unparsed": 0,
+  "external_failed_attempts": 15
+}

@@ -1,0 +1,53 @@
+{
+  "classification": "VALID_SIGNED_OBSERVATIONS_OF_GENUINE_FAILED_WORKLOAD_NOT_TASK_SUCCESS",
+  "run_id": 41299438636,
+  "genuine_workload": "EXECUTED",
+  "process_exit": 1,
+  "synthetic_business_acceptance": "FAIL",
+  "successful_HTTP200_capability_requests": 3,
+  "successful_HTTP200_framework_period_requests_excluding_policy": 8,
+  "evidence_integrity": "PASS_ZERO_FINDINGS",
+  "original_checkpoint_bytes_match": true,
+  "independent_all_six_sensor_actual_task_coverage": true,
+  "signed_batches": 198,
+  "kernel_events": 13868,
+  "signed_health_records": 16,
+  "namespace_bound_events": {
+    "ProcessSpawn": 21,
+    "SocketState": 39,
+    "SocketSend": 11,
+    "ProcessExec": 3,
+    "Fork": 3,
+    "Exec": 3,
+    "Exit": 3
+  },
+  "recomputed_observation_gate": "FAIL",
+  "observation_failures": [
+    "framework process failed",
+    "no workload-bound FileEvent"
+  ],
+  "audit": {
+    "agreed": 53,
+    "whole_host_aip_only": 378,
+    "external_only": 0,
+    "external_unparsed": 0,
+    "external_failed_attempts": 294,
+    "unmatched_exact_bound_exec_references": 0
+  },
+  "original_root_application_business_report": {
+    "status": "FAIL",
+    "failures": [
+      "business report is missing, unsafe or invalid JSON"
+    ],
+    "actual": null,
+    "policy_responses_in_task_window": 1,
+    "controller_measured_client_ip": "172.18.0.4",
+    "actual_report_sha256": null
+  },
+  "full_report": {
+    "path": "independent-business/summary.json",
+    "bytes": 5663,
+    "sha256": "c9ecc94520b41a74e6d8b09857ccb44e4f9a9853d6c3a2497c9183bfdb0952d4"
+  },
+  "scope": "Original generic harness checks3mechanisms; independent replay requests6from final signed health. Crypto/coverage pass cannot replace process/file/report acceptance."
+}

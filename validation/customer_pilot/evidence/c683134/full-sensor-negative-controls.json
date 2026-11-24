@@ -1,0 +1,69 @@
+{
+  "status": "PASS",
+  "process_status": {
+    "Uid": "999\t999\t999\t999",
+    "Gid": "986\t986\t986\t986",
+    "CapEff": "0000004000283004",
+    "CapBnd": "0000004000283004",
+    "CapAmb": "0000004000283004",
+    "NoNewPrivs": "1",
+    "Seccomp": "2"
+  },
+  "lsm_label": "aip-probe-full-sensor (enforce)",
+  "operations": {
+    "outside_write": {
+      "allowed": false,
+      "errno": 30
+    },
+    "host_root_write": {
+      "allowed": false,
+      "errno": 13
+    },
+    "other_root_write": {
+      "allowed": false,
+      "errno": 13
+    },
+    "state_symlink_write": {
+      "allowed": false,
+      "errno": 30
+    },
+    "outside_hardlink": {
+      "allowed": false,
+      "errno": 13
+    },
+    "mount": {
+      "allowed": false,
+      "return_value": -1,
+      "errno": 1
+    },
+    "unshare": {
+      "allowed": false,
+      "return_value": -1,
+      "errno": 1
+    },
+    "ptrace": {
+      "allowed": false,
+      "return_value": -1,
+      "errno": 1
+    },
+    "process_vm_writev": {
+      "allowed": false,
+      "return_value": -1,
+      "errno": 1
+    },
+    "private_read": {
+      "allowed": true,
+      "bytes_read": 28,
+      "content_retained": false
+    }
+  },
+  "failed_negative_controls": [],
+  "broad_read_access_observed": true,
+  "scope": "Disposable canaries only; allowed private read records residual CAP_DAC_READ_SEARCH visibility, not customer isolation.",
+  "source_unit_sha256": "73582b8bb7bc3d42174c9ed7a7d097d0c7c6049eddf0c1cfdf5456f6a908a498",
+  "negative_unit_sha256": "e9057d45f970a024eb328abb559b4d1cfbbed1b10c3806eeb6abb1288c2b5a9e",
+  "only_unit_changes": [
+    "ExecStart",
+    "Restart"
+  ]
+}

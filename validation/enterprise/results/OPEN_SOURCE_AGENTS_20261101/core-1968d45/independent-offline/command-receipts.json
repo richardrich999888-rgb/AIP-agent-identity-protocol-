@@ -1,0 +1,266 @@
+[
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-observe-verify",
+      "--observer-id",
+      "collector.same-run",
+      "--key-version",
+      "1",
+      "--pubkey",
+      "3b6f40dfac556ff77e38286d44917325add0ce56d22887f503b71ddd973dee45",
+      "--batches",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run/public/attested.archive.jsonl",
+      "--health",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run/public/health.archive.jsonl",
+      "--json"
+    ],
+    "environment_keys": [
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.05500616600329522,
+    "stdin_sha256": null,
+    "stdout_sha256": "659397a0e005263d3999c998b0c418028177598f06f0d56c970b449e846e3f0c",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-tool-receipt",
+      "verify"
+    ],
+    "environment_keys": [
+      "AIP_GATEWAY_ID",
+      "AIP_GATEWAY_KEY_VERSION",
+      "AIP_GATEWAY_PUBLIC_KEY",
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.003928958001779392,
+    "stdin_sha256": "95ed6b0c2bc452a47cc67a7a54ea466d8071cd235dd61971f02bcf8011188b0d",
+    "stdout_sha256": "2ed2f2decdea241c553ee224b85ac964526a35c6c6102158b097f6f852ab2b50",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-tool-receipt",
+      "verify"
+    ],
+    "environment_keys": [
+      "AIP_GATEWAY_ID",
+      "AIP_GATEWAY_KEY_VERSION",
+      "AIP_GATEWAY_PUBLIC_KEY",
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.0038960420060902834,
+    "stdin_sha256": "917a4d0d394e95296a7bdacbf6811b3b17616732ee89c1c82bc0da607ad84656",
+    "stdout_sha256": "9f50b9de2db8c36318a844d9820885163e72a864f46ad47f160fb0182b14849e",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-execution-assurance",
+      "evaluate"
+    ],
+    "environment_keys": [
+      "AIP_RUN_TRUST_FILE",
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.16100904199993238,
+    "stdin_sha256": "30e9146fecf38eba085a622bcf63e7a4888e690c406ff5cb06d75ad619e0cbad",
+    "stdout_sha256": "b4e446a03b6f8ba785a7e1e9c171ae5e9cb2046e06382b7735d0f26c45700bc7",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-execution-assurance",
+      "evaluate"
+    ],
+    "environment_keys": [
+      "AIP_RUN_TRUST_FILE",
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.15381745900958776,
+    "stdin_sha256": "e7dbc266b79868ba3135da9e4c850a2169cace64ea775ab9c90237078ea13e7d",
+    "stdout_sha256": "f8b8552d048455d8653383a63439b7db1aebbce6043cfd17ee7bd59a0bb0561f",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-observe-verify",
+      "--observer-id",
+      "collector.same-run",
+      "--key-version",
+      "1",
+      "--pubkey",
+      "1fee597ef247281ee9c0b30290637eb7185cab5de6272480e99722ba3e8bebb2",
+      "--batches",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run-interruption/public/attested.archive.jsonl",
+      "--health",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run-interruption/public/health.archive.jsonl",
+      "--json"
+    ],
+    "environment_keys": [
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.02213145799760241,
+    "stdin_sha256": null,
+    "stdout_sha256": "316d23c2497661638777d80bc2982fbc840b08f82e5678f69d73e5140c1b0214",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-tool-receipt",
+      "verify"
+    ],
+    "environment_keys": [
+      "AIP_GATEWAY_ID",
+      "AIP_GATEWAY_KEY_VERSION",
+      "AIP_GATEWAY_PUBLIC_KEY",
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.0034625410044100136,
+    "stdin_sha256": "d50baf2a950fd389ac013a0de3df3749f2eed3972c4a16f60001df6d10693626",
+    "stdout_sha256": "8c22d5f3e65eafbc28003c8b8389e0ea806d639b7a1cafca02fd1e9d2671b803",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-tool-receipt",
+      "verify"
+    ],
+    "environment_keys": [
+      "AIP_GATEWAY_ID",
+      "AIP_GATEWAY_KEY_VERSION",
+      "AIP_GATEWAY_PUBLIC_KEY",
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.0028655000060098246,
+    "stdin_sha256": "303d226411603b60bb4bb47cf8f6e0061582ecaae547b1d9a1102d8b15b0ec72",
+    "stdout_sha256": "deb3fd9489e146cd036d5a830b12b0db677227007b347b363b0334589b10bbf3",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-execution-assurance",
+      "evaluate"
+    ],
+    "environment_keys": [
+      "AIP_RUN_TRUST_FILE",
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.05867208399286028,
+    "stdin_sha256": "4ef74ea9dd62427003cfb92ef4b13f4d23be167a6b1e3f3605ac7d779de72b87",
+    "stdout_sha256": "f416a3275d16cbb79b6b7fb65db33cdde0dda14700bd4c186e746d17df65da29",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-execution-assurance",
+      "evaluate"
+    ],
+    "environment_keys": [
+      "AIP_RUN_TRUST_FILE",
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.07700474999728613,
+    "stdin_sha256": "f33eabc8fb2011eb712babbdbb5aa48eb6039b44d79601dec98d667762fb1a71",
+    "stdout_sha256": "9828fec19c59981adff1f65c513183a67db5302535bbc30dd8f67f36d0b6a8e0",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-observe-verify",
+      "--observer-id",
+      "collector.same-run",
+      "--key-version",
+      "1",
+      "--pubkey",
+      "f62c4f9717afa7efff377b3b1b831959df8ab43d8b0e2f073c10a0926f6e5629",
+      "--batches",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run-recovery/public/attested.archive.jsonl",
+      "--health",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run-recovery/public/health.archive.jsonl",
+      "--json"
+    ],
+    "environment_keys": [
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.054203583000344224,
+    "stdin_sha256": null,
+    "stdout_sha256": "8cfb87ff5c86fe9ba9c2af12e2b979cdd1e612ee804d1f6ad48fe2cab45b9cb6",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-tool-receipt",
+      "verify"
+    ],
+    "environment_keys": [
+      "AIP_GATEWAY_ID",
+      "AIP_GATEWAY_KEY_VERSION",
+      "AIP_GATEWAY_PUBLIC_KEY",
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.003741458000149578,
+    "stdin_sha256": "3216dac2d485a2b830f5c3ee434062bffb04c3f57fc197fa301eb1bf05895a9d",
+    "stdout_sha256": "1d41273fca183ea5fdf9336823dbe40a14a14554e423bf944b64c7c7a8708782",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-tool-receipt",
+      "verify"
+    ],
+    "environment_keys": [
+      "AIP_GATEWAY_ID",
+      "AIP_GATEWAY_KEY_VERSION",
+      "AIP_GATEWAY_PUBLIC_KEY",
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.0033734580065356568,
+    "stdin_sha256": "40aaaaf1d2b5e323e3f9f7177049ba14135605b30b3679adefcca46bf2a8282b",
+    "stdout_sha256": "4b79ebf44acd9c4cf994895a623792847fc67e505332bf198430945bc3b8e3e4",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-execution-assurance",
+      "evaluate"
+    ],
+    "environment_keys": [
+      "AIP_RUN_TRUST_FILE",
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.156399750005221,
+    "stdin_sha256": "d3e895dd9be06c753a18cc256054d90d091fbcf6906dd40eedeaac9ab929e423",
+    "stdout_sha256": "50d19d6f411f3590789625022bc13d10aae65dc1b3428adf8da3930ba0a9798d",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-execution-assurance",
+      "evaluate"
+    ],
+    "environment_keys": [
+      "AIP_RUN_TRUST_FILE",
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.15433362498879433,
+    "stdin_sha256": "e5acbef33f8be81d3c4ca83a8fefbe4dd9e3372a0c702223725eeb6a786c77d6",
+    "stdout_sha256": "914a284fb90a68239c3352dc785b6f22776010d3fbe74d118b4a0585fb2ac996",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

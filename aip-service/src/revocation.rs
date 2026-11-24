@@ -21,12 +21,13 @@
 //! [`LEGACY_TENANT`] with their original hash form, so an existing log keeps
 //! verifying and keeps applying to the tokens it applied to before.
 
-use chrono::Utc;
+use crate::timestamps::utc_seconds;
 use serde::{Deserialize, Serialize};
 use sha3::{Digest, Sha3_256};
 use std::collections::HashSet;
 use std::path::Path;
 use std::sync::{Arc, Mutex};
+use time::OffsetDateTime;
 
 /// The tenant assigned to entries and tokens that predate tenancy. Shared
 /// with the evidence store so a "legacy" token and a "legacy" packet mean the
@@ -91,7 +92,7 @@ impl RevocationEntry {
     /// A new, tenant-scoped entry stamped now. `jti` must already be
     /// canonical (the handler normalises before constructing).
     pub fn new(tenant_id: &str, jti: &str, revoked_by: &str, reason: &str) -> Self {
-        let revoked_at = Utc::now().format("%Y-%m-%dT%H:%M:%SZ").to_string();
+        let revoked_at = utc_seconds(OffsetDateTime::now_utc());
         let mut entry = Self {
             tenant_id: Some(tenant_id.to_owned()),
             jti: jti.to_owned(),

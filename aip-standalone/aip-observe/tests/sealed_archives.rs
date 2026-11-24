@@ -50,3 +50,52 @@ fn hex_decode(s: &str) -> Vec<u8> {
         .map(|i| u8::from_str_radix(&s[i..i + 2], 16).expect("hex"))
         .collect()
 }
+
+/// The genuine LangGraph/local-model Linux capture is protocol 13. Verify
+/// every original batch and health record after the retention-scope upgrade;
+/// never rewrite old signed evidence to fit the new struct.
+#[test]
+fn genuine_local_model_v13_archive_and_health_remain_verifiable() {
+    let base = repo().join("examples/local-evidence-agent/results/linux-observation/41508547378");
+    let trust: serde_json::Value =
+        serde_json::from_slice(&std::fs::read(base.join("trust/controller-trust.json")).unwrap())
+            .unwrap();
+    let key = hex_decode(trust["observer_anchor"]["public_key"].as_str().unwrap());
+    let anchors = ObserverTrustAnchors::new().trust("collector.local.qa", 1, &key);
+    let archive = std::fs::read_to_string(base.join("public/attested.archive.jsonl")).unwrap();
+    let expected_hash = trust["public_files"]["attested.archive.jsonl"]
+        .as_str()
+        .unwrap();
+    assert_eq!(
+        aip_crypto::sha256(archive.as_bytes()).to_vec(),
+        hex_decode(expected_hash)
+    );
+    let mut batches = 0;
+    let mut previous_head = [0; 32];
+    for line in archive.lines().filter(|s| !s.trim().is_empty()) {
+        let batch: AttestedBatch = serde_json::from_str(line).unwrap();
+        assert_eq!(batch.version, 13);
+        assert!(batch.batch.filter_report.is_none());
+        verify_attested_batch(&batch, &anchors).unwrap();
+        assert_eq!(batch.sequence, batches + 1);
+        assert_eq!(batch.prev_head, previous_head);
+        previous_head = batch.head();
+        batches += 1;
+    }
+    let archive = std::fs::read_to_string(base.join("public/health.archive.jsonl")).unwrap();
+    let expected_hash = trust["public_files"]["health.archive.jsonl"]
+        .as_str()
+        .unwrap();
+    assert_eq!(
+        aip_crypto::sha256(archive.as_bytes()).to_vec(),
+        hex_decode(expected_hash)
+    );
+    let mut health = 0;
+    for line in archive.lines().filter(|s| !s.trim().is_empty()) {
+        let record: aip_observe::SignedSensorHealth = serde_json::from_str(line).unwrap();
+        assert_eq!(record.health.version, 13);
+        aip_observe::verify_signed_health(&record, &anchors).unwrap();
+        health += 1;
+    }
+    assert_eq!((batches, health), (93, 6));
+}

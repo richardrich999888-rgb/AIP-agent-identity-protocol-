@@ -23,7 +23,12 @@ def parse_status(text):
 
 class AuditCrosscheck:
     def __init__(self):
-        self.key = "sd" + uuid.uuid4().hex[:20]
+        # Public auditctl/ausearch selection label, never an authentication key.
+        # Alphabetic UUID encoding keeps the label recognizable as nonsecret
+        # without suppressing future credential findings in retained audit logs.
+        # 30 ASCII bytes fit Linux audit's 31-byte key limit.
+        self.key = "audit-run-" + uuid.uuid4().hex[:20].translate(
+            str.maketrans("0123456789", "ghijklmnop"))
         self.rule = ["always,exit", "-F", "arch=b64", "-S", "execve,execveat",
                      "-F", "euid=10001", "-k", self.key]
         self.started = False
@@ -58,7 +63,8 @@ class AuditCrosscheck:
             raise Refused("auditd produced no syscall records")
         Path(destination).write_text(data)
         return {"source": "Linux audit", "key": self.key, "initial": self.initial, "final": final,
-                "scope": "host uid 10001 execve/execveat; independent implementation/mechanism, shared kernel"}
+                "scope": "host " + next(value for value in self.rule if value.startswith("euid="))
+                + " execve/execveat; independent implementation/mechanism, shared kernel"}
 
     def close(self):
         if self.started:

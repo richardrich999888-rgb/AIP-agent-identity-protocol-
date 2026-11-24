@@ -51,6 +51,7 @@ fn endpoint(port: u16) -> SocketEndpoint {
 /// exactly the fields a sparse fixture omits.
 fn populated_batch() -> ObservationBatch {
     ObservationBatch {
+        filter_report: None,
         version: OBSERVE_PROTOCOL_VERSION,
         probe_id: "probe-1".into(),
         batch_id: [1u8; 16],

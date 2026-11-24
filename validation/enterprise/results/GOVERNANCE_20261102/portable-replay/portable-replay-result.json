@@ -1,0 +1,83 @@
+{
+  "classification": "PORTABLE_REPLAY_OF_FIXED_RETAINED_GOVERNANCE_DATASET",
+  "status": "PASS",
+  "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+  "run_id": 41432473155,
+  "original_zip_sha256": "48ccc9525cade552b8eb28874e0c786b96a4b00024defd8b17e7cd9fbab6a505",
+  "actual_platform": "macOS-26.4.1-arm64-arm-64bit",
+  "rust_tools": {
+    "aip-observe-verify": {
+      "path": "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-observe-verify",
+      "sha256": "916f770e88153a0683d295532da40261b4d76eb46aec67e200edab237b0c3701"
+    },
+    "aip-execution-assurance": {
+      "path": "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-execution-assurance",
+      "sha256": "ed9f25b67c3da3db9dfad92dfdde240aff48c76dd55cfca67d8922153907cd27"
+    },
+    "aip-tool-receipt": {
+      "path": "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-tool-receipt",
+      "sha256": "538103da9824dc752ee0778f2392f4c167c97764b5f6b9c7bff8e4b0a94d73de"
+    },
+    "aip-corroborate": {
+      "path": "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-corroborate",
+      "sha256": "0cb3ba6d642903d65a058a3fe061b2f38c58eb4287e62085190f18ce7a95aa51"
+    }
+  },
+  "OPA": {
+    "path": "/private/tmp/snifferdog-governance-20261102-assets/opa/opa-1.22.0-darwin_arm64",
+    "platform": "darwin_arm64",
+    "version": "1.22.0",
+    "sha256": "41af6de872b3cb1d17eb604779489c83dd9bf377737873f9866814501df6e2d1"
+  },
+  "network_or_model_or_sdk_or_collector_started": false,
+  "commands": [
+    {
+      "script": "verify-original-core.py",
+      "exit_code": 0,
+      "seconds": 0.9803314999880968,
+      "stdout_sha256": "c6355e0fb22e7fd9eb0be357ab1be702644dc4a2f6112e77056319ce7cef69eb",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "environment_keys": [
+        "PATH"
+      ],
+      "python_flags": [
+        "-I",
+        "-B"
+      ]
+    },
+    {
+      "script": "verify-physical-scope-and-audit.py",
+      "exit_code": 0,
+      "seconds": 0.2587309170048684,
+      "stdout_sha256": "d0f671e25506cd984face162204b3345ffedf8ce26209b257f09bd29712c3d01",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "environment_keys": [
+        "PATH"
+      ],
+      "python_flags": [
+        "-I",
+        "-B"
+      ]
+    },
+    {
+      "script": "verify-policy-and-collector-links.py",
+      "exit_code": 0,
+      "seconds": 0.22677879100956488,
+      "stdout_sha256": "0d1b5bbdeaaf034dfbdef03ff34f1353d95d860aa0517927c515136ca52d55e7",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "environment_keys": [
+        "PATH"
+      ],
+      "python_flags": [
+        "-I",
+        "-B"
+      ]
+    }
+  ],
+  "limits": [
+    "Trust the launcher, explicit compiled Rust tools and local host. Hashes do not attest their build or independent custody.",
+    "Public anchors/checkpoints came in the same original GitHub artifact; separate CLI paths do not establish institution custody.",
+    "Frozen script labels mentioning Mac/Darwin are historical labels. Actual platform and verified OPA asset are recorded here and in new command receipts.",
+    "All predicates are the unchanged fixed-SHA scripts. Controller telemetry remains unsigned application metadata; core CannotProve limits remain."
+  ]
+}

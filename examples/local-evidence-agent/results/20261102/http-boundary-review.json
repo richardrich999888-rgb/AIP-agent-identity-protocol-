@@ -1,0 +1,19 @@
+{
+  "classification": "CONTROLLED_HTTP_BOUNDARY_REVIEW_NO_MODEL_OR_API_INVOCATION",
+  "status": "PASS",
+  "checks": {
+    "status_has_no_reader_token": true,
+    "foreign_host": true,
+    "foreign_origin": true,
+    "wrong_session": true,
+    "missing_origin": true,
+    "unexpected_fields": true,
+    "invalid_json": true,
+    "transfer_encoding_refused": true,
+    "oversized_body_header_refused": true,
+    "valid_only_request_invokes_controlled_fixture_once": true
+  },
+  "actual_model_calls": 0,
+  "actual_AIP_API_calls": 0,
+  "child_stopped": true
+}

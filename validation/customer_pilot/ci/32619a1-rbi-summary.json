@@ -1,0 +1,46 @@
+{
+  "source_head": "32619a16b102d14d9cca667699a3b64394ca644f",
+  "run_id": 44916522539,
+  "job_id": 136883283339,
+  "conclusion": "success",
+  "artifact_id": 14711873252,
+  "github_artifact_sha256": "e7dbd38cc1fdecf211556147d593d3159f7313416a1549ee7a62f0e65d1e822f",
+  "health_summary": {
+    "signed_health_records": 4,
+    "final_sequence": 84,
+    "integrity_unknown_was_signed": true,
+    "states_observed": {
+      "Recovering": 1,
+      "Active": 2,
+      "IntegrityUnknown": 1
+    }
+  },
+  "offline_verification": {
+    "verdict_verified": true,
+    "counts": {
+      "ATTESTED BATCHES": {
+        "records": 85,
+        "observations": 0,
+        "kernel events": 3696
+      },
+      "SIGNED HEALTH": {
+        "records": 4,
+        "asserting coverage": 2,
+        "asserting none": 2,
+        "heads cross-checked against batches": 3
+      }
+    }
+  },
+  "tamper_negative_control": {
+    "deleted_records": 1,
+    "not_verified": true,
+    "exit_code": 1,
+    "exit_code_basis": "successful run enforces exit code 1 in validation/pilot_e2e/run.sh"
+  },
+  "cross_sensor_test_passes": 13,
+  "integrity_recovery_test_passes": 6,
+  "library_destination_assertions": 11,
+  "library_tool_boundary_assertions": 38,
+  "live_gateway_receipt": "pass",
+  "separately_administered_collector": false
+}

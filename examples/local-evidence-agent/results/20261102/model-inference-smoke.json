@@ -1,0 +1,30 @@
+{
+  "classification": "ACTUAL_LOCAL_MODEL_INFERENCE_ONLY",
+  "question": "In one sentence, why should an AI agent keep an audit trail?",
+  "response": "An AI agent should keep an audit trail to ensure accountability, track changes, and provide transparency in its actions and decisions.",
+  "wall_seconds": 1.0697515419888077,
+  "pid": 64240,
+  "binary": {
+    "path": "/usr/local/bin/ollama",
+    "sha256": "653dac8da3e2bc1a8e981ee9bd95d21456ae41a16f27f8c8140baec23045bc27",
+    "version": "0.40.11"
+  },
+  "model_identity": {
+    "model": "vanian-qwen-local",
+    "manifest_sha256": "6a7e4d15ec2f068b53c7e08f58912d4eb47ae977abb596b823442721ae5a0f65",
+    "weight_sha256": "6a1a2eb6d15622bf3c96857206351ba97e1af16c30d7a74ee38970e434e9407e",
+    "weight_bytes": 1117320736
+  },
+  "metrics": {
+    "total_duration": 1063655833,
+    "load_duration": 521866792,
+    "prompt_eval_count": 43,
+    "prompt_eval_duration": 206326000,
+    "eval_count": 25,
+    "eval_duration": 333137000,
+    "done_reason": "stop"
+  },
+  "model_api_credentials_used": false,
+  "paid_inference_used": false,
+  "kernel_observation_claimed": false
+}

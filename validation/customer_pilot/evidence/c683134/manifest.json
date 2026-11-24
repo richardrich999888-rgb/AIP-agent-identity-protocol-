@@ -1,0 +1,50 @@
+{
+  "source": "c683134c59b50950e4eab176d37292683c61930d",
+  "workflow_run": 45433545896,
+  "service_qualification": "PASS_DISPOSABLE_CONTROLLED_OS_WORKLOAD",
+  "negative_privilege_controls": "PASS",
+  "offline_evidence_verification": "PASS_NETWORK_NONE",
+  "customer_pilot_ready": false,
+  "independent_administration": false,
+  "artifacts": [
+    {
+      "file": "full-sensor-public.zip",
+      "artifact_id": 14939762627,
+      "sha256": "31b7a0901c57c79def5035c6e08a2ce8f9a6ae34e6be50bcf3503b4aa7fcaaf2",
+      "original_github_zip_bytes": true
+    },
+    {
+      "file": "full-sensor-offline.zip",
+      "artifact_id": 14938299791,
+      "sha256": "00c2227ba9cc18450d26237206df8a5cbc286210ac3f0e4f9eb2a111535f1c5b",
+      "original_github_zip_bytes": true
+    }
+  ],
+  "exact_extracted_members": {
+    "full-sensor-result.json": {
+      "archive": "full-sensor-public.zip",
+      "member": "result.json",
+      "sha256": "77c05509e150266f9b7bfbb5f12b53a8b59edfcfa047a03340a5f83581f63cc3"
+    },
+    "full-sensor-verification.json": {
+      "archive": "full-sensor-public.zip",
+      "member": "verification.json",
+      "sha256": "108bf0ad89f782872a444903092735dafde6aaa62685c0afaa1cc23d667ab304"
+    },
+    "full-sensor-negative-controls.json": {
+      "archive": "full-sensor-public.zip",
+      "member": "privilege-check.json",
+      "sha256": "d8ec9409f8cc659400b21a9174f798a606817e3c8cd21b88d6341208d3e61909"
+    },
+    "full-sensor-tamper-controls.json": {
+      "archive": "full-sensor-public.zip",
+      "member": "tamper.json",
+      "sha256": "a19a6644fe05466faec296b5e4fb3147d5d7191c82e707aa292e4537485179f4"
+    },
+    "full-sensor-offline-verification.json": {
+      "archive": "full-sensor-offline.zip",
+      "member": "offline-verification.json",
+      "sha256": "9016cce69850b5f4a25c67adafeb57792b7c1ae74e4142fe33d233de8ceb5465"
+    }
+  }
+}

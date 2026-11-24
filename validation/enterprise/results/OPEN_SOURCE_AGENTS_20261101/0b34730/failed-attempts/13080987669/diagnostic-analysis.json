@@ -1,0 +1,78 @@
+{
+  "classification": "DERIVED_INSPECTION_OF_ORIGINAL_SELF_REPORTED_FRAMEWORK_JOURNAL",
+  "source_commit": "0b3473046af8433a0b96a6c24403336d1a6819b1",
+  "run_id": 41299441797,
+  "artifact_id": 13080987669,
+  "original_profile_status": "FAIL",
+  "business_workload_started": false,
+  "selected_Click_task_started": false,
+  "capability_status": "FAIL",
+  "successful_HTTP200_capability_requests": 6,
+  "total_attempted_model_requests": "UNKNOWN_COUNTER_RETAINS_SUCCESSFUL_HTTP200_ONLY",
+  "capability_file_independently_matches_challenge": true,
+  "journal_original_member": "agent-zero-genuine/public/agent-self-reported-capability-adapter.jsonl",
+  "journal_sha256": "c7c5ef8249a4aed4baae36eb01426d008fe070f3000a43f104c7bdc95298160d",
+  "journal_record_count": 484,
+  "last_snapshot_per_item_used_only_for_analysis": true,
+  "actual_original_snapshots_unchanged": true,
+  "framework_terminal_outcome_records": [
+    {
+      "provenance": "SELF_REPORTED",
+      "kind": "task_failed",
+      "value": {
+        "exception_type": "TimeoutError"
+      },
+      "time_ms": 1793531206656
+    },
+    {
+      "provenance": "SELF_REPORTED",
+      "kind": "capability_failed",
+      "value": {
+        "exception_type": "TimeoutError"
+      },
+      "time_ms": 1793531206658
+    }
+  ],
+  "actual_tool_metadata": [
+    {
+      "original_item_no": 2,
+      "runtime": "terminal",
+      "code_bytes": 39,
+      "code_sha256": "2ac2d230505a7f3c569238e65c225dfa516ced49f555ed9db8892df18552621c",
+      "result_sha256": "a44e5d2563fb0c1b3baef5c61404a2b0e2465a039f871d7e04e62d15f190a36f",
+      "observed_error": null,
+      "returns_nonroot_terminal_prompt": true
+    },
+    {
+      "original_item_no": 4,
+      "runtime": "python",
+      "code_bytes": 354,
+      "code_sha256": "672b06b3228336c7306ffc833f380d4dd6a654ec2f629712170dde1a802d1d7c",
+      "result_sha256": "73b8c3bd783648346143781cddcca106681b357e6ea2e32fc835dc2eae6a9a0a",
+      "observed_error": null,
+      "returns_nonroot_terminal_prompt": true
+    },
+    {
+      "original_item_no": 6,
+      "runtime": "python",
+      "code_bytes": 181,
+      "code_sha256": "e96a2dd50f9883c49077cf5d849b3f4cd8ac1d0fbd3a2cc501c0dc9ec4e0a03d",
+      "result_sha256": "43be224b1f207ce13240b2bd866c471f195417e31a93f070288315166a4e5b65",
+      "observed_error": "SyntaxError: unexpected character after line continuation character",
+      "returns_nonroot_terminal_prompt": true
+    },
+    {
+      "original_item_no": 8,
+      "runtime": "python",
+      "code_bytes": 181,
+      "code_sha256": "f1c8914af9f3413e71fb1117fc980043bf24e01b652c5219330cb95fb1aed902",
+      "result_sha256": "c4138e6d6f4f3166f6aab160603ed24e6ca3e80a499e5173acb54e155f6989e3",
+      "observed_error": "SyntaxError: unexpected character after line continuation character",
+      "returns_nonroot_terminal_prompt": true
+    }
+  ],
+  "diagnostic_authority": "SELF_REPORTED application snapshots; independently signed kernel observations are separate.",
+  "selected_task": "Click3652 NOT_STARTED",
+  "specific_failure": "Capability result file matched the fresh challenge, but model-generated Python response-print snippets produced SyntaxError twice; final framework completion timed out at240seconds. File alone cannot satisfy actual final-response/tool capability gate.",
+  "business_kernel_archive": "NOT_PRODUCED_CAPABILITY_FAILED"
+}

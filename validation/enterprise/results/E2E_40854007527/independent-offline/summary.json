@@ -1,0 +1,342 @@
+{
+  "classification": "DERIVED_INDEPENDENT_OFFLINE_VERIFICATION_OF_ORIGINAL_GITHUB_ZIP",
+  "source_run_id": 40854007527,
+  "source_commit": "7625b1d60e54bc9d4ab4d935fb4e488b0ae30dc7",
+  "artifact_id": 12889066400,
+  "artifact_zip_sha256": "9f4b2bedda88972468ccd76277a40f29d02fb141f25d8ece1d5a221041f46aa7",
+  "status": "PASS",
+  "platform": "macOS-26.4.1-arm64-arm-64bit",
+  "checkout_head": "7625b1d60e54bc9d4ab4d935fb4e488b0ae30dc7",
+  "binaries_sha256": {
+    "aip-observe-verify": "916f770e88153a0683d295532da40261b4d76eb46aec67e200edab237b0c3701",
+    "aip-execution-assurance": "ed9f25b67c3da3db9dfad92dfdde240aff48c76dd55cfca67d8922153907cd27"
+  },
+  "environment": "PATH only; run evaluator additionally receives separately supplied AIP_RUN_TRUST_FILE. No live model/agent/API/network required.",
+  "additional_agent_or_model_execution": false,
+  "refused_receipt_scope": "Derived evaluation substitutes the actual signed Refused receipt into a copy in memory; original bundle unchanged.",
+  "profiles": {
+    "same-run": {
+      "status": "PASS",
+      "run_id": "same-run-d375a31ea8f9748e5b102319",
+      "actual_model_calls": 2,
+      "bundle_sha256": "563e75e10ff7ef5c4c548a209fe57917dbd5d9f71714afc83f8b0296aafac722",
+      "signed_batches": 33,
+      "kernel_events": 1024,
+      "health_records": 4,
+      "archive_findings": [],
+      "checkpoint_bytes_match": true,
+      "independent_evaluation_matches_original": true,
+      "final_health_covers_actual_task": true,
+      "kernel_identity": {
+        "Match": {
+          "observations": 7
+        }
+      },
+      "kernel_result": "CannotProve",
+      "kernel_reason": "ActionEvidenceUnavailable",
+      "kernel_availability": {
+        "Unavailable": {
+          "reason": "WindowNotCovered"
+        }
+      },
+      "original_forwarded_tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      },
+      "actual_refused_receipt_verified": true,
+      "actual_refused_tool_boundary": {
+        "Diverges": {
+          "divergence": {
+            "ReceiptDoesNotMatchAuthorization": {
+              "authorized": [
+                240,
+                189,
+                183,
+                133,
+                178,
+                131,
+                58,
+                161,
+                97,
+                112,
+                15,
+                214,
+                74,
+                124,
+                70,
+                159,
+                135,
+                56,
+                248,
+                64,
+                13,
+                163,
+                38,
+                30,
+                216,
+                185,
+                236,
+                195,
+                243,
+                53,
+                137,
+                118
+              ],
+              "received": [
+                107,
+                140,
+                84,
+                178,
+                75,
+                131,
+                126,
+                157,
+                57,
+                163,
+                31,
+                191,
+                38,
+                186,
+                140,
+                244,
+                95,
+                105,
+                0,
+                42,
+                30,
+                233,
+                231,
+                70,
+                238,
+                181,
+                160,
+                14,
+                29,
+                224,
+                13,
+                137
+              ]
+            }
+          }
+        }
+      },
+      "original_clients_all_pass": true,
+      "cleanup_errors": []
+    },
+    "same-run-interruption": {
+      "status": "PASS",
+      "run_id": "same-run-1a4c4083b299abdf3bba83e5",
+      "actual_model_calls": 2,
+      "bundle_sha256": "d02a2b9fbcd0de1da6fe55cdf778d0a4ac96b0c3a96a5975eec9f033bf7b6e50",
+      "signed_batches": 11,
+      "kernel_events": 347,
+      "health_records": 4,
+      "archive_findings": [],
+      "checkpoint_bytes_match": true,
+      "independent_evaluation_matches_original": true,
+      "final_health_covers_actual_task": false,
+      "kernel_identity": "NoReference",
+      "kernel_result": "CannotProve",
+      "kernel_reason": "WindowNotCovered",
+      "kernel_availability": {
+        "Unavailable": {
+          "reason": "WindowNotCovered"
+        }
+      },
+      "original_forwarded_tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      },
+      "actual_refused_receipt_verified": true,
+      "actual_refused_tool_boundary": {
+        "Diverges": {
+          "divergence": {
+            "ReceiptDoesNotMatchAuthorization": {
+              "authorized": [
+                240,
+                189,
+                183,
+                133,
+                178,
+                131,
+                58,
+                161,
+                97,
+                112,
+                15,
+                214,
+                74,
+                124,
+                70,
+                159,
+                135,
+                56,
+                248,
+                64,
+                13,
+                163,
+                38,
+                30,
+                216,
+                185,
+                236,
+                195,
+                243,
+                53,
+                137,
+                118
+              ],
+              "received": [
+                107,
+                140,
+                84,
+                178,
+                75,
+                131,
+                126,
+                157,
+                57,
+                163,
+                31,
+                191,
+                38,
+                186,
+                140,
+                244,
+                95,
+                105,
+                0,
+                42,
+                30,
+                233,
+                231,
+                70,
+                238,
+                181,
+                160,
+                14,
+                29,
+                224,
+                13,
+                137
+              ]
+            }
+          }
+        }
+      },
+      "original_clients_all_pass": true,
+      "cleanup_errors": []
+    },
+    "same-run-recovery": {
+      "status": "PASS",
+      "run_id": "same-run-1f1dfd76fc9703aec8c083d1",
+      "actual_model_calls": 2,
+      "bundle_sha256": "bb9d62c374a3a621492872122dbd3c6a6b4c5a08c1cb30d2563b0fc76bdb18f0",
+      "signed_batches": 36,
+      "kernel_events": 1016,
+      "health_records": 4,
+      "archive_findings": [],
+      "checkpoint_bytes_match": true,
+      "independent_evaluation_matches_original": true,
+      "final_health_covers_actual_task": true,
+      "kernel_identity": {
+        "Match": {
+          "observations": 4
+        }
+      },
+      "kernel_result": "CannotProve",
+      "kernel_reason": "ActionEvidenceUnavailable",
+      "kernel_availability": {
+        "Unavailable": {
+          "reason": "WindowNotCovered"
+        }
+      },
+      "original_forwarded_tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      },
+      "actual_refused_receipt_verified": true,
+      "actual_refused_tool_boundary": {
+        "Diverges": {
+          "divergence": {
+            "ReceiptDoesNotMatchAuthorization": {
+              "authorized": [
+                240,
+                189,
+                183,
+                133,
+                178,
+                131,
+                58,
+                161,
+                97,
+                112,
+                15,
+                214,
+                74,
+                124,
+                70,
+                159,
+                135,
+                56,
+                248,
+                64,
+                13,
+                163,
+                38,
+                30,
+                216,
+                185,
+                236,
+                195,
+                243,
+                53,
+                137,
+                118
+              ],
+              "received": [
+                107,
+                140,
+                84,
+                178,
+                75,
+                131,
+                126,
+                157,
+                57,
+                163,
+                31,
+                191,
+                38,
+                186,
+                140,
+                244,
+                95,
+                105,
+                0,
+                42,
+                30,
+                233,
+                231,
+                70,
+                238,
+                181,
+                160,
+                14,
+                29,
+                224,
+                13,
+                137
+              ]
+            }
+          }
+        }
+      },
+      "original_clients_all_pass": true,
+      "cleanup_errors": []
+    }
+  }
+}

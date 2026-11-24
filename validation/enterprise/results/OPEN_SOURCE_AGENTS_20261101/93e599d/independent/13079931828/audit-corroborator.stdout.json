@@ -1,0 +1,83 @@
+{
+  "source": "Auditd",
+  "independence": "DifferentMechanism",
+  "window_from_ms": 1793528421849,
+  "window_to_ms": 1793528432687,
+  "match_window_ms": 250,
+  "agreed": [
+    {
+      "aip": {
+        "pid": 5845,
+        "wall_ms": 1793528428802,
+        "image": "/bin/bash",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793528428799,
+      "external_image": "/usr/bin/bash",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 5845,
+        "wall_ms": 1793528428804,
+        "image": "/opt/framework/backend/.venv/bin/python",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793528428801,
+      "external_image": "/usr/local/bin/python3.12",
+      "skew_ms": -3
+    },
+    {
+      "aip": {
+        "pid": 5848,
+        "wall_ms": 1793528430883,
+        "image": "/usr/bin/git",
+        "batch_sequence": 34
+      },
+      "external_wall_ms": 1793528430882,
+      "external_image": "/usr/bin/git",
+      "skew_ms": -1
+    }
+  ],
+  "aip_only": [
+    {
+      "pid": 5834,
+      "wall_ms": 1793528422851,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 28
+    },
+    {
+      "pid": 5849,
+      "wall_ms": 1793528431482,
+      "image": "/usr/bin/runc",
+      "batch_sequence": 34
+    },
+    {
+      "pid": 5855,
+      "wall_ms": 1793528431491,
+      "image": "/usr/bin/containerd-shim-runc-v2",
+      "batch_sequence": 34
+    },
+    {
+      "pid": 5863,
+      "wall_ms": 1793528431494,
+      "image": "/usr/bin/runc",
+      "batch_sequence": 34
+    },
+    {
+      "pid": 5868,
+      "wall_ms": 1793528431658,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 34
+    },
+    {
+      "pid": 5876,
+      "wall_ms": 1793528431673,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 34
+    }
+  ],
+  "external_only": [],
+  "external_unparsed": 0,
+  "external_failed_attempts": 15
+}

@@ -1,0 +1,103 @@
+{
+  "schema": "recovered-source-inventory/v1",
+  "purpose": "Preserve exact historical source snapshots whose SHA256 values appeared as generic-api-key scanner false positives. These archived source files are evidence, not the active implementation and not a new execution or acceptance result.",
+  "archive": "recovered-inventory-sources.zip",
+  "archive_sha256": "10785f76f118a0555039c9a1c868e7309bfb28cb6a5c38cdcf20c40c9ee7e5e6",
+  "source_direct_scan": {
+    "scanner": "gitleaks 8.24.3",
+    "findings": 0,
+    "scope": "Exact recovered source bytes scanned directly before archive creation"
+  },
+  "sources": [
+    {
+      "source_path": "aip-service/tests/enterprise_api.rs",
+      "member": "aip-service/tests/enterprise_api.rs",
+      "sha256": "27b971fc1f00a54b0f81e18896c7a1fe91b410d403a897361686b871cc2c59c5",
+      "bytes": 27591,
+      "original_inventory": "validation/enterprise/results/20261028T101450Z/report.json",
+      "inventory_field": [
+        "source_sha256",
+        "aip-service/tests/enterprise_api.rs"
+      ],
+      "base_commit": "cdbd91781ac74e206f50131db20a755f91eadb29",
+      "base_sha256": "c092f4f3a7e1ee5afa5b3f9c876d677d685f41bd1993fb1277ce6ac9ed156d95",
+      "recorded_edits": [
+        {
+          "session_file": "rollout-2026-10-28T12-55-48-01a18166-9f95-7a21-bcdb-509d5389ee3f.jsonl.zst",
+          "record_line": 640,
+          "timestamp": "2026-10-28T10:15:36.533Z",
+          "call_id": "call_7a7ebde0ac2e4e18b4c1698d103226fb",
+          "patch_sha256": "ca4f184016b88f179edd5bc4a0a2e5e257b8c5937960c5d9bd3e344c2eb52710"
+        },
+        {
+          "session_file": "rollout-2026-10-28T12-55-48-01a18166-9f95-7a21-bcdb-509d5389ee3f.jsonl.zst",
+          "record_line": 650,
+          "timestamp": "2026-10-28T10:16:05.178Z",
+          "call_id": "call_9f2ef2eb0e0b4d4fb3cd77721ac04bb3",
+          "patch_sha256": "b7d0cafec111440f47d18e7d0312888f8fff8755c608ed2d98b9592cab5af759"
+        }
+      ],
+      "reconstruction": "Reverse record650 comment correction, then remove the complete test inserted by record640, restoring its original three-line context. The inserted function had been rustfmt-formatted before the base commit; deletion uses its unique recorded function boundary. Reconstructed UTF-8 bytes match the pre-insertion recorded SHA256 exactly."
+    },
+    {
+      "source_path": "examples/local-evidence-agent/api_runtime.py",
+      "member": "examples/local-evidence-agent/api_runtime.py",
+      "sha256": "0ffa40fe1add09caa19d16c84c0410e03ffd4d8710f411e999da6db32fd1c863",
+      "bytes": 18496,
+      "original_inventory": "examples/local-evidence-agent/results/20261102/source-hashes.json",
+      "inventory_field": [
+        "examples/local-evidence-agent/api_runtime.py"
+      ],
+      "base_commit": "13be4d61f7ee86c9c683888534661683ab602dfd",
+      "base_sha256": "2cbae701ac39983a86af0d088799378fbbdedc0b3f87cf47777ae166e6216219",
+      "recorded_edits": [
+        {
+          "session_file": "rollout-2026-11-03T00-04-58-01a19d8b-0e41-73e0-968f-a8405df91bae.jsonl.zst",
+          "record_line": 28,
+          "content_block": 0,
+          "timestamp": "2026-11-02T18:34:58.580Z",
+          "patch_preview_sha256": "6eba1e9abeb43ede5dbf4bd262dd276c5018fb078da32ff3627effd1562cb4d6"
+        },
+        {
+          "session_file": "rollout-2026-11-03T00-04-58-01a19d8b-0e41-73e0-968f-a8405df91bae.jsonl.zst",
+          "record_line": 54,
+          "content_block": 23,
+          "timestamp": "2026-11-02T18:38:21.039Z",
+          "patch_preview_sha256": "28823470fcb9ee8f054aff1f77b0439ba3b0adb87f2303237296d6a574a2d497"
+        },
+        {
+          "session_file": "rollout-2026-11-03T00-04-58-01a19d8b-0e41-73e0-968f-a8405df91bae.jsonl.zst",
+          "record_line": 89,
+          "content_block": 27,
+          "timestamp": "2026-11-02T18:41:40.877Z",
+          "patch_preview_sha256": "6c8e86941d218589970e43f9c94ec08629b5e01ef5d28c850816c787d5281534"
+        }
+      ],
+      "reconstruction": "Reverse complete first four hunks of the 18:34 fresh-evidence patch; remove the later _verify_fresh_observation method, its start call and fresh_observation public-summary field; reverse the exact 18:41 scope-string patch. Preserve all other base bytes.",
+      "limitations": "Compressed retained patch previews are truncated. Recovered bytes are independently fixed by exact match to the previously recorded SHA256; no claim that all historical patch bytes were recovered."
+    },
+    {
+      "source_path": "examples/local-evidence-agent/tests_api_runtime.py",
+      "member": "examples/local-evidence-agent/tests_api_runtime.py",
+      "sha256": "ea607ee380500ab1a3fb647984713589969b7775e087734b401aaff6410f1259",
+      "bytes": 6170,
+      "original_inventory": "examples/local-evidence-agent/results/20261102/source-hashes.json",
+      "inventory_field": [
+        "examples/local-evidence-agent/tests_api_runtime.py"
+      ],
+      "base_commit": "13be4d61f7ee86c9c683888534661683ab602dfd",
+      "base_sha256": "1456a29712f126698d31300f0323d383f4d8dc40d188b33222996924cb860849",
+      "recorded_edits": [
+        {
+          "session_file": "rollout-2026-11-03T00-04-58-01a19d8b-0e41-73e0-968f-a8405df91bae.jsonl.zst",
+          "record_line": 54,
+          "content_block": 23,
+          "timestamp": "2026-11-02T18:38:21.039Z",
+          "patch_preview_sha256": "28823470fcb9ee8f054aff1f77b0439ba3b0adb87f2303237296d6a574a2d497"
+        }
+      ],
+      "reconstruction": "Remove the three later methods test_fresh_package_requires_separate_operator_trust, test_component_fresh_verifier_failure_blocks_api_start, and test_component_fresh_summary_cached_without_relabelling_historical_api_runs added after the recorded snapshot. Preserve the original two blank lines before the module entry point and all other base bytes.",
+      "limitations": "Compressed retained patch previews are truncated. Recovered bytes are independently fixed by exact match to the previously recorded SHA256; no claim that all historical patch bytes were recovered."
+    }
+  ]
+}

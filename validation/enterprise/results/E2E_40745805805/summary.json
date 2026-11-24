@@ -1,0 +1,41 @@
+{
+  "source_commit": "e2cd2d6f41b25515c01647ee95943bca23af93ce",
+  "checkout_merge_commit": "1e18407dd6790e6eabcb5ce898c02dbcbe290a01",
+  "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/40745805805",
+  "job_id": 123019137404,
+  "status": "FAILED_BEFORE_AGENT_EXECUTION",
+  "autonomous_workload_executed": false,
+  "linux_observation_executed": false,
+  "runtime_and_model_pin_verification": "PASS",
+  "portable_boundary_tests_passed": 4,
+  "failure": "Model UID10004 could not execute the verified runtime path; parent traversal permissions required. Cleanup also failed to unmount the temporary workload filesystem. Neither problem is an evidence-verifier failure.",
+  "artifact_id": 12841751936,
+  "artifact_sha256": "1d31357470cc7b5c026b4b97dc7dae3ee64e3374b31499af4917fc75d92eb8ae",
+  "artifact_scope": "Public provisioning and controller isolation metadata only; no signed workload archive or real model result.",
+  "files": {
+    "same-run-audit-initial.txt": {
+      "sha256": "61501e69a61dbbc1a41605ea15c34807e6b1d3992bee195dde36a7ebdd95dd87",
+      "bytes": 9
+    },
+    "local-model/model-manifest-layout.json": {
+      "sha256": "99035f9bde0aefc994c03ed1b22ee9b828f55e50b88176a63033e711bf9c157e",
+      "bytes": 3085
+    },
+    "local-model/model-pin.json": {
+      "sha256": "b9ed9640cfe30be524d3e42098302c9b4ca003bd8da8b17fe0d0f9e3ee69f4b9",
+      "bytes": 2984
+    },
+    "same-run/public/resource-limits.json": {
+      "sha256": "10b7b60e22c4d4d602c63eb924d015ba48b64f24cdc4c66d6861643e9d5de318",
+      "bytes": 111
+    },
+    "same-run/public/network-isolation.json": {
+      "sha256": "c66313dbb67d49568246ea8058d5b6f9cf1f780de78e04a92fd20fad2dd11615",
+      "bytes": 1022
+    },
+    "same-run/public/run-manifest.json": {
+      "sha256": "5e4b7858fb0b6fd95f3fa63d22cce73c8f08f11236822ebd48dea51c39638464",
+      "bytes": 780
+    }
+  }
+}

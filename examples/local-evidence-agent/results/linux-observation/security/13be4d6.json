@@ -1,0 +1,88 @@
+{
+  "classification": "READ_ONLY_SAFE_EXACT_SCANNER_BASELINE_COMPARISON",
+  "source_commit": "13be4d61f7ee86c9c683888534661683ab602dfd",
+  "workflow_run_id": 41505862711,
+  "baseline_commit": "75e75bb0aae36def2ba13b18717b0a00b7ec2558",
+  "security_workflow_status": "FAIL",
+  "jobs": {
+    "cargo_audit": {
+      "job_id": 125484903444,
+      "status": "PASS"
+    },
+    "gitleaks": {
+      "job_id": 125484904119,
+      "status": "FAIL"
+    },
+    "trivy": {
+      "job_id": 125484903939,
+      "status": "FAIL"
+    }
+  },
+  "scanners": {
+    "gitleaks": {
+      "status": "FAIL",
+      "artifact_id": 13170298742,
+      "baseline_artifact_id": 13140567021,
+      "result_count": 217,
+      "baseline_result_count": 217,
+      "full_result_object_multisets_equal": true,
+      "new_results": 0,
+      "missing_results": 0,
+      "canonical_result_objects_sha256": "444f9d4075e9ea09a276bec6be72bc4c922e315b97b0a82d58cd901326b9103a",
+      "rule_counts": {
+        "generic-api-key": 217
+      },
+      "current_original_zip_sha256": "2b11f322b9914015c928faa662d41931d7a065b40fa928daf05fd356f1178a5f"
+    },
+    "trivy": {
+      "status": "FAIL",
+      "artifact_id": 13171175683,
+      "baseline_artifact_id": 13140587040,
+      "result_count": 4,
+      "baseline_result_count": 4,
+      "full_result_object_multisets_equal": true,
+      "new_results": 0,
+      "missing_results": 0,
+      "canonical_result_objects_sha256": "02c594fa9d9a353764d8d2012c8d96fe53eeefbebd122caea3d57b55bb65db2f",
+      "rule_counts": {
+        "KSV-0009": 1,
+        "KSV-0010": 1,
+        "KSV-0118": 1,
+        "KSV-0121": 1
+      },
+      "current_original_zip_sha256": "a109a4a7cad588aa8c23efe42086288abf8cd62f6f4e8ecbab6bb9bfab05e304"
+    }
+  },
+  "raw_detector_values_published": false,
+  "waivers_or_source_edits_added": false,
+  "cargo_audit": {
+    "status": "PASS",
+    "reported_vulnerabilities": 0,
+    "warnings": [],
+    "inherited_ignored_advisories": [
+      "RUSTSEC-2026-0097"
+    ],
+    "actual_command": "cargo audit --ignore RUSTSEC-2026-0097 --json | tee audit.json",
+    "exception_source_files_changed_from_baseline": false,
+    "interpretation": "No vulnerabilities reported under the inherited exception; not an unqualified vulnerability-free claim."
+  },
+  "inherited_source_context": {
+    "basis": "Current complete SARIF result objects equal independently retained75e75bb originals exactly. Prior source-context classification is retained; detectors still fail.",
+    "gitleaks": {
+      "audit_rule_selection_labels": 213,
+      "public_GPG_fingerprints": 3,
+      "local_executable_SHA256": 1,
+      "new_credential_finding_claimed": false
+    },
+    "trivy": {
+      "HIGH_findings": 4,
+      "scope": "Historical enabled opt-in Helm host privileges; runtime minimum privileges remain a separate gate."
+    }
+  },
+  "conclusion": "NO_NEW_SCANNER_RESULTS_RELATIVE_TO75E75BB; STRICT_SECURITY_REMAINS_FAILED",
+  "limits": [
+    "This comparison is full-result-object multiset equality, not a new exhaustive source security audit.",
+    "No raw detector text/value is included; exact original ZIPs remain in the private staging directory.",
+    "Linux capture/model results and complete13beCI status are outside this security-only result."
+  ]
+}

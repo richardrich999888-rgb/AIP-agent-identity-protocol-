@@ -1,0 +1,176 @@
+[
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-corroborate",
+      "--observer-id",
+      "collector.same-run",
+      "--key-version",
+      "1",
+      "--pubkey-file",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/independent-offline-recorded/same-run/separately-supplied-public-trust/observer.pub",
+      "--batches",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run/public/attested.archive.jsonl",
+      "--external",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run/public/audit-0.log",
+      "--source",
+      "auditd",
+      "--from-ms",
+      "1793529150142",
+      "--to-ms",
+      "1793529166647",
+      "--json"
+    ],
+    "environment_keys": [
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.042694333009421825,
+    "stdout_sha256": "61fb87f1df23ab95b320e1f793a9c5fabcdd630e5d179f18333d8093838f9cc6",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-corroborate",
+      "--observer-id",
+      "collector.same-run",
+      "--key-version",
+      "1",
+      "--pubkey-file",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/independent-offline-recorded/same-run/separately-supplied-public-trust/observer.pub",
+      "--batches",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run/public/attested.archive.jsonl",
+      "--external",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run/public/audit-1.log",
+      "--source",
+      "auditd",
+      "--from-ms",
+      "1793529150142",
+      "--to-ms",
+      "1793529166647",
+      "--json"
+    ],
+    "environment_keys": [
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.039350708000711165,
+    "stdout_sha256": "e75f623da9cf42adb243f970bbd57447d656c7a49ae6ceabe09a57b7f1065bf6",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-corroborate",
+      "--observer-id",
+      "collector.same-run",
+      "--key-version",
+      "1",
+      "--pubkey-file",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/independent-offline-recorded/same-run-interruption/separately-supplied-public-trust/observer.pub",
+      "--batches",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run-interruption/public/attested.archive.jsonl",
+      "--external",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run-interruption/public/audit-0.log",
+      "--source",
+      "auditd",
+      "--from-ms",
+      "1793529306669",
+      "--to-ms",
+      "1793529322598",
+      "--json"
+    ],
+    "environment_keys": [
+      "PATH"
+    ],
+    "exit_code": 1,
+    "seconds": 0.01615420800226275,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e46145eef20203aa598722d9bb4fd1fb450ecf2686451cf4912862747917d51f"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-corroborate",
+      "--observer-id",
+      "collector.same-run",
+      "--key-version",
+      "1",
+      "--pubkey-file",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/independent-offline-recorded/same-run-interruption/separately-supplied-public-trust/observer.pub",
+      "--batches",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run-interruption/public/attested.archive.jsonl",
+      "--external",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run-interruption/public/audit-1.log",
+      "--source",
+      "auditd",
+      "--from-ms",
+      "1793529306669",
+      "--to-ms",
+      "1793529322598",
+      "--json"
+    ],
+    "environment_keys": [
+      "PATH"
+    ],
+    "exit_code": 1,
+    "seconds": 0.01598741699126549,
+    "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stderr_sha256": "e46145eef20203aa598722d9bb4fd1fb450ecf2686451cf4912862747917d51f"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-corroborate",
+      "--observer-id",
+      "collector.same-run",
+      "--key-version",
+      "1",
+      "--pubkey-file",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/independent-offline-recorded/same-run-recovery/separately-supplied-public-trust/observer.pub",
+      "--batches",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run-recovery/public/attested.archive.jsonl",
+      "--external",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run-recovery/public/audit-0.log",
+      "--source",
+      "auditd",
+      "--from-ms",
+      "1793529385974",
+      "--to-ms",
+      "1793529401528",
+      "--json"
+    ],
+    "environment_keys": [
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04331500000262167,
+    "stdout_sha256": "f3caea4aadc61897e4eb56a1a1fc177d43d8c402bca0b5ef71863eacf27faefd",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  {
+    "arguments": [
+      "/Users/richardrich/.codex/worktrees/snifferdog-complete-enterprise-validation/AIP/target/debug/aip-corroborate",
+      "--observer-id",
+      "collector.same-run",
+      "--key-version",
+      "1",
+      "--pubkey-file",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/independent-offline-recorded/same-run-recovery/separately-supplied-public-trust/observer.pub",
+      "--batches",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run-recovery/public/attested.archive.jsonl",
+      "--external",
+      "/private/tmp/snifferdog-core-1968d45-41297713153/original/same-run-recovery/public/audit-1.log",
+      "--source",
+      "auditd",
+      "--from-ms",
+      "1793529385974",
+      "--to-ms",
+      "1793529401528",
+      "--json"
+    ],
+    "environment_keys": [
+      "PATH"
+    ],
+    "exit_code": 0,
+    "seconds": 0.04456454199680593,
+    "stdout_sha256": "d5985617424cb2ed542ed92c6d01b4dc5678628c637e361ff2b399961ccacc78",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  }
+]

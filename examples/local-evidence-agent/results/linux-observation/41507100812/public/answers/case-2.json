@@ -1,0 +1,287 @@
+{
+  "answer": "API facts for model-selected focus (extractive):\nArchive signatures: verified; retained checkpoint: verified; signed reconciler verdict: verified.\nSigned authorization: verified; gateway receipt: verified; receipt within its authorization window: true.\nKernel application-action verdict: CannotProve. Reason: WindowNotCovered.\nKernel process identity comparison: NoReference. Logical sub-agent attribution is not established by this read.\nFull authorization-window availability: Unavailable. Reason: WindowNotCovered. This is the authorization interval, not a claim about every application effect.\n\nAlways-required uncertainty and scope (additional facts; selected overlaps appear above):\nThis API evidence establishes neither loan approval nor nonapproval; the business outcome remains unknown.\nSource: retained Linux observations, re-evaluated by the local AIP API. This demo has not captured the Mac kernel.\nIndependent collector administration and key custody are not established by these API facts.",
+  "answer_authority": "EXTRACTIVE_API_FACTS_MODEL_SELECTED",
+  "evidence_labels": [
+    {
+      "evidence_scope": "RECORDED_LINUX_NOT_FRESH_MAC",
+      "full_authorization_window_reason": "WindowNotCovered",
+      "gateway_disposition": "Forwarded",
+      "kernel_reason": "WindowNotCovered",
+      "kernel_verdict": "CannotProve",
+      "process_identity": "NoReference",
+      "signature_checks_verified": true
+    }
+  ],
+  "model_selected_fact_ids": [
+    "kernel_action"
+  ],
+  "model_focus_fact_id": "kernel_action",
+  "mapped_fact_ids": [
+    "record_integrity",
+    "signed_authorization",
+    "kernel_action",
+    "process_identity",
+    "authorization_window"
+  ],
+  "fact_group_mapping": {
+    "focus_fact_id": "kernel_action",
+    "base_fact_ids": [
+      "record_integrity",
+      "signed_authorization",
+      "kernel_action",
+      "process_identity",
+      "authorization_window"
+    ],
+    "application": "EACH_RETRIEVED_RECORD"
+  },
+  "selection_authority": "MODEL_FOCUS_WITH_DECLARED_API_FACT_GROUP_MAPPING",
+  "selected_facts": [
+    {
+      "id": "record_integrity",
+      "text": "Archive signatures: verified; retained checkpoint: verified; signed reconciler verdict: verified.",
+      "api_source_fields": [
+        "evaluation.archive_integrity_verified",
+        "evaluation.checkpoint_verified",
+        "evaluation.signed_reconciliation_verified"
+      ],
+      "text_authority": "DETERMINISTIC_API_DERIVED_FACT_TEXT"
+    },
+    {
+      "id": "signed_authorization",
+      "text": "Signed authorization: verified; gateway receipt: verified; receipt within its authorization window: true.",
+      "api_source_fields": [
+        "evaluation.authorization_verified",
+        "evaluation.gateway_receipt_verified",
+        "evaluation.receipt_within_authorization"
+      ],
+      "text_authority": "DETERMINISTIC_API_DERIVED_FACT_TEXT"
+    },
+    {
+      "id": "kernel_action",
+      "text": "Kernel application-action verdict: CannotProve. Reason: WindowNotCovered.",
+      "api_source_fields": [
+        "evaluation.reconciliation.result",
+        "evaluation.reconciliation.reason"
+      ],
+      "text_authority": "DETERMINISTIC_API_DERIVED_FACT_TEXT"
+    },
+    {
+      "id": "process_identity",
+      "text": "Kernel process identity comparison: NoReference. Logical sub-agent attribution is not established by this read.",
+      "api_source_fields": [
+        "evaluation.reconciliation.identity",
+        "evaluation.limitations"
+      ],
+      "text_authority": "DETERMINISTIC_API_DERIVED_FACT_TEXT"
+    },
+    {
+      "id": "authorization_window",
+      "text": "Full authorization-window availability: Unavailable. Reason: WindowNotCovered. This is the authorization interval, not a claim about every application effect.",
+      "api_source_fields": [
+        "evaluation.reconciliation.availability"
+      ],
+      "text_authority": "DETERMINISTIC_API_DERIVED_FACT_TEXT"
+    }
+  ],
+  "mandatory_fact_ids": [
+    "kernel_action",
+    "authorization_window",
+    "business_outcome",
+    "record_scope",
+    "collector_custody"
+  ],
+  "mandatory_facts": [
+    {
+      "id": "kernel_action",
+      "text": "Kernel application-action verdict: CannotProve. Reason: WindowNotCovered.",
+      "api_source_fields": [
+        "evaluation.reconciliation.result",
+        "evaluation.reconciliation.reason"
+      ],
+      "text_authority": "DETERMINISTIC_API_DERIVED_FACT_TEXT"
+    },
+    {
+      "id": "authorization_window",
+      "text": "Full authorization-window availability: Unavailable. Reason: WindowNotCovered. This is the authorization interval, not a claim about every application effect.",
+      "api_source_fields": [
+        "evaluation.reconciliation.availability"
+      ],
+      "text_authority": "DETERMINISTIC_API_DERIVED_FACT_TEXT"
+    },
+    {
+      "id": "business_outcome",
+      "text": "This API evidence establishes neither loan approval nor nonapproval; the business outcome remains unknown.",
+      "api_source_fields": [
+        "evaluation.reconciliation.action",
+        "evaluation.reconciliation.result",
+        "evaluation.limitations"
+      ],
+      "text_authority": "DETERMINISTIC_API_DERIVED_FACT_TEXT"
+    },
+    {
+      "id": "record_scope",
+      "text": "Source: retained Linux observations, re-evaluated by the local AIP API. This demo has not captured the Mac kernel.",
+      "api_source_fields": [
+        "evidence_scope",
+        "fresh_mac_kernel_capture"
+      ],
+      "text_authority": "DETERMINISTIC_API_DERIVED_FACT_TEXT"
+    },
+    {
+      "id": "collector_custody",
+      "text": "Independent collector administration and key custody are not established by these API facts.",
+      "api_source_fields": [
+        "evaluation.limitations"
+      ],
+      "text_authority": "DETERMINISTIC_API_DERIVED_FACT_TEXT"
+    }
+  ],
+  "extractive_rendering": "MODEL_FOCUS_MAPPED_FACTS_THEN_NONSELECTED_MANDATORY_TEXT_VERBATIM",
+  "tool_trace": [
+    {
+      "tool": "inspect_recorded_run",
+      "arguments": {
+        "run_id": "e131a997be3397b7e4a6c1cb35de42078697f19c14bb8d63e368234ceea7e561"
+      },
+      "read_only": true,
+      "api_reads": [
+        {
+          "method": "GET",
+          "path": "/v1/runs/e131a997be3397b7e4a6c1cb35de42078697f19c14bb8d63e368234ceea7e561/metadata",
+          "response_sha256": "2b263953ae8f19f3804265b842c1c46d50b8b62b8eeb26f029a1daf54a1f6557"
+        },
+        {
+          "method": "GET",
+          "path": "/v1/runs/e131a997be3397b7e4a6c1cb35de42078697f19c14bb8d63e368234ceea7e561/evaluation",
+          "response_sha256": "4fd0ef885a61d4e4781772af7910d6d4430b282ddd571b5bcb01eed2afb9b3a9"
+        },
+        {
+          "method": "GET",
+          "path": "/v1/runs/e131a997be3397b7e4a6c1cb35de42078697f19c14bb8d63e368234ceea7e561/verdict",
+          "response_sha256": "11595ba6966e56a4d00ed02ba95d7aaf6b3ef012fd457e71329e929af9700359"
+        }
+      ],
+      "result_sha256": "9f18ffdd5b7ad03feb8cad29866dae88cce531b398f4e701344941056a98c9fb",
+      "status": "PASS"
+    }
+  ],
+  "model_stats": {
+    "completed_http_requests": 2,
+    "responses": [
+      {
+        "request_number": 1,
+        "transport": "LOOPBACK_HTTP",
+        "model": "vanian-qwen-local",
+        "completed": true,
+        "request_options": {
+          "num_ctx": 8192,
+          "num_predict": 512,
+          "temperature": 0,
+          "num_thread": 2
+        },
+        "elapsed_ms": 3550.658,
+        "prompt_eval_count": 514,
+        "eval_count": 78,
+        "total_duration": 3549883033,
+        "load_duration": 769416
+      },
+      {
+        "request_number": 2,
+        "transport": "LOOPBACK_HTTP",
+        "model": "vanian-qwen-local",
+        "completed": true,
+        "request_options": {
+          "num_ctx": 8192,
+          "num_predict": 512,
+          "temperature": 0,
+          "num_thread": 2
+        },
+        "elapsed_ms": 5987.11,
+        "prompt_eval_count": 504,
+        "eval_count": 101,
+        "total_duration": 5986275984,
+        "load_duration": 790081
+      }
+    ],
+    "request_options": {
+      "num_ctx": 8192,
+      "num_predict": 512,
+      "temperature": 0,
+      "num_thread": 2
+    },
+    "source": "LOCAL_MODEL_ENDPOINT_COUNTERS_NOT_KERNEL_EVIDENCE"
+  },
+  "authoritative_facts": {
+    "evidence_scope": "RECORDED_LINUX_EVIDENCE_REEVALUATED_BY_LOCAL_AIP_API",
+    "fresh_mac_kernel_capture": false,
+    "run_artifact_id": "e131a997be3397b7e4a6c1cb35de42078697f19c14bb8d63e368234ceea7e561",
+    "run_id": "same-run-a051d7606eb718ede04a61e9",
+    "agent_id": "aip16Q21WER7SFm1TjZHTKddHyXw2jQkEwQbUbuz2P8QbG",
+    "bundle_sha256": "9e98b472593b6bfd6e797ef3259445630e54cba570d43247deecd9bf755985f9",
+    "batches_sha256": "bd070ad43d52cfff94b3a36fd5354e9e62e335e83a1d74dbe148e723ea79cf86",
+    "health_sha256": "2dc5e66c65a8f00ff16602f3ab8056b1565f5e7f0b90cdd49d2664c2c4250e65",
+    "api_verification_scope": "same_run_evaluation",
+    "evaluation": {
+      "archive_integrity_verified": true,
+      "checkpoint_verified": true,
+      "authorization_verified": true,
+      "gateway_receipt_verified": true,
+      "signed_reconciliation_verified": true,
+      "receipt_within_authorization": true,
+      "gateway_disposition": "Forwarded",
+      "tool_boundary": {
+        "Agrees": {
+          "claim": "NotSupplied"
+        }
+      },
+      "limitations": [
+        "Archive signatures establish integrity; collector administrative separation requires deployment evidence.",
+        "Kernel process identity does not establish logical sub-agent attribution or a business outcome.",
+        "Tool request comparison is separate from the kernel reconciliation and cannot upgrade its verdict."
+      ],
+      "reconciliation": {
+        "result": "CannotProve",
+        "reason": "WindowNotCovered",
+        "identity": "NoReference",
+        "action": "Unobservable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        },
+        "temporal": "Indeterminate",
+        "lineage": "NotEvaluated",
+        "wire": "NotEvaluated",
+        "strength": "Heuristic",
+        "replay_detected": false
+      }
+    },
+    "signed_verdict_sha256": "11595ba6966e56a4d00ed02ba95d7aaf6b3ef012fd457e71329e929af9700359",
+    "authority_boundary": "Existing API/Rust verification; model text grants no authority or coverage."
+  },
+  "source_citations": [
+    {
+      "url": "http://127.0.0.1:18880/v1/runs/e131a997be3397b7e4a6c1cb35de42078697f19c14bb8d63e368234ceea7e561/metadata",
+      "response_sha256": "2b263953ae8f19f3804265b842c1c46d50b8b62b8eeb26f029a1daf54a1f6557",
+      "source": "LOCAL_AIP_READER_API_RECORDED_LINUX_EVIDENCE"
+    },
+    {
+      "url": "http://127.0.0.1:18880/v1/runs/e131a997be3397b7e4a6c1cb35de42078697f19c14bb8d63e368234ceea7e561/evaluation",
+      "response_sha256": "4fd0ef885a61d4e4781772af7910d6d4430b282ddd571b5bcb01eed2afb9b3a9",
+      "source": "LOCAL_AIP_READER_API_RECORDED_LINUX_EVIDENCE"
+    },
+    {
+      "url": "http://127.0.0.1:18880/v1/runs/e131a997be3397b7e4a6c1cb35de42078697f19c14bb8d63e368234ceea7e561/verdict",
+      "response_sha256": "11595ba6966e56a4d00ed02ba95d7aaf6b3ef012fd457e71329e929af9700359",
+      "source": "LOCAL_AIP_READER_API_RECORDED_LINUX_EVIDENCE"
+    }
+  ],
+  "scope": {
+    "recorded_linux_evidence": true,
+    "fresh_mac_kernel_capture": false,
+    "freely_generated_reasoning": false,
+    "answer_mode": "EXTRACTIVE_API_FACTS_MODEL_SELECTED",
+    "independent_administrative_custody": "NOT_ESTABLISHED",
+    "authority": "Existing AIP API verification, not model assertions."
+  }
+}

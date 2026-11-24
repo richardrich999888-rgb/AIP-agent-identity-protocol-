@@ -1,0 +1,38 @@
+{
+  "classification": "INDEPENDENT_PRIMARY_METADATA_CHECKSUM_AND_COMPLETE_ARCHIVE_BINARY_HASH_REVIEW",
+  "version": "0.164.0",
+  "release_url": "https://github.com/open-telemetry/opentelemetry-collector-releases/releases/tag/v0.164.0",
+  "primary_metadata_sha256": "4a41203fb3809ca4d0270a7d978588a3e81c6baf179893fd6d4b543a12af27f7",
+  "primary_metadata_path": "/private/tmp/snifferdog-otel-v164-independent-release-metadata.json",
+  "platforms": [
+    {
+      "platform": "Darwin-arm64",
+      "asset_name": "otelcol-contrib_0.164.0_darwin_arm64.tar.gz",
+      "official_asset_id": 679888517,
+      "archive_path": "/private/tmp/snifferdog-otel-build/otelcol-contrib_0.164.0_darwin_arm64.tar.gz",
+      "complete_archive_bytes": 98481373,
+      "complete_local_archive_sha256": "af6a0c56886e3cc36ccebe849fa167bad2bc47a97a48fd8497a0d6f93d0cf73a",
+      "official_release_API_digest_matches_complete_local_bytes": true,
+      "extracted_binary_bytes": 369578818,
+      "binary_sha256_streamed_without_modifying_or_executing": "4d60abcd101c768268f885e3c42a5d2ca083d9d7461c68c6c77dc044371aa0c5",
+      "official_individual_checksum_body_matches_complete_local_bytes": true
+    },
+    {
+      "platform": "Linux-x86_64",
+      "asset_name": "otelcol-contrib_0.164.0_linux_amd64.tar.gz",
+      "official_asset_id": 679888688,
+      "archive_path": "/private/tmp/snifferdog-otel-build/otelcol-contrib_0.164.0_linux_amd64.tar.gz",
+      "complete_archive_bytes": 115591854,
+      "complete_local_archive_sha256": "f0c1ce9f661399beb4a58b711924716e08ea70c3802db0715fcfde3cbbada2d4",
+      "official_release_API_digest_matches_complete_local_bytes": true,
+      "extracted_binary_bytes": 420298914,
+      "binary_sha256_streamed_without_modifying_or_executing": "57911a9d902cfe2c287dac09fcee4b054630b4ec248fa190a3115d860a32f81f",
+      "official_individual_checksum_body_matches_complete_local_bytes": true
+    }
+  ],
+  "individual_checksum_files": "MATCH_BOTH_ARCHIVES",
+  "reviewer_downloaded_binaries": false,
+  "reviewer_installed_or_executed_binaries": false,
+  "scope": "Fresh primary release API metadata matched independently rehashed author-retained full archives and streamed binary members. No install or source edits. This does not establish release signing-key custody or production approval.",
+  "individual_checksum_provenance": "/private/tmp/snifferdog-otel-v164-checksums/provenance.json"
+}

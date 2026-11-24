@@ -16,13 +16,261 @@ use crate::config::SensorConfig;
 /// Per-poll wait when draining a tracer's ring (milliseconds).
 #[cfg(target_os = "linux")]
 const POLL_MS: i32 = 5;
-/// Cap on events drained from one sensor per cycle, so a burst cannot make a
+/// Cap on each bounded sensor drain, so a burst cannot make a
 /// single batch unbounded; the remainder is carried by the next cycle.
 #[cfg(target_os = "linux")]
-const MAX_EVENTS_PER_SENSOR: u32 = 4096;
+const MAX_EVENTS_PER_DRAIN: u32 = 4096;
+
+// Acquisition grace only: no evidence-validity or coverage decision. Across
+// BOTH exec sources this adds at most 256 real events to the initial two
+// 4096-event drains (8448 total), at most sixteen additional drain rounds, and
+// a 20 ms elapsed-time budget. Each round gives each source at most 16 events
+// before switching, so a sched burst cannot spend the connector's entire
+// acquisition opportunity. An empty peer does not cap the busy source at
+// 128 events: it may use the remaining aggregate budget. Reads are nonblocking
+// and a no-progress round may wait at most 1 ms within the same budgets.
+// OS scheduling/measurement can finish late, but no
+// further read starts after any budget expires. The existing batch interval
+// and each event's original kernel timestamp/sequence remain unchanged.
+#[cfg(any(target_os = "linux", test))]
+const EXEC_RENDEZVOUS_EVENTS: usize = 256;
+#[cfg(any(target_os = "linux", test))]
+const EXEC_RENDEZVOUS_ROUNDS: usize = 16;
+#[cfg(any(target_os = "linux", test))]
+const EXEC_RENDEZVOUS_SOURCE_CHUNK: usize = 16;
+#[cfg(any(target_os = "linux", test))]
+const EXEC_RENDEZVOUS_TIME: std::time::Duration = std::time::Duration::from_millis(20);
+
+#[cfg(any(target_os = "linux", test))]
+fn exec_rendezvous_has_budget(rounds: usize, events: usize, elapsed: std::time::Duration) -> bool {
+    rounds < EXEC_RENDEZVOUS_ROUNDS
+        && events < EXEC_RENDEZVOUS_EVENTS
+        && elapsed < EXEC_RENDEZVOUS_TIME
+}
+
+#[cfg(any(target_os = "linux", test))]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum ExecSource {
+    Sched,
+    Connector,
+}
+
+#[cfg(any(target_os = "linux", test))]
+trait ExecWitnessReader {
+    fn next_event(
+        &mut self,
+        source: ExecSource,
+    ) -> Result<Option<aip_observe::ProcEvent>, aip_observe::SourceError>;
+    fn take_sched_lost(&mut self) -> u64;
+    fn elapsed(&self) -> std::time::Duration;
+    fn idle_wait(&mut self, duration: std::time::Duration);
+}
+
+#[cfg(target_os = "linux")]
+struct KernelExecWitnessReader<'a> {
+    sched: &'a mut aip_observe::ProcessTracer,
+    connector: &'a aip_observe::ProcConnector,
+    started: std::time::Instant,
+}
+
+#[cfg(target_os = "linux")]
+impl ExecWitnessReader for KernelExecWitnessReader<'_> {
+    fn next_event(
+        &mut self,
+        source: ExecSource,
+    ) -> Result<Option<aip_observe::ProcEvent>, aip_observe::SourceError> {
+        match source {
+            ExecSource::Sched => self.sched.next_event(0),
+            ExecSource::Connector => self.connector.next_event(0),
+        }
+    }
+
+    fn take_sched_lost(&mut self) -> u64 {
+        self.sched.take_lost()
+    }
+
+    fn elapsed(&self) -> std::time::Duration {
+        self.started.elapsed()
+    }
+
+    fn idle_wait(&mut self, duration: std::time::Duration) {
+        std::thread::sleep(duration);
+    }
+}
+
+#[cfg(any(target_os = "linux", test))]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum ExecRendezvousStop {
+    Paired,
+    EventBudget,
+    TimeBudget,
+    RoundBudget,
+    SourceError,
+}
+
+/// Acquisition diagnostics only. A source error refuses the batch and stays
+/// in private daemon diagnostics; it never supplies an evidence claim.
+#[cfg(any(target_os = "linux", test))]
+#[derive(Debug)]
+struct ExecRendezvousReport {
+    stop: ExecRendezvousStop,
+    source_error: Option<aip_observe::SourceError>,
+    rounds: usize,
+    events: [usize; 2],
+    reads: [usize; 2],
+    idle_waits: usize,
+    requested_idle_wait: std::time::Duration,
+    elapsed: std::time::Duration,
+}
+
+/// Drain only current real sources into the current UNSENT batch. The private
+/// readiness hint cannot accept evidence; exhaustion leaves originals intact.
+#[cfg(any(target_os = "linux", test))]
+fn acquire_exec_witnesses(
+    probe: &mut ProcfsProbe,
+    reader: &mut impl ExecWitnessReader,
+) -> ExecRendezvousReport {
+    let mut report = ExecRendezvousReport {
+        stop: ExecRendezvousStop::Paired,
+        source_error: None,
+        rounds: 0,
+        events: [0; 2],
+        reads: [0; 2],
+        idle_waits: 0,
+        requested_idle_wait: std::time::Duration::ZERO,
+        elapsed: std::time::Duration::ZERO,
+    };
+    loop {
+        if pending_exec_witnesses_paired(probe.pending_kernel_events()) {
+            break;
+        }
+        let acquired = report.events.iter().sum();
+        let elapsed = reader.elapsed();
+        if !exec_rendezvous_has_budget(report.rounds, acquired, elapsed) {
+            report.stop = if acquired >= EXEC_RENDEZVOUS_EVENTS {
+                ExecRendezvousStop::EventBudget
+            } else if elapsed >= EXEC_RENDEZVOUS_TIME {
+                ExecRendezvousStop::TimeBudget
+            } else {
+                ExecRendezvousStop::RoundBudget
+            };
+            break;
+        }
+        for (side, source) in [ExecSource::Sched, ExecSource::Connector]
+            .into_iter()
+            .enumerate()
+        {
+            for _ in 0..EXEC_RENDEZVOUS_SOURCE_CHUNK {
+                if !exec_rendezvous_has_budget(
+                    report.rounds,
+                    report.events.iter().sum(),
+                    reader.elapsed(),
+                ) {
+                    break;
+                }
+                report.reads[side] += 1;
+                match reader.next_event(source) {
+                    Ok(Some(event)) => {
+                        match source {
+                            ExecSource::Sched => {
+                                probe.ingest_sched_event(event);
+                            }
+                            ExecSource::Connector => {
+                                probe.ingest_kernel_event(event);
+                            }
+                        }
+                        report.events[side] += 1;
+                    }
+                    Ok(None) => break,
+                    Err(aip_observe::SourceError::EventsLost)
+                        if source == ExecSource::Connector =>
+                    {
+                        // Preserve the connector's existing unknown-loss floor.
+                        probe.record_lost_events(1);
+                        break;
+                    }
+                    Err(error) => {
+                        report.stop = ExecRendezvousStop::SourceError;
+                        report.source_error = Some(error);
+                        report.elapsed = reader.elapsed();
+                        return report;
+                    }
+                }
+            }
+            if source == ExecSource::Sched {
+                let lost = reader.take_sched_lost();
+                if lost > 0 {
+                    probe.record_lost_events(lost);
+                }
+            }
+        }
+        report.rounds += 1;
+        if report.events.iter().sum::<usize>() == acquired
+            && exec_rendezvous_has_budget(report.rounds, acquired, reader.elapsed())
+        {
+            // Preserve the original bounded opportunity for a counterpart
+            // not yet visible. No busy round pays an unconditional sleep,
+            // and the next read still checks all original limits again.
+            let remaining = EXEC_RENDEZVOUS_TIME.saturating_sub(reader.elapsed());
+            let wait = std::time::Duration::from_millis(1).min(remaining);
+            if !wait.is_zero() {
+                report.idle_waits += 1;
+                report.requested_idle_wait += wait;
+                reader.idle_wait(wait);
+            }
+        }
+    }
+    report.elapsed = reader.elapsed();
+    report
+}
+
+/// Whether the current unsent exec witnesses have their real counterpart in
+/// both directions. This private readiness hint only requests more acquisition;
+/// it never changes events or decides integrity, attribution or coverage. The
+/// collector still applies its existing strict predicate to the actual batch.
+#[cfg(any(target_os = "linux", test))]
+fn pending_exec_witnesses_paired(events: &[aip_observe::KernelLifecycleEvent]) -> bool {
+    use aip_observe::{KernelLifecycleKind, SourceMechanism, DEFAULT_MATCH_WINDOW_NS};
+    use std::collections::BTreeMap;
+
+    // Index by the same PID/TGID predicate as the collector, then sort times.
+    // Avoid an all-pairs scan when a burst fills the bounded sensor drains.
+    let mut witnesses: BTreeMap<(u32, u32), [Vec<u64>; 2]> = BTreeMap::new();
+    for event in events {
+        let (side, pid, tgid) = match (&event.mechanism, &event.kind) {
+            (SourceMechanism::SchedTracepoint, KernelLifecycleKind::ProcessExec { pid, .. }) => {
+                (0, *pid, *pid)
+            }
+            (SourceMechanism::SchedTracepoint, KernelLifecycleKind::Exec { pid, tgid }) => {
+                (0, *pid, *tgid)
+            }
+            (SourceMechanism::ProcConnector, KernelLifecycleKind::Exec { pid, tgid }) => {
+                (1, *pid, *tgid)
+            }
+            _ => continue,
+        };
+        witnesses.entry((pid, tgid)).or_default()[side].push(event.kernel_timestamp_ns);
+    }
+    witnesses.values_mut().all(|sides| {
+        sides[0].sort_unstable();
+        sides[1].sort_unstable();
+        let has_counterparts = |source: &[u64], other: &[u64]| {
+            source.iter().all(|stamp| {
+                let lower = stamp.saturating_sub(DEFAULT_MATCH_WINDOW_NS);
+                let upper = stamp.saturating_add(DEFAULT_MATCH_WINDOW_NS);
+                let first = other.partition_point(|candidate| *candidate < lower);
+                other
+                    .get(first)
+                    .is_some_and(|candidate| *candidate <= upper)
+            })
+        };
+        has_counterparts(&sides[0], &sides[1]) && has_counterparts(&sides[1], &sides[0])
+    })
+}
 
 /// Owns the open tracers and the batch-building probe.
 pub struct SensorSet {
+    fatal_source_error: Option<String>,
     probe: ProcfsProbe,
     batch_counter: u64,
     #[cfg(target_os = "linux")]
@@ -201,6 +449,7 @@ impl SensorSet {
         }
 
         Ok(Self {
+            fatal_source_error: None,
             probe,
             batch_counter: 0,
             process,
@@ -214,14 +463,24 @@ impl SensorSet {
     }
 
     #[cfg(not(target_os = "linux"))]
-    pub fn open(_probe_id: &str, _cfg: SensorConfig) -> Result<Self, String> {
+    pub fn open(_probe_id: &str, cfg: SensorConfig) -> Result<Self, String> {
+        if cfg.fanotify {
+            if cfg.fanotify_path.is_none() {
+                return Err("sensor fanotify requires AIP_PROBE_FANOTIFY_PATH".into());
+            }
+            return Err("cannot open fanotify: Linux and CAP_SYS_ADMIN are required; this platform has no supported sensor".into());
+        }
         Err("aip-probe requires Linux (perf tracepoints); this build cannot open sensors".into())
     }
 
     /// Drain the open sensors and build one batch covering `[from_ms, to_ms]`.
     /// Reported ring loss becomes counted loss on the batch; nothing is
-    /// inferred to fill a gap.
-    pub fn collect_batch(&mut self, from_ms: u64, to_ms: u64) -> ObservationBatch {
+    /// inferred to fill a gap. Other read errors permanently refuse this run;
+    /// callers must restart acquisition rather than publish an incomplete batch.
+    pub fn collect_batch(&mut self, from_ms: u64, to_ms: u64) -> Result<ObservationBatch, String> {
+        if let Some(error) = &self.fatal_source_error {
+            return Err(error.clone());
+        }
         #[cfg(target_os = "linux")]
         {
             use aip_observe::boot_clock_anchor;
@@ -230,20 +489,23 @@ impl SensorSet {
             if let Ok(anchor) = boot_clock_anchor() {
                 self.probe.declare_clock_anchor(anchor);
             }
-            // Drain one tracer into the probe: pull events until the ring is
-            // quiet (`Ok(None)`), a source error, or the per-cycle cap; then
-            // fold any reported ring loss into counted loss. A `while let Ok`
-            // ends the loop on both `Ok(None)` and `Err` — the same terminal
-            // behavior as the explicit match, without a busy spin.
+            // Only Ok(None) is a quiet source. An unreadable source cannot
+            // license a counted-zero batch or later coverage of this window.
             macro_rules! drain_into_probe {
-                ($slot:expr, $ingest:ident) => {
+                ($slot:expr, $ingest:ident, $name:literal) => {
                     if let Some(t) = $slot.as_mut() {
                         let mut n: u32 = 0;
-                        while let Ok(Some(ev)) = t.next_event(POLL_MS) {
-                            self.probe.$ingest(ev);
-                            n += 1;
-                            if n >= MAX_EVENTS_PER_SENSOR {
-                                break;
+                        loop {
+                            match t.next_event(POLL_MS) {
+                                Ok(Some(ev)) => {
+                                    self.probe.$ingest(ev);
+                                    n += 1;
+                                    if n >= MAX_EVENTS_PER_DRAIN {
+                                        break;
+                                    }
+                                }
+                                Ok(None) => break,
+                                Err(error) => return self.fail_source_read($name, error),
                             }
                         }
                         let lost = t.take_lost();
@@ -253,14 +515,11 @@ impl SensorSet {
                     }
                 };
             }
-            drain_into_probe!(self.process, ingest_sched_event);
-            drain_into_probe!(self.cgroup, ingest_cgroup_event);
-            drain_into_probe!(self.sockstate, ingest_socket_event);
-            drain_into_probe!(self.socksend, ingest_send_event);
-            // The AF_PACKET tap yields the same `ProcEvent` shape as the
-            // tracers, so it drains identically; its loss counter is the
-            // kernel's own `PACKET_STATISTICS.tp_drops`.
-            drain_into_probe!(self.wire, ingest_wire_event);
+            drain_into_probe!(self.process, ingest_sched_event, "sched");
+            drain_into_probe!(self.cgroup, ingest_cgroup_event, "cgroup");
+            drain_into_probe!(self.sockstate, ingest_socket_event, "sockstate");
+            drain_into_probe!(self.socksend, ingest_send_event, "socksend");
+            drain_into_probe!(self.wire, ingest_wire_event, "afpacket");
 
             // fanotify yields a `FileObservation` (event plus the kernel's
             // pidfd), not a bare `ProcEvent`, so it does not fit the macro.
@@ -270,11 +529,17 @@ impl SensorSet {
             // without identity — rather than guessed at from the pid.
             if let Some(w) = self.file.as_mut() {
                 let mut n: u32 = 0;
-                while let Ok(Some(obs)) = w.next_event(POLL_MS) {
-                    self.probe.ingest_file_event(obs);
-                    n += 1;
-                    if n >= MAX_EVENTS_PER_SENSOR {
-                        break;
+                loop {
+                    match w.next_event(POLL_MS) {
+                        Ok(Some(obs)) => {
+                            self.probe.ingest_file_event(obs);
+                            n += 1;
+                            if n >= MAX_EVENTS_PER_DRAIN {
+                                break;
+                            }
+                        }
+                        Ok(None) => break,
+                        Err(error) => return self.fail_source_read("fanotify", error),
                     }
                 }
                 let lost = w.take_lost();
@@ -297,7 +562,7 @@ impl SensorSet {
                         Ok(Some(ev)) => {
                             self.probe.ingest_kernel_event(ev);
                             n += 1;
-                            if n >= MAX_EVENTS_PER_SENSOR {
+                            if n >= MAX_EVENTS_PER_DRAIN {
                                 break;
                             }
                         }
@@ -306,8 +571,47 @@ impl SensorSet {
                             self.probe.record_lost_events(1);
                             break;
                         }
-                        Err(_) => break,
+                        Err(error) => return self.fail_source_read("connector", error),
                     }
+                }
+            }
+
+            // Either source can deliver its counterpart after the other's
+            // initial drain. Keep acquiring into this SAME unsent batch for a
+            // bounded grace period; never borrow an earlier signed batch or
+            // fabricate a match. Exhaustion emits every original event as-is.
+            // A connector exec still missing perf is refused by the collector;
+            // a perf-only event does not invent a new collector finding.
+            if let (Some(sched), Some(connector)) = (self.process.as_mut(), self.connector.as_ref())
+            {
+                let report = acquire_exec_witnesses(
+                    &mut self.probe,
+                    &mut KernelExecWitnessReader {
+                        sched,
+                        connector,
+                        started: std::time::Instant::now(),
+                    },
+                );
+                if let Some(error) = report.source_error {
+                    return self.fail_source_read("exec-rendezvous", error);
+                }
+                if report.stop != ExecRendezvousStop::Paired {
+                    // Bounded non-payload diagnostics, never a signed assertion
+                    // that a missing event was recovered or a gap was filled.
+                    eprintln!(
+                        "exec_rendezvous_unresolved reason={:?} rounds={} sched_events={} connector_events={} sched_reads={} connector_reads={} idle_waits={} requested_idle_wait_us={} elapsed_us={} event_budget={} scheduling_budget_us={}",
+                        report.stop,
+                        report.rounds,
+                        report.events[0],
+                        report.events[1],
+                        report.reads[0],
+                        report.reads[1],
+                        report.idle_waits,
+                        report.requested_idle_wait.as_micros(),
+                        report.elapsed.as_micros(),
+                        EXEC_RENDEZVOUS_EVENTS,
+                        EXEC_RENDEZVOUS_TIME.as_micros(),
+                    );
                 }
             }
 
@@ -355,7 +659,493 @@ impl SensorSet {
         }
         let _ = (from_ms, to_ms);
         self.batch_counter += 1;
-        self.probe
-            .batch(batch_id_bytes(self.batch_counter), from_ms, to_ms, vec![])
+        Ok(self
+            .probe
+            .batch(batch_id_bytes(self.batch_counter), from_ms, to_ms, vec![]))
+    }
+
+    // Poison this sensor set: a caller cannot retry the same run and turn an
+    // unobserved interval into a clean batch. The daemon exits, retaining its
+    // committed spool; a restart gets a new run ID and cannot backfill coverage.
+    #[cfg(any(target_os = "linux", test))]
+    fn fail_source_read(
+        &mut self,
+        source: &str,
+        error: aip_observe::SourceError,
+    ) -> Result<ObservationBatch, String> {
+        let message = format!("sensor {source} acquisition failed: {error}");
+        self.fatal_source_error = Some(message.clone());
+        Err(message)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use aip_observe::{
+        AgentAttribution, CgroupSample, KernelLifecycleEvent, KernelLifecycleKind, SourceMechanism,
+        DEFAULT_MATCH_WINDOW_NS, OBSERVE_PROTOCOL_VERSION,
+    };
+
+    fn event(
+        mechanism: SourceMechanism,
+        kind: KernelLifecycleKind,
+        stamp: u64,
+    ) -> KernelLifecycleEvent {
+        KernelLifecycleEvent {
+            version: OBSERVE_PROTOCOL_VERSION,
+            probe_id: "acquisition-readiness-test".into(),
+            mechanism,
+            kind,
+            cpu: 0,
+            kernel_timestamp_ns: stamp,
+            probe_seq: stamp,
+            bound: None,
+            attribution: AgentAttribution::NotEstablished,
+            claimed_decision_id: None,
+            cgroup: CgroupSample::NotSampled,
+        }
+    }
+
+    fn sched(pid: u32, stamp: u64) -> KernelLifecycleEvent {
+        event(
+            SourceMechanism::SchedTracepoint,
+            KernelLifecycleKind::ProcessExec {
+                pid,
+                old_pid: pid + 100,
+                filename: "/test/real-event-shape".into(),
+            },
+            stamp,
+        )
+    }
+
+    fn connector(pid: u32, tgid: u32, stamp: u64) -> KernelLifecycleEvent {
+        event(
+            SourceMechanism::ProcConnector,
+            KernelLifecycleKind::Exec { pid, tgid },
+            stamp,
+        )
+    }
+
+    #[test]
+    fn sched_first_waits_for_actual_connector_without_rewriting_events() {
+        let first = sched(42, 95_977_404_365);
+        let mut pending = vec![first.clone()];
+        assert!(!pending_exec_witnesses_paired(&pending));
+        pending.push(connector(42, 42, 95_977_410_203));
+        let originals = pending.clone();
+        assert!(pending_exec_witnesses_paired(&pending));
+        assert_eq!(pending, originals);
+        assert_eq!(pending[0], first);
+    }
+
+    #[test]
+    fn connector_first_waits_for_actual_sched_and_each_extra_exec() {
+        let mut pending = vec![connector(42, 42, 100)];
+        assert!(!pending_exec_witnesses_paired(&pending));
+        pending.push(sched(42, 99));
+        assert!(pending_exec_witnesses_paired(&pending));
+        pending.push(sched(43, 110));
+        assert!(!pending_exec_witnesses_paired(&pending));
+        pending.push(connector(43, 43, 111));
+        assert!(pending_exec_witnesses_paired(&pending));
+    }
+
+    #[test]
+    fn wrong_pid_or_tgid_never_satisfies_readiness() {
+        for other in [connector(43, 43, 100), connector(42, 43, 100)] {
+            assert!(!pending_exec_witnesses_paired(&[sched(42, 100), other]));
+        }
+    }
+
+    #[test]
+    fn uses_existing_timestamp_window_without_expanding_it() {
+        let stamp = DEFAULT_MATCH_WINDOW_NS + 10;
+        assert!(pending_exec_witnesses_paired(&[
+            sched(42, stamp),
+            connector(42, 42, stamp + DEFAULT_MATCH_WINDOW_NS),
+        ]));
+        assert!(!pending_exec_witnesses_paired(&[
+            sched(42, stamp),
+            connector(42, 42, stamp + DEFAULT_MATCH_WINDOW_NS + 1),
+        ]));
+    }
+
+    #[test]
+    fn missing_witness_remains_unready_and_no_exec_requires_no_wait() {
+        let pending = vec![connector(42, 42, 100)];
+        for _ in 0..EXEC_RENDEZVOUS_ROUNDS {
+            assert!(!pending_exec_witnesses_paired(&pending));
+        }
+        assert_eq!(pending.len(), 1);
+        assert!(pending_exec_witnesses_paired(&[]));
+        assert!(pending_exec_witnesses_paired(&[event(
+            SourceMechanism::ProcConnector,
+            KernelLifecycleKind::Exit {
+                pid: 42,
+                tgid: 42,
+                exit_code: 0,
+                exit_signal: 0
+            },
+            100,
+        )]));
+    }
+
+    #[test]
+    fn exhaustion_preserves_original_batch_and_collector_still_requires_witness() {
+        use aip_observe::{detect_cross_sensor_divergence_default, MechanismIntegrity, ProcEvent};
+
+        let mut probe = ProcfsProbe::new("acquisition-unit-fixture");
+        probe.declare_source(SourceMechanism::SchedTracepoint);
+        probe.declare_source(SourceMechanism::ProcConnector);
+        probe.enable_loss_counter();
+        probe.ingest_kernel_event(ProcEvent {
+            kind: KernelLifecycleKind::Exec { pid: 42, tgid: 42 },
+            cpu: 0,
+            timestamp_ns: 95_977_410_203,
+            cgroup: CgroupSample::NotSampled,
+        });
+        let originals = probe.pending_kernel_events().to_vec();
+        assert!(!pending_exec_witnesses_paired(&originals));
+        assert!(!exec_rendezvous_has_budget(
+            EXEC_RENDEZVOUS_ROUNDS,
+            EXEC_RENDEZVOUS_EVENTS,
+            EXEC_RENDEZVOUS_TIME,
+        ));
+        // Two unit scenarios from the same unsent fixture. Neither batch is
+        // signed; no previous attested batch contributes a matching witness.
+        let exhausted = probe.clone().batch([1; 16], 1, 2, vec![]);
+        assert_eq!(exhausted.kernel_events, originals);
+        let reports = detect_cross_sensor_divergence_default(&exhausted).integrity_reports();
+        assert_eq!(reports.len(), 1);
+        assert_eq!(reports[0].mechanism, SourceMechanism::SchedTracepoint);
+        assert_eq!(reports[0].integrity, MechanismIntegrity::Unverifiable);
+
+        probe.ingest_sched_event(ProcEvent {
+            kind: KernelLifecycleKind::ProcessExec {
+                pid: 42,
+                old_pid: 142,
+                filename: "/test/real-event-shape".into(),
+            },
+            cpu: 0,
+            timestamp_ns: 95_977_404_365,
+            cgroup: CgroupSample::NotSampled,
+        });
+        assert!(pending_exec_witnesses_paired(probe.pending_kernel_events()));
+        let paired = probe.batch([2; 16], 1, 2, vec![]);
+        assert_eq!(paired.kernel_events.len(), 2);
+        assert_eq!(paired.kernel_events[0], originals[0]);
+        assert_eq!(paired.kernel_events[1].kernel_timestamp_ns, 95_977_404_365);
+        assert!(detect_cross_sensor_divergence_default(&paired).is_empty());
+    }
+
+    struct FakeExecReader {
+        queues: [std::collections::VecDeque<
+            Result<aip_observe::ProcEvent, aip_observe::SourceError>,
+        >; 2],
+        reads: usize,
+        expire_after_first_read: bool,
+        sched_lost: u64,
+        elapsed: std::time::Duration,
+        delayed_sched: Option<aip_observe::ProcEvent>,
+    }
+
+    impl FakeExecReader {
+        fn new(sched: Vec<aip_observe::ProcEvent>, connector: Vec<aip_observe::ProcEvent>) -> Self {
+            Self {
+                queues: [
+                    sched.into_iter().map(Ok).collect(),
+                    connector.into_iter().map(Ok).collect(),
+                ],
+                reads: 0,
+                expire_after_first_read: false,
+                sched_lost: 0,
+                elapsed: std::time::Duration::ZERO,
+                delayed_sched: None,
+            }
+        }
+    }
+
+    impl ExecWitnessReader for FakeExecReader {
+        fn next_event(
+            &mut self,
+            source: ExecSource,
+        ) -> Result<Option<aip_observe::ProcEvent>, aip_observe::SourceError> {
+            self.reads += 1;
+            self.queues[usize::from(source == ExecSource::Connector)]
+                .pop_front()
+                .transpose()
+        }
+
+        fn take_sched_lost(&mut self) -> u64 {
+            std::mem::take(&mut self.sched_lost)
+        }
+
+        fn elapsed(&self) -> std::time::Duration {
+            if self.expire_after_first_read && self.reads > 0 {
+                EXEC_RENDEZVOUS_TIME
+            } else {
+                self.elapsed
+            }
+        }
+
+        fn idle_wait(&mut self, duration: std::time::Duration) {
+            self.elapsed += duration;
+            if let Some(event) = self.delayed_sched.take() {
+                self.queues[0].push_back(Ok(event));
+            }
+        }
+    }
+
+    fn pending_failed_ordering() -> ProcfsProbe {
+        let mut probe = ProcfsProbe::new("one-sided-real-ordering-unit-fixture");
+        probe.declare_source(SourceMechanism::SchedTracepoint);
+        probe.declare_source(SourceMechanism::ProcConnector);
+        probe.enable_loss_counter();
+        probe.ingest_kernel_event(aip_observe::ProcEvent {
+            kind: KernelLifecycleKind::Exec {
+                pid: 7097,
+                tgid: 7097,
+            },
+            cpu: 0,
+            timestamp_ns: 264_533_373_550,
+            cgroup: CgroupSample::NotSampled,
+        });
+        probe
+    }
+
+    fn sched_backlog(count: usize) -> Vec<aip_observe::ProcEvent> {
+        (0..count)
+            .map(|index| aip_observe::ProcEvent {
+                kind: KernelLifecycleKind::ProcessSpawn {
+                    parent_pid: 0,
+                    child_pid: index as u32 + 1,
+                    parent_comm: "unit-fixture".into(),
+                    child_comm: "unit-fixture".into(),
+                },
+                cpu: 0,
+                timestamp_ns: 264_532_000_000 + index as u64,
+                cgroup: CgroupSample::NotSampled,
+            })
+            .collect()
+    }
+
+    #[test]
+    fn one_sided_backlog_acquires_actual_witness_beyond_old_128_ceiling() {
+        use aip_observe::detect_cross_sensor_divergence_default;
+
+        let mut probe = pending_failed_ordering();
+        let original = probe.pending_kernel_events()[0].clone();
+        let mut backlog = sched_backlog(128);
+        backlog.push(aip_observe::ProcEvent {
+            kind: KernelLifecycleKind::ProcessExec {
+                pid: 7097,
+                old_pid: 7097,
+                filename: "/test/actual-shaped-counterpart".into(),
+            },
+            cpu: 0,
+            timestamp_ns: 264_533_357_961,
+            cgroup: CgroupSample::NotSampled,
+        });
+        let mut reader = FakeExecReader::new(backlog, vec![]);
+        let report = acquire_exec_witnesses(&mut probe, &mut reader);
+        assert_eq!(report.stop, ExecRendezvousStop::Paired);
+        assert_eq!(report.rounds, 9);
+        assert_eq!(report.events, [129, 0]);
+        assert!(report.events.iter().sum::<usize>() < EXEC_RENDEZVOUS_EVENTS);
+        assert_eq!(probe.pending_kernel_events()[0], original);
+        assert_eq!(
+            probe
+                .pending_kernel_events()
+                .last()
+                .unwrap()
+                .kernel_timestamp_ns,
+            264_533_357_961
+        );
+        let batch = probe.batch([3; 16], 1, 2, vec![]);
+        assert_eq!(batch.kernel_events.len(), 130);
+        assert!(detect_cross_sensor_divergence_default(&batch).is_empty());
+    }
+
+    #[test]
+    fn shared_event_budget_still_counts_nonexec_events_and_preserves_missing_witness() {
+        use aip_observe::{detect_cross_sensor_divergence_default, MechanismIntegrity};
+
+        let mut probe = pending_failed_ordering();
+        let original = probe.pending_kernel_events()[0].clone();
+        let mut reader = FakeExecReader::new(sched_backlog(257), vec![]);
+        let report = acquire_exec_witnesses(&mut probe, &mut reader);
+        assert_eq!(report.stop, ExecRendezvousStop::EventBudget);
+        assert_eq!(report.events, [256, 0]);
+        assert_eq!(report.rounds, 16);
+        assert_eq!(reader.queues[0].len(), 1);
+        assert_eq!(probe.pending_kernel_events()[0], original);
+        let batch = probe.batch([4; 16], 1, 2, vec![]);
+        assert_eq!(batch.kernel_events.len(), 257);
+        assert_eq!(
+            detect_cross_sensor_divergence_default(&batch).integrity_reports()[0].integrity,
+            MechanismIntegrity::Unverifiable
+        );
+    }
+
+    #[test]
+    fn time_deadline_is_checked_before_each_additional_source_read() {
+        let mut probe = pending_failed_ordering();
+        let mut reader = FakeExecReader::new(sched_backlog(16), vec![]);
+        reader.expire_after_first_read = true;
+        let report = acquire_exec_witnesses(&mut probe, &mut reader);
+        assert_eq!(report.stop, ExecRendezvousStop::TimeBudget);
+        assert_eq!(report.reads, [1, 0]);
+        assert_eq!(report.events, [1, 0]);
+        assert!(!pending_exec_witnesses_paired(
+            probe.pending_kernel_events()
+        ));
+    }
+
+    #[test]
+    fn empty_sources_stop_at_round_budget_and_already_paired_needs_no_read() {
+        let mut probe = pending_failed_ordering();
+        let originals = probe.pending_kernel_events().to_vec();
+        let mut reader = FakeExecReader::new(vec![], vec![]);
+        let report = acquire_exec_witnesses(&mut probe, &mut reader);
+        assert_eq!(report.stop, ExecRendezvousStop::RoundBudget);
+        assert_eq!(report.rounds, EXEC_RENDEZVOUS_ROUNDS);
+        assert_eq!(report.reads, [EXEC_RENDEZVOUS_ROUNDS; 2]);
+        assert_eq!(report.events, [0, 0]);
+        assert_eq!(report.idle_waits, EXEC_RENDEZVOUS_ROUNDS - 1);
+        assert!(report.requested_idle_wait <= EXEC_RENDEZVOUS_TIME);
+        assert_eq!(probe.pending_kernel_events(), originals);
+        let mut idle = ProcfsProbe::new("idle-unit-fixture");
+        let report = acquire_exec_witnesses(&mut idle, &mut reader);
+        assert_eq!(report.stop, ExecRendezvousStop::Paired);
+        assert_eq!(report.rounds, 0);
+        assert_eq!(report.reads, [0, 0]);
+    }
+
+    #[test]
+    fn counterpart_arriving_after_empty_round_wait_stays_in_current_unsent_batch() {
+        use aip_observe::detect_cross_sensor_divergence_default;
+
+        let mut probe = pending_failed_ordering();
+        let original = probe.pending_kernel_events()[0].clone();
+        let mut reader = FakeExecReader::new(vec![], vec![]);
+        reader.delayed_sched = Some(aip_observe::ProcEvent {
+            kind: KernelLifecycleKind::ProcessExec {
+                pid: 7097,
+                old_pid: 7097,
+                filename: "/test/actual-shaped-counterpart".into(),
+            },
+            cpu: 0,
+            timestamp_ns: 264_533_357_961,
+            cgroup: CgroupSample::NotSampled,
+        });
+        let report = acquire_exec_witnesses(&mut probe, &mut reader);
+        assert_eq!(report.stop, ExecRendezvousStop::Paired);
+        assert_eq!(report.rounds, 2);
+        assert_eq!(report.idle_waits, 1);
+        assert_eq!(
+            report.requested_idle_wait,
+            std::time::Duration::from_millis(1)
+        );
+        assert_eq!(report.events, [1, 0]);
+        assert_eq!(probe.pending_kernel_events()[0], original);
+        let batch = probe.batch([6; 16], 1, 2, vec![]);
+        assert_eq!(batch.kernel_events.len(), 2);
+        assert_eq!(batch.kernel_events[1].kernel_timestamp_ns, 264_533_357_961);
+        assert!(detect_cross_sensor_divergence_default(&batch).is_empty());
+    }
+
+    #[test]
+    fn source_loss_accounting_remains_real_and_fail_closed() {
+        let mut probe = pending_failed_ordering();
+        let mut reader = FakeExecReader::new(vec![], vec![]);
+        reader.sched_lost = 3;
+        reader.queues[1].push_back(Err(aip_observe::SourceError::EventsLost));
+        let report = acquire_exec_witnesses(&mut probe, &mut reader);
+        assert_eq!(report.stop, ExecRendezvousStop::RoundBudget);
+        let batch = probe.batch([5; 16], 1, 2, vec![]);
+        assert_eq!(batch.dropped_events, Some(4)); // three sched losses + connector's existing floor
+        assert_eq!(batch.kernel_events.len(), 1);
+    }
+
+    #[test]
+    fn acquisition_stops_at_each_aggregate_budget_boundary() {
+        assert_eq!(
+            EXEC_RENDEZVOUS_SOURCE_CHUNK * EXEC_RENDEZVOUS_ROUNDS,
+            EXEC_RENDEZVOUS_EVENTS
+        );
+        let before = EXEC_RENDEZVOUS_TIME - std::time::Duration::from_nanos(1);
+        assert!(exec_rendezvous_has_budget(
+            EXEC_RENDEZVOUS_ROUNDS - 1,
+            EXEC_RENDEZVOUS_EVENTS - 1,
+            before,
+        ));
+        assert!(!exec_rendezvous_has_budget(
+            EXEC_RENDEZVOUS_ROUNDS,
+            0,
+            before
+        ));
+        assert!(!exec_rendezvous_has_budget(
+            0,
+            EXEC_RENDEZVOUS_EVENTS,
+            before
+        ));
+        assert!(!exec_rendezvous_has_budget(0, 0, EXEC_RENDEZVOUS_TIME));
+        assert!(!pending_exec_witnesses_paired(&[connector(42, 42, 100)]));
+    }
+
+    #[test]
+    fn unreadable_exec_source_is_not_a_quiet_rendezvous() {
+        for side in 0..2 {
+            let mut probe = pending_failed_ordering();
+            let originals = probe.pending_kernel_events().to_vec();
+            let mut reader = FakeExecReader::new(vec![], vec![]);
+            let error = if side == 0 {
+                aip_observe::SourceError::Unavailable("permission denied by test reader".into())
+            } else {
+                aip_observe::SourceError::Malformed("unreadable test record".into())
+            };
+            reader.queues[side].push_back(Err(error.clone()));
+            let report = acquire_exec_witnesses(&mut probe, &mut reader);
+            assert_eq!(report.stop, ExecRendezvousStop::SourceError);
+            assert_eq!(report.source_error, Some(error));
+            assert_eq!(report.events, [0, 0]);
+            assert_eq!(probe.pending_kernel_events(), originals);
+        }
+    }
+
+    #[test]
+    fn failed_acquisition_cannot_publish_or_retry_an_incomplete_run() {
+        let mut sensors = SensorSet {
+            fatal_source_error: None,
+            probe: pending_failed_ordering(),
+            batch_counter: 0,
+            #[cfg(target_os = "linux")]
+            process: None,
+            #[cfg(target_os = "linux")]
+            cgroup: None,
+            #[cfg(target_os = "linux")]
+            sockstate: None,
+            #[cfg(target_os = "linux")]
+            socksend: None,
+            #[cfg(target_os = "linux")]
+            connector: None,
+            #[cfg(target_os = "linux")]
+            file: None,
+            #[cfg(target_os = "linux")]
+            wire: None,
+        };
+        let originals = sensors.probe.pending_kernel_events().to_vec();
+        let failure = sensors
+            .fail_source_read(
+                "fanotify",
+                aip_observe::SourceError::Unavailable("permission denied".into()),
+            )
+            .unwrap_err();
+        for (from, to) in [(10, 20), (20, 30), (1000, 2000)] {
+            assert_eq!(sensors.collect_batch(from, to).unwrap_err(), failure);
+            assert_eq!(sensors.batch_counter, 0);
+            assert_eq!(sensors.probe.pending_kernel_events(), originals);
+        }
     }
 }

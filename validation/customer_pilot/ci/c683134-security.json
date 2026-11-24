@@ -1,0 +1,147 @@
+{
+  "schema": "aip.customer-pilot.security-ci.v1",
+  "source_commit": "c683134c59b50950e4eab176d37292683c61930d",
+  "pull_request": 8,
+  "workflow": "Security",
+  "run_id": 45433545669,
+  "run_attempt": 1,
+  "run_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45433545669",
+  "event": "pull_request",
+  "status": "completed",
+  "conclusion": "success",
+  "completed_at": "2026-11-24T16:11:23Z",
+  "checkout_commit": "d550820723cc3af85bae2fb0556e425f4208e7c1",
+  "jobs": [
+    {
+      "id": 138585082661,
+      "name": "trivy filesystem scan",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45433545669/job/138585082661"
+    },
+    {
+      "id": 138585083149,
+      "name": "Scanner and Kubernetes security controls",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45433545669/job/138585083149"
+    },
+    {
+      "id": 138585083329,
+      "name": "gitleaks (secret scan)",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45433545669/job/138585083329"
+    },
+    {
+      "id": 138585083660,
+      "name": "cargo audit (RUSTSEC)",
+      "conclusion": "success",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45433545669/job/138585083660"
+    }
+  ],
+  "gitleaks": {
+    "version": "8.24.3",
+    "history_range": "65b6ff7fdad5ae70546a57216a497399091c7dc7..c683134c59b50950e4eab176d37292683c61930d",
+    "history_ancestry_commits": 48,
+    "scanner_reported_commits": 46,
+    "ancestry_merge_commits": 2,
+    "history_exit_code": 0,
+    "history_sarif_results": 0,
+    "tree_scope": "entire checked-out working tree",
+    "tree_exit_code": 0,
+    "tree_sarif_results": 0,
+    "scope_note": "The CLI receives the complete base..head range without first-parent or no-merges filters. Git ancestry contains 48 commits including two merges; the engine reports 46 scanned commits."
+  },
+  "scanner_controls": {
+    "passed": 10,
+    "failed": 0,
+    "duration_seconds": 5.248,
+    "included": [
+      "exact nonsecret matches",
+      "same-path and same-line credential positive controls",
+      "new-value, other-field and other-path positive controls",
+      "future audit labels",
+      "40-commit history pagination regression and independent tree failure",
+      "recovered source archive/inventory/exception linkage and extracted-source scan",
+      "unsupported Kubernetes probe refusal",
+      "collector confinement and administrative boundary",
+      "historical rendered-byte archive integrity"
+    ]
+  },
+  "trivy": {
+    "version": "0.76.2",
+    "scanners": [
+      "secret",
+      "misconfig"
+    ],
+    "fail_severities": [
+      "CRITICAL",
+      "HIGH"
+    ],
+    "sarif_results": 0
+  },
+  "cargo_audit": {
+    "version": "0.23.0",
+    "dependency_count": 312,
+    "vulnerabilities": 0,
+    "warnings": {},
+    "advisory_database_commit": "1d328b6bb9f2f350bf65c1c81ab68781cb9e018a",
+    "advisory_database_updated_at": "2026-11-24T10:21:37+01:00",
+    "configured_ignored_advisories": [
+      "RUSTSEC-2026-0097"
+    ],
+    "ignore_note": "Existing RUSTSEC-2026-0097 exception remains configured in security.yml and deny.toml. This run reports zero findings under that configuration; it is not an unqualified no-exceptions advisory scan."
+  },
+  "artifacts": [
+    {
+      "id": 14939897450,
+      "name": "cargo-audit-report",
+      "bytes": 409,
+      "sha256": "3efe08d09dc106ca782706e4940e3ae82d4b93e5c9378b58ede22178a5aa43ac",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45433545669/artifacts/14939897450",
+      "download_digest_verified": true
+    },
+    {
+      "id": 14939792200,
+      "name": "trivy-report",
+      "bytes": 490,
+      "sha256": "7e931c9646a8b68630704f807fddc90edddfb540d1c4baf60ab9827eee26b63d",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45433545669/artifacts/14939792200",
+      "download_digest_verified": true
+    },
+    {
+      "id": 14939259266,
+      "name": "gitleaks-results",
+      "bytes": 13827,
+      "sha256": "42bf178f392235c1021d0393a5390743e3f89c16a51d5cd73f12bc6fd8b3e6ac",
+      "url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45433545669/artifacts/14939259266",
+      "download_digest_verified": true
+    }
+  ],
+  "limits": [
+    "Security CI results are scoped to this source and PR merge checkout.",
+    "This summary does not establish live sensor acceptance, independent customer collector custody, or customer pilot readiness.",
+    "The broader local scheduled-scope check remains red with one historical provider-shaped fixture; green PR CI must not be represented as clean entire history."
+  ],
+  "scheduled_scope_local_check": {
+    "classification": "REMAINING_HISTORICAL_FINDING",
+    "head": "c683134c59b50950e4eab176d37292683c61930d",
+    "ancestry_commits": 423,
+    "log_opts": "c683134c59b50950e4eab176d37292683c61930d",
+    "config_sha256": "5e093771471683daa7d2348c13413f0bbf82f52009b54887baa46a561404f655",
+    "exit_code": 1,
+    "findings": 1,
+    "rules": {
+      "github-pat": 1
+    },
+    "location": {
+      "path": "aip-standalone/aip-aibom/tests/discovery.rs",
+      "line": 12,
+      "commit": "9f1b5e407b88b6a3a6d925746052e49f722678ff"
+    },
+    "finding_fingerprint_sha256": "3543c50b0cb9cea8e55eb1f529b79f043cb250d485fde7b66cabbb5183add7da",
+    "assessment": "Historical parser/redaction test literal; current source replaced with an unmistakable noncredential fixture. Original creation and all eight tested offline checksum combinations support synthetic intent, but the retrieved primary provider specification omits exact alphabet/input conventions and issuance provenance was not recovered. The historical provider finding remains visible.",
+    "provider_exception_added": false,
+    "credential_network_validation_performed": false,
+    "history_rewritten": false,
+    "scope_note": "Local validation of the scheduled-mode entire HEAD ancestry, not a GitHub scheduled run and not an all-refs scan."
+  }
+}

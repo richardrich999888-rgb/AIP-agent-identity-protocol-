@@ -1,0 +1,20 @@
+# No pods are rendered without explicit enabling and approved immutable images.
+confirmSeparateAdministration: false
+# Compatibility guard only: enabling the Kubernetes host probe always fails.
+# Use deploy/enterprise/linux for sensor installation.
+probe:
+  enabled: false
+  image: ""
+  configMap: ""
+  nodeLabel: vanian-observed-host
+  # Legacy values retained to reject existing probe opt-ins explicitly.
+  statePath: /var/lib/aip-probe
+collector:
+  enabled: false
+  image: ""
+  configMap: ""
+  allowListConfigMap: ""
+  passphraseSecret: ""
+  nodeLabel: vanian-independent-collector
+  storageClass: ""
+  storageSize: 20Gi

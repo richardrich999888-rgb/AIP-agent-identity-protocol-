@@ -80,6 +80,11 @@ pub struct BatchReport {
     pub final_head: Option<String>,
     pub observations: usize,
     pub kernel_events: usize,
+    /// Batches whose signed content declares process-scoped retention.
+    /// A verified signature does not make this a host-complete record.
+    /// Omit zero to preserve the JSON report shape for sealed legacy archives.
+    #[serde(skip_serializing_if = "is_zero")]
+    pub scoped_batches: usize,
 }
 
 /// What the verifier found in one health archive.
@@ -130,4 +135,8 @@ impl ChainReport {
     pub fn ok(&self) -> bool {
         self.findings.is_empty()
     }
+}
+
+fn is_zero(value: &usize) -> bool {
+    *value == 0
 }

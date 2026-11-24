@@ -20,5 +20,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 hex = "0.4"
 
-[dev-dependencies]
 aip-crypto = { path = "../aip-crypto" }
+
+[target.'cfg(unix)'.dependencies]
+libc = "0.2"

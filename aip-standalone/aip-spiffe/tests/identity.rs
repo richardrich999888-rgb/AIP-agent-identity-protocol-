@@ -70,6 +70,7 @@ fn batch(events: Vec<KernelLifecycleEvent>, with_anchor: bool) -> AttestedBatch 
     s.register_probe(PROBE, &SourceMechanism::ALL);
     s.attest_at(
         ObservationBatch {
+            filter_report: None,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: PROBE.into(),
             batch_id: [1; 16],

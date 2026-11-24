@@ -1,0 +1,32 @@
+{
+  "status": "FAIL",
+  "autonomous_workload_executed": true,
+  "run_id": "same-run-c8f5d268fa6c06f07859f3cf",
+  "source_commit": "4ca5a4d3003c385f7312c65c1053b03f48f94143",
+  "model_id": "ollama:llama3.2:1b@sha256:baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+  "task": "Read synthetic loan 1 and recommend human review, without approving/changing records.",
+  "collector_custody": "LOCAL_ISOLATION_SHARED_KERNEL_AND_ROOT",
+  "separate_administrative_custody": "INCOMPLETE",
+  "model_cloud_api_spend": 0,
+  "model_api_credentials_used": false,
+  "kernel": "7.0.0-1017-azure",
+  "started_at_ms": 1793214026196,
+  "agent_id": "aip15W4cNS5gkgjXtbwY7KJvztSXHZFj7u4bACC3ibd7E",
+  "agent_pid": 6805,
+  "from_ms": 1793214060735,
+  "to_ms": 1793214085875,
+  "elapsed_ms": 25140,
+  "model_calls": 2,
+  "failure": {
+    "type": "Refused",
+    "detail": "actual workload window lacks signed Active coverage"
+  },
+  "cleanup_errors": [
+    {
+      "step": "unmount_workload",
+      "type": "Refused",
+      "detail": "umount exited 32: umount: /home/runner/work/_temp/same-run/work: target is busy."
+    }
+  ],
+  "finished_at_ms": 1793214169807
+}

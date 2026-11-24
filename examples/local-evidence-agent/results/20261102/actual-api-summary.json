@@ -1,0 +1,59 @@
+{
+  "api_stopped_after_test": true,
+  "classification": "ACTUAL_LOCAL_API_CONTROLS",
+  "public_summary": {
+    "auth_checks": {
+      "anonymous_denied": "PASS",
+      "cross_tenant_denied": "PASS",
+      "reader_large_upload_preflight_denied": "PASS",
+      "reader_raw_bundle_denied": "PASS",
+      "reader_write_denied": "PASS"
+    },
+    "base_url": "http://127.0.0.1:52926",
+    "classification": "LOCAL_MAC_OR_LINUX_API_HISTORICAL_EVIDENCE_DEMO",
+    "credential_scope": "Reader only for agent; separate bootstrap machine credential never returned",
+    "current_host_kernel_capture": false,
+    "historical_original_zip_sha256": "48ccc9525cade552b8eb28874e0c786b96a4b00024defd8b17e7cd9fbab6a505",
+    "managed_evidence_signing": false,
+    "runs": [
+      {
+        "agent_id": "aip1468hqdonLeB8ijW7RwftuaZ939Bxx6BCDVMo2UMPkR",
+        "current_host_kernel_capture": false,
+        "evidence_source": "HISTORICAL_SIGNED_LINUX_CAPTURE",
+        "id": "6676948f9eede77fbc78fc82330f0f2bc6961d735eea9ae0b0b176f57cabf8f7",
+        "label": "Observed Linux task",
+        "profile": "same-run",
+        "run_artifact_id": "6676948f9eede77fbc78fc82330f0f2bc6961d735eea9ae0b0b176f57cabf8f7",
+        "run_id": "same-run-54697da019b4ae8dbd8b77ee",
+        "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+        "workflow_run_id": 41432473155
+      },
+      {
+        "agent_id": "aip16Q21WER7SFm1TjZHTKddHyXw2jQkEwQbUbuz2P8QbG",
+        "current_host_kernel_capture": false,
+        "evidence_source": "HISTORICAL_SIGNED_LINUX_CAPTURE",
+        "id": "71eadcba71853fbb02ed19f1e136b931960f6e7d58b0943652f989c5ecbab600",
+        "label": "Interrupted Linux observer",
+        "profile": "same-run-interruption",
+        "run_artifact_id": "71eadcba71853fbb02ed19f1e136b931960f6e7d58b0943652f989c5ecbab600",
+        "run_id": "same-run-a051d7606eb718ede04a61e9",
+        "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+        "workflow_run_id": 41432473155
+      },
+      {
+        "agent_id": "aip14eYpDWJGyuaafRUXDnctErJMrjC6a2SCwnc86sU3LB",
+        "current_host_kernel_capture": false,
+        "evidence_source": "HISTORICAL_SIGNED_LINUX_CAPTURE",
+        "id": "e847640d2172738e21b50ec7677c3d2d563c39db5fa963a0c154a00734ecdaa3",
+        "label": "Fresh Linux recovery",
+        "profile": "same-run-recovery",
+        "run_artifact_id": "e847640d2172738e21b50ec7677c3d2d563c39db5fa963a0c154a00734ecdaa3",
+        "run_id": "same-run-d5e4b7d6f1381ae3a993ca73",
+        "source_commit": "3e6c1794000fa23006ef623722e37700e49582b7",
+        "workflow_run_id": 41432473155
+      }
+    ],
+    "scope": "Original Linux signatures and checkpoints are reverified; this is historical evidence retrieval, not a new observed workload or independent custody."
+  },
+  "status": "PASS"
+}

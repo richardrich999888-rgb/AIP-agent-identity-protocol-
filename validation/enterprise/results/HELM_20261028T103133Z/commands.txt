@@ -1,0 +1,52 @@
+Working directory: /Users/richardrich/.codex/worktrees/88b4/AIP
+Temporary CLI directory: /private/tmp/vanian-helm-538Uzb
+
+$ curl -fsSL --proto '=https' --tlsv1.2 --max-time 60 --output /private/tmp/vanian-helm-538Uzb/helm-v3.18.6-darwin-arm64.tar.gz https://get.helm.sh/helm-v3.18.6-darwin-arm64.tar.gz
+$ curl -fsSL --proto '=https' --tlsv1.2 --max-time 60 --output /private/tmp/vanian-helm-538Uzb/helm-v3.18.6-darwin-arm64.tar.gz.sha256sum https://get.helm.sh/helm-v3.18.6-darwin-arm64.tar.gz.sha256sum
+Initial archive request was not executed because automatic approval timed out; one retry succeeded.
+
+Working directory for integrity/extraction: /private/tmp/vanian-helm-538Uzb
+$ shasum -a 256 -c helm-v3.18.6-darwin-arm64.tar.gz.sha256sum
+helm-v3.18.6-darwin-arm64.tar.gz: OK
+$ tar -tzf helm-v3.18.6-darwin-arm64.tar.gz
+darwin-arm64/
+darwin-arm64/README.md
+darwin-arm64/helm
+darwin-arm64/LICENSE
+$ tar -xzf helm-v3.18.6-darwin-arm64.tar.gz darwin-arm64/helm
+$ /private/tmp/vanian-helm-538Uzb/darwin-arm64/helm version --short
+v3.18.6+gb76a950
+
+Following Helm commands run from repository root. See each output file and report.json for actual/expected status.
+
+$ /private/tmp/vanian-helm-538Uzb/darwin-arm64/helm lint deploy/enterprise/kubernetes/chart
+exit=0; expected=0; result=PASS
+
+$ /private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart
+exit=0; expected=0; result=PASS
+
+$ /private/tmp/vanian-helm-538Uzb/darwin-arm64/helm lint deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set probe.enabled=true --set collector.enabled=true --set-string probe.image=registry.example.invalid/vanian/probe@sha256:0000000000000000000000000000000000000000000000000000000000000000 --set-string collector.image=registry.example.invalid/vanian/collector@sha256:1111111111111111111111111111111111111111111111111111111111111111 --set-string probe.configMap=probe-environment-fixture --set-string collector.configMap=collector-environment-fixture --set-string collector.allowListConfigMap=approved-probes-fixture --set-string collector.passphraseSecret=collector-passphrase-fixture
+exit=0; expected=0; result=PASS
+
+$ /private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set probe.enabled=true --set collector.enabled=true --set-string probe.image=registry.example.invalid/vanian/probe@sha256:0000000000000000000000000000000000000000000000000000000000000000 --set-string collector.image=registry.example.invalid/vanian/collector@sha256:1111111111111111111111111111111111111111111111111111111111111111 --set-string probe.configMap=probe-environment-fixture --set-string collector.configMap=collector-environment-fixture --set-string collector.allowListConfigMap=approved-probes-fixture --set-string collector.passphraseSecret=collector-passphrase-fixture
+exit=0; expected=0; result=PASS
+
+$ /private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set probe.enabled=true
+exit=1; expected=1; result=PASS
+
+$ /private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set probe.enabled=true --set-string probe.image=registry.example.invalid/vanian/probe:latest
+exit=1; expected=1; result=PASS
+
+$ /private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set collector.enabled=true --set-string collector.image=registry.example.invalid/vanian/collector:latest
+exit=1; expected=1; result=PASS
+
+$ /private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set probe.enabled=true --set-string probe.nodeLabel=same-fixture --set-string collector.nodeLabel=same-fixture
+exit=1; expected=1; result=PASS
+
+$ /private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set probe.enabled=true --set-string probe.image=registry.example.invalid/vanian/probe@sha256:0000000000000000000000000000000000000000000000000000000000000000
+exit=1; expected=1; result=PASS
+
+$ /private/tmp/vanian-helm-538Uzb/darwin-arm64/helm template vanian-runtime deploy/enterprise/kubernetes/chart --set confirmSeparateAdministration=true --set collector.enabled=true --set-string collector.image=registry.example.invalid/vanian/collector@sha256:1111111111111111111111111111111111111111111111111111111111111111 --set-string collector.configMap=collector-environment-fixture
+exit=1; expected=1; result=PASS
+
+No cluster application or runtime validation was performed.

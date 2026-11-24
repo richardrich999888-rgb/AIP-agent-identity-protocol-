@@ -1,0 +1,908 @@
+{
+  "source": "Auditd",
+  "independence": "DifferentMechanism",
+  "window_from_ms": 1793526732483,
+  "window_to_ms": 1793526746327,
+  "match_window_ms": 250,
+  "agreed": [
+    {
+      "aip": {
+        "pid": 5894,
+        "wall_ms": 1793526741771,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741769,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 5895,
+        "wall_ms": 1793526741773,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741772,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5896,
+        "wall_ms": 1793526741776,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741775,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5899,
+        "wall_ms": 1793526741789,
+        "image": "/bin/sh",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741788,
+      "external_image": "/usr/bin/dash",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5900,
+        "wall_ms": 1793526741789,
+        "image": "/usr/lib/x86_64-linux-gnu/utempter/utempter",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741788,
+      "external_image": "/usr/lib/x86_64-linux-gnu/utempter/utempter",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5901,
+        "wall_ms": 1793526741790,
+        "image": "/usr/bin/id",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741789,
+      "external_image": "/usr/bin/id",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5902,
+        "wall_ms": 1793526741792,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741791,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5903,
+        "wall_ms": 1793526741792,
+        "image": "/usr/bin/id",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741791,
+      "external_image": "/usr/bin/id",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5904,
+        "wall_ms": 1793526741795,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741794,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5905,
+        "wall_ms": 1793526741798,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741797,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5906,
+        "wall_ms": 1793526741801,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741800,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5907,
+        "wall_ms": 1793526741804,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741803,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5908,
+        "wall_ms": 1793526741807,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741806,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5909,
+        "wall_ms": 1793526741809,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741808,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5910,
+        "wall_ms": 1793526741812,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741811,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5911,
+        "wall_ms": 1793526741815,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741814,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5912,
+        "wall_ms": 1793526741817,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741816,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5913,
+        "wall_ms": 1793526741820,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741819,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5914,
+        "wall_ms": 1793526741822,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741821,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5915,
+        "wall_ms": 1793526741825,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741824,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5916,
+        "wall_ms": 1793526741827,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741826,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5917,
+        "wall_ms": 1793526741830,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741829,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5918,
+        "wall_ms": 1793526741833,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741832,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5919,
+        "wall_ms": 1793526741836,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741835,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5920,
+        "wall_ms": 1793526741838,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741837,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5921,
+        "wall_ms": 1793526741841,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741840,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5922,
+        "wall_ms": 1793526741843,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741842,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5923,
+        "wall_ms": 1793526741846,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741845,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5924,
+        "wall_ms": 1793526741854,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741853,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5925,
+        "wall_ms": 1793526741856,
+        "image": "/bin/sh",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741855,
+      "external_image": "/usr/bin/dash",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5926,
+        "wall_ms": 1793526741856,
+        "image": "/usr/lib/x86_64-linux-gnu/utempter/utempter",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741855,
+      "external_image": "/usr/lib/x86_64-linux-gnu/utempter/utempter",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5927,
+        "wall_ms": 1793526741857,
+        "image": "/usr/bin/nice",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741856,
+      "external_image": "/usr/bin/nice",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5927,
+        "wall_ms": 1793526741858,
+        "image": "/bin/bash",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741857,
+      "external_image": "/usr/bin/bash",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5928,
+        "wall_ms": 1793526741859,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741858,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5929,
+        "wall_ms": 1793526741863,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741861,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 5930,
+        "wall_ms": 1793526741866,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741865,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5931,
+        "wall_ms": 1793526741868,
+        "image": "/usr/lib/x86_64-linux-gnu/utempter/utempter",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741866,
+      "external_image": "/usr/lib/x86_64-linux-gnu/utempter/utempter",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 5932,
+        "wall_ms": 1793526741869,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741868,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5933,
+        "wall_ms": 1793526741872,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741871,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5936,
+        "wall_ms": 1793526741976,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741975,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5937,
+        "wall_ms": 1793526741979,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741978,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5938,
+        "wall_ms": 1793526741981,
+        "image": "/usr/bin/clear",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526741980,
+      "external_image": "/usr/bin/clear",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5941,
+        "wall_ms": 1793526742082,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742080,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 5942,
+        "wall_ms": 1793526742085,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742084,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5943,
+        "wall_ms": 1793526742089,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742088,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5944,
+        "wall_ms": 1793526742092,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742091,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5945,
+        "wall_ms": 1793526742096,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742095,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5946,
+        "wall_ms": 1793526742100,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742099,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5947,
+        "wall_ms": 1793526742103,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742102,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5948,
+        "wall_ms": 1793526742106,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742105,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5949,
+        "wall_ms": 1793526742109,
+        "image": "/opt/framework/.venv/bin/python",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742108,
+      "external_image": "/usr/local/bin/python3.12",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5950,
+        "wall_ms": 1793526742109,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742108,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5951,
+        "wall_ms": 1793526742133,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742131,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 5952,
+        "wall_ms": 1793526742156,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742155,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5953,
+        "wall_ms": 1793526742179,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742178,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5954,
+        "wall_ms": 1793526742201,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742201,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": 0
+    },
+    {
+      "aip": {
+        "pid": 5955,
+        "wall_ms": 1793526742231,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742231,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": 0
+    },
+    {
+      "aip": {
+        "pid": 5956,
+        "wall_ms": 1793526742267,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 32
+      },
+      "external_wall_ms": 1793526742267,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": 0
+    },
+    {
+      "aip": {
+        "pid": 5957,
+        "wall_ms": 1793526742314,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 33
+      },
+      "external_wall_ms": 1793526742313,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5958,
+        "wall_ms": 1793526742372,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 33
+      },
+      "external_wall_ms": 1793526742371,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5959,
+        "wall_ms": 1793526742444,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 33
+      },
+      "external_wall_ms": 1793526742442,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 5960,
+        "wall_ms": 1793526742533,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 33
+      },
+      "external_wall_ms": 1793526742532,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5961,
+        "wall_ms": 1793526742645,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 33
+      },
+      "external_wall_ms": 1793526742644,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5962,
+        "wall_ms": 1793526742786,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 33
+      },
+      "external_wall_ms": 1793526742784,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -2
+    },
+    {
+      "aip": {
+        "pid": 5963,
+        "wall_ms": 1793526742961,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 33
+      },
+      "external_wall_ms": 1793526742960,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5965,
+        "wall_ms": 1793526743181,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 33
+      },
+      "external_wall_ms": 1793526743180,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5966,
+        "wall_ms": 1793526743455,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 33
+      },
+      "external_wall_ms": 1793526743454,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5967,
+        "wall_ms": 1793526743797,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 34
+      },
+      "external_wall_ms": 1793526743797,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": 0
+    },
+    {
+      "aip": {
+        "pid": 5970,
+        "wall_ms": 1793526744226,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 34
+      },
+      "external_wall_ms": 1793526744225,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5971,
+        "wall_ms": 1793526744229,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 34
+      },
+      "external_wall_ms": 1793526744229,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": 0
+    },
+    {
+      "aip": {
+        "pid": 5972,
+        "wall_ms": 1793526744232,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 34
+      },
+      "external_wall_ms": 1793526744232,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": 0
+    },
+    {
+      "aip": {
+        "pid": 5973,
+        "wall_ms": 1793526744235,
+        "image": "/usr/bin/clear",
+        "batch_sequence": 34
+      },
+      "external_wall_ms": 1793526744234,
+      "external_image": "/usr/bin/clear",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5976,
+        "wall_ms": 1793526744336,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 34
+      },
+      "external_wall_ms": 1793526744335,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5977,
+        "wall_ms": 1793526744339,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 34
+      },
+      "external_wall_ms": 1793526744338,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": -1
+    },
+    {
+      "aip": {
+        "pid": 5978,
+        "wall_ms": 1793526744342,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 34
+      },
+      "external_wall_ms": 1793526744342,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": 0
+    },
+    {
+      "aip": {
+        "pid": 5979,
+        "wall_ms": 1793526744345,
+        "image": "/usr/bin/tmux",
+        "batch_sequence": 34
+      },
+      "external_wall_ms": 1793526744345,
+      "external_image": "/usr/bin/tmux",
+      "skew_ms": 0
+    },
+    {
+      "aip": {
+        "pid": 5980,
+        "wall_ms": 1793526744347,
+        "image": "/usr/lib/x86_64-linux-gnu/utempter/utempter",
+        "batch_sequence": 34
+      },
+      "external_wall_ms": 1793526744347,
+      "external_image": "/usr/lib/x86_64-linux-gnu/utempter/utempter",
+      "skew_ms": 0
+    },
+    {
+      "aip": {
+        "pid": 5981,
+        "wall_ms": 1793526744351,
+        "image": "/usr/bin/git",
+        "batch_sequence": 34
+      },
+      "external_wall_ms": 1793526744350,
+      "external_image": "/usr/bin/git",
+      "skew_ms": -1
+    }
+  ],
+  "aip_only": [
+    {
+      "pid": 5883,
+      "wall_ms": 1793526733484,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 26
+    },
+    {
+      "pid": 5982,
+      "wall_ms": 1793526745152,
+      "image": "/usr/bin/runc",
+      "batch_sequence": 35
+    },
+    {
+      "pid": 5988,
+      "wall_ms": 1793526745162,
+      "image": "/usr/bin/containerd-shim-runc-v2",
+      "batch_sequence": 35
+    },
+    {
+      "pid": 5997,
+      "wall_ms": 1793526745166,
+      "image": "/usr/bin/runc",
+      "batch_sequence": 35
+    },
+    {
+      "pid": 6002,
+      "wall_ms": 1793526745295,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 35
+    },
+    {
+      "pid": 6010,
+      "wall_ms": 1793526745311,
+      "image": "/usr/bin/docker",
+      "batch_sequence": 35
+    }
+  ],
+  "external_only": [],
+  "external_unparsed": 0,
+  "external_failed_attempts": 12
+}

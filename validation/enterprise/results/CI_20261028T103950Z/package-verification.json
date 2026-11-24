@@ -1,0 +1,44 @@
+{
+  "status": "PACKAGE_VERIFIED",
+  "verified_at_utc": "2026-10-28T10:45:16Z",
+  "workflow_run_id": 40672558666,
+  "artifact_id": 12808967786,
+  "artifact_name": "enterprise-linux-runtime-076b22c27d663a87dfd62d91df20583f417b383a",
+  "artifact_api": "https://api.github.com/repos/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/artifacts/12808967786",
+  "download_location_ignored": ".local/ci-artifacts/40672558666/",
+  "zip_size_bytes": 1725208,
+  "zip_sha256_expected_from_github_api_and_public_upload_log": "9befa5c62e141a43bc2484f252ab795ba4369e242ea305e22b675193beec9ebe",
+  "zip_sha256_recomputed_locally": "9befa5c62e141a43bc2484f252ab795ba4369e242ea305e22b675193beec9ebe",
+  "tar_size_bytes": 4270080,
+  "tar_sha256_expected_from_public_build_log": "18c8ab104842eb9d806ea4952a5104c368a2f5344f6c0d21aa75a93a3d87a86a",
+  "tar_sha256_recomputed_locally": "18c8ab104842eb9d806ea4952a5104c368a2f5344f6c0d21aa75a93a3d87a86a",
+  "verification_command": "python deploy/enterprise/linux/package.py verify --archive .local/ci-artifacts/40672558666/runtime/vanian-runtime-x86_64-linux.tar --expected-sha256 18c8ab104842eb9d806ea4952a5104c368a2f5344f6c0d21aa75a93a3d87a86a",
+  "verifier_source_sha256": "eb51215ba63edc853de710a7a7f902133c4648c6f0a9b71a5c640d1616bd7d0f",
+  "verifier_matches_e9da_source_and_archive_manifest": true,
+  "checks": {
+    "published_zip_sha256": "PASS",
+    "public_build_tar_sha256": "PASS",
+    "approved_member_names_no_duplicates_links_or_traversal": "PASS",
+    "payload_hashes_and_approved_modes": "PASS",
+    "three_binary_elf_headers_x86_64_linux_64_bit_little_endian_machine_62": "PASS",
+    "manifest_source_matches_actual_ci_checkout": "PASS"
+  },
+  "manifest": {
+    "format": "vanian-runtime-package-v1",
+    "source_commit": "076b22c27d663a87dfd62d91df20583f417b383a",
+    "target": "x86_64-unknown-linux-gnu",
+    "mode": "OBSERVER_ONLY",
+    "provenance": "operator-supplied source commit; binary provenance requires the reviewed build transcript",
+    "files": {
+      "bin/aip-collector": {"mode": 493, "sha256": "69dbb80804ab047677b25cd957c1879ceb732303d769d23d97ddd33bb81bd9e9"},
+      "bin/aip-observe-verify": {"mode": 493, "sha256": "169879c7632198abd1911673e0da3bda386bf25992c350fc2aa56abcb168ff37"},
+      "bin/aip-probe": {"mode": 493, "sha256": "db0f132a4b5674377a8f2f5ce31222c8ef75400518746174c7d7fbc70d1d0c1f"},
+      "collector.env.example": {"mode": 420, "sha256": "43400f68dabe077f9362fdc0b014d7e0e5acb8b97a0c9075ac5c2ecbed1b8a6a"},
+      "package.py": {"mode": 493, "sha256": "eb51215ba63edc853de710a7a7f902133c4648c6f0a9b71a5c640d1616bd7d0f"},
+      "probe.env.example": {"mode": 420, "sha256": "e1eead2bae925d6d52d76d8118bb7d29c886e07eb06889c6076ddbc9b48d5177"},
+      "systemd/aip-collector.service": {"mode": 420, "sha256": "1cc550abb3d67d08d0f1505e9a7a810b0d16a1673a10807f0e2682fb6f07ab8d"},
+      "systemd/aip-probe.service": {"mode": 420, "sha256": "9abf3d96d93d3b3d44f97d555afc0f921ce441cf5951e099859618e44cdb2dc9"}
+    }
+  },
+  "scope": "Downloaded bytes, manifest integrity, approved modes and ELF headers only. No packaged executable was run, installed or started. Public CI/source metadata correlation is not an independently reproduced build or an institution-approved release signature."
+}

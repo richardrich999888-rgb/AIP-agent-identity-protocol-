@@ -1,0 +1,108 @@
+{
+  "format": "customer-pilot-genuine-agent-public-evidence/v1",
+  "recorded_at_utc": "2026-11-24T16:22:09.265627+00:00",
+  "source_head": "c683134c59b50950e4eab176d37292683c61930d",
+  "workflow_run_id": 45433546227,
+  "workflow_url": "https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45433546227",
+  "workflow_checkout": "source_head",
+  "artifact_id": 14940662060,
+  "artifact_name": "same-run-evidence-45433546227",
+  "artifact_sha256": "5ce80aab09e3a65ede3514377128668fd054c216e781cf7bf53f22f443e9759a",
+  "local_archive": "genuine-agent-public.zip",
+  "archive_bytes": 1126674,
+  "preservation": "Original GitHub artifact ZIP preserved byte-for-byte; SHA256 matches GitHub artifact digest. No signed evidence edited.",
+  "summary_method": "Read original public run manifests, evaluations and offline-verification outputs from the checksum-verified artifact. Signature results below were produced by the Linux workflow; this summary collector did not independently replay the evidence. Separate independent offline verification is recorded separately.",
+  "independent_offline_replay_by_this_summary_collector": false,
+  "customer_pilot_ready": false,
+  "independent_administrative_custody_established": false,
+  "full_sensor_profile_qualification": false,
+  "profiles": [
+    {
+      "phase": "normal",
+      "artifact_directory": "same-run",
+      "status": "PASS",
+      "run_id": "same-run-3d06e6666eb242b084c8d2d9",
+      "validation_profile": "OBSERVED_EXECUTION",
+      "autonomous_workload_executed": true,
+      "model_calls": 2,
+      "signed_batches": 44,
+      "signed_health_records": 3,
+      "signed_receipts": 2,
+      "observation_coverage": "SIGNED_ACTIVE_FOR_WINDOW",
+      "reconciliation_result": "CannotProve",
+      "reconciliation_reason": "ActionEvidenceUnavailable",
+      "identity": {
+        "Match": {
+          "observations": 4
+        }
+      },
+      "workflow_reported_archive_verified": true,
+      "workflow_reported_checkpoint_verified": true,
+      "workflow_reported_signed_reconciliation_verified": true,
+      "workflow_offline_batch_records": 44,
+      "workflow_offline_kernel_events": 993,
+      "workflow_offline_health_records": 3,
+      "workflow_offline_findings": [],
+      "separate_administrative_custody": "INCOMPLETE"
+    },
+    {
+      "phase": "observer_interruption",
+      "artifact_directory": "same-run-interruption",
+      "status": "PASS",
+      "run_id": "same-run-97a37dc6bd40c8f483bd243e",
+      "validation_profile": "OBSERVER_INTERRUPTION",
+      "autonomous_workload_executed": true,
+      "model_calls": 2,
+      "signed_batches": 18,
+      "signed_health_records": 4,
+      "signed_receipts": 2,
+      "observation_coverage": "UNAVAILABLE_OBSERVER_INTERRUPTED",
+      "reconciliation_result": "CannotProve",
+      "reconciliation_reason": "WindowNotCovered",
+      "identity": "NoReference",
+      "workflow_reported_archive_verified": true,
+      "workflow_reported_checkpoint_verified": true,
+      "workflow_reported_signed_reconciliation_verified": true,
+      "workflow_offline_batch_records": 18,
+      "workflow_offline_kernel_events": 307,
+      "workflow_offline_health_records": 4,
+      "workflow_offline_findings": [],
+      "separate_administrative_custody": "INCOMPLETE"
+    },
+    {
+      "phase": "recovery",
+      "artifact_directory": "same-run-recovery",
+      "status": "PASS",
+      "run_id": "same-run-0d852476a327d3b7b45b7935",
+      "validation_profile": "OBSERVED_EXECUTION",
+      "autonomous_workload_executed": true,
+      "model_calls": 2,
+      "signed_batches": 46,
+      "signed_health_records": 4,
+      "signed_receipts": 2,
+      "observation_coverage": "SIGNED_ACTIVE_FOR_WINDOW",
+      "reconciliation_result": "CannotProve",
+      "reconciliation_reason": "ActionEvidenceUnavailable",
+      "identity": {
+        "Match": {
+          "observations": 4
+        }
+      },
+      "workflow_reported_archive_verified": true,
+      "workflow_reported_checkpoint_verified": true,
+      "workflow_reported_signed_reconciliation_verified": true,
+      "workflow_offline_batch_records": 46,
+      "workflow_offline_kernel_events": 930,
+      "workflow_offline_health_records": 4,
+      "workflow_offline_findings": [],
+      "separate_administrative_custody": "INCOMPLETE"
+    }
+  ],
+  "archive_entries": 132,
+  "limitations": [
+    "These genuine-agent workflows use their documented observation profile; they do not validate the separate full-sensor service profile.",
+    "Observed execution is not proof of the claimed business action: normal and recovery correctly remain CannotProve(ActionEvidenceUnavailable).",
+    "Collector custody remains within the disposable runner administration.",
+    "Agent Zero genuine-task and the two local-evidence-agent jobs were skipped."
+  ]
+}

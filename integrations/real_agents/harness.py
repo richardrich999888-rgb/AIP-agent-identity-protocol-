@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import base64
 import json
+import ipaddress
 import os
 import platform
 import re
@@ -149,6 +150,23 @@ def proc_identity(pid):
         "container": {k + "_ns_inode": (base / "ns" / k).stat().st_ino for k in ("pid", "mnt", "net")}}
 
 
+def measure_workload_network(container, network):
+    """Controller Docker inventory, not a kernel socket/destination proof."""
+    networks = json.loads(command([
+        "docker", "inspect", "--format", "{{json .NetworkSettings.Networks}}", container], timeout=15))
+    try:
+        value = networks[network]["IPAddress"]
+        if type(value) is not str or not value:
+            raise ValueError("missing IPv4")
+        address = ipaddress.IPv4Address(value)
+        if address.is_unspecified:
+            raise ValueError("unspecified IPv4")
+    except (KeyError, TypeError, ValueError) as error:
+        raise Refused("workload has no valid IPv4 on its configured network") from error
+    return {"source_authority": "ROOT_CONTROLLER_DOCKER_INSPECT", "network": network,
+            "ipv4_address": str(address)}
+
+
 def terminate(process):
     if process and process.poll() is None:
         process.terminate()
@@ -197,6 +215,157 @@ def tamper(archive, tools, anchor, checkpoint):
     return result
 
 
+FINALIZATION_ERRORS = (Refused, OSError, ValueError, KeyError, subprocess.SubprocessError)
+REQUIRED_MECHANISMS = ["SchedTracepoint", "Fanotify", "SockSendTracepoint"]
+
+
+def finalize_released_workload(config, out, checkpoint_path, token, probe, audit,
+                               status, launch, resources):
+    """Retain failed-task evidence without accepting the failed task.
+
+    The 45-second coverage scheduling budget is checked between attempts;
+    existing bounded snapshot/verifier calls can finish after that budget.
+    This is not an extension of the workload's execution budget. Only the
+    frozen, checkpoint-checked archive can supply the final summary.
+    """
+    archive = out / "evidence"
+    result = {"source_authority": "ROOT_CONTROLLER", "errors": [],
+              "coverage_wait": {"status": "NOT_ATTEMPTED", "attempts": 0}}
+    status["finalization"] = result
+    # A last-live snapshot must never survive as the final coverage result.
+    status.pop("summary", None)
+    status.update(observation_validation="NOT_ESTABLISHED",
+                  live_evidence="FINAL_EVIDENCE_PENDING")
+    primary_failed = bool(status["failures"])
+
+    def attempt(stage, operation):
+        try:
+            return True, operation()
+        except FINALIZATION_ERRORS as error:
+            detail = f"{stage}: {error}"
+            result["errors"].append(detail)
+            status["failures"].append(detail)
+            return False, None
+
+    if primary_failed:
+        requested = now()
+        stopped, _ = attempt("stop workload", lambda: command(
+            ["docker", "rm", "--force", token], timeout=15))
+        if stopped:
+            resources["container"] = False
+            stopped_at = now()
+            # The prospective post-exit guard is captured too. It cannot
+            # retrospectively widen a failed or interrupted signed epoch.
+            time.sleep(1)
+            status["workload_to_ms"] = now()
+            status["task_end_boundary"] = {
+                "source_authority": "ROOT_CONTROLLER", "kind": "FORCED_CONTAINER_REMOVAL_RETURNED",
+                "termination_requested_ms": requested, "container_removed_ms": stopped_at,
+                "post_exit_guard_ms": 1000, "to_ms": status["workload_to_ms"],
+                "signed_coverage": "NOT_ESTABLISHED_BY_THIS_BOUNDARY"}
+        else:
+            status.pop("workload_to_ms", None)
+            status["task_end_boundary"] = {
+                "source_authority": "ROOT_CONTROLLER", "kind": "UNKNOWN_STOP_NOT_CONFIRMED",
+                "signed_coverage": "NOT_ESTABLISHED"}
+    else:
+        status["task_end_boundary"] = {
+            "source_authority": "ROOT_CONTROLLER", "kind": "DOCKER_EXIT_OBSERVED_WITH_POST_EXIT_GUARD",
+            "post_exit_guard_ms": 1000, "to_ms": status["workload_to_ms"],
+            "signed_coverage": "NOT_ESTABLISHED_BY_THIS_BOUNDARY"}
+    start, end = status["workload_from_ms"], status.get("workload_to_ms")
+    attempt("save task boundary", lambda: save(out / "task-end-boundary.json", status["task_end_boundary"]))
+
+    if end is not None:
+        deadline = time.monotonic() + 45
+        for _ in range(15):
+            remaining = deadline - time.monotonic()
+            if remaining <= 0 or probe is None or probe.poll() is not None:
+                break
+            time.sleep(min(3, remaining))
+            if time.monotonic() >= deadline:
+                break
+            result["coverage_wait"]["attempts"] += 1
+            try:
+                cp = snapshot(config, archive, token)
+                verify(archive, config["tools"], config["anchor"], cp)
+                if covered(records(archive / ARCHIVES[1]), start, end, REQUIRED_MECHANISMS):
+                    result["coverage_wait"]["status"] = "VERIFIED_SNAPSHOT_COVERS_INTERVAL"
+                    break
+            except FINALIZATION_ERRORS as error:
+                result["coverage_wait"]["last_error"] = str(error)
+        if result["coverage_wait"]["status"] == "NOT_ATTEMPTED":
+            result["coverage_wait"]["status"] = "NO_VERIFIED_COVERING_SNAPSHOT"
+    else:
+        result["coverage_wait"]["status"] = "NOT_ATTEMPTED_END_UNKNOWN"
+
+    audit_ok, audit_status = attempt("audit export", lambda: audit.export(out / "auditd.log"))
+    if audit_ok:
+        attempt("save audit status", lambda: save(out / "audit-status.json", audit_status))
+    attempt("audit rule cleanup", audit.close)
+    attempt("stop observer", lambda: terminate(probe))
+    frozen, cp = attempt("collector freeze/export", lambda: snapshot(config, archive, token, stop=True))
+    if frozen:
+        resources["collector"] = False
+        checkpoint_ok, _ = attempt("retain external checkpoint", lambda: save(checkpoint_path, cp))
+    else:
+        checkpoint_ok = False
+    result["archive_frozen"] = frozen
+    result["external_checkpoint_retained"] = checkpoint_ok
+    verified = False
+    if frozen and checkpoint_ok:
+        verified, report = attempt("verify frozen archive", lambda: verify(
+            archive, config["tools"], config["anchor"], cp))
+        if verified:
+            attempt("save verification", lambda: save(out / "verification.json", report))
+    result["archive_verification"] = "VERIFIED" if verified else "NOT_ESTABLISHED"
+
+    summary = comparison = None
+    if verified and end is not None:
+        summary_ok, summary = attempt("summarize frozen archive", lambda: summarize(
+            records(archive / ARCHIVES[0]), records(archive / ARCHIVES[1]), launch, start, end))
+        if summary_ok:
+            status["summary"] = summary
+            attempt("save observation summary", lambda: save(out / "summary.json", summary))
+        anchor_ok, _ = attempt("retain public anchor", lambda: (out / "observer.pub").write_text(
+            config["anchor"]["public_key"] + "\n"))
+        common = ["--observer-id", config["anchor"]["observer_id"], "--key-version",
+                  str(config["anchor"]["key_version"]), "--pubkey-file", out / "observer.pub",
+                  "--batches", archive / ARCHIVES[0]]
+        if audit_ok and anchor_ok:
+            comparison_ok, comparison = attempt("corroborate frozen archive", lambda: json.loads(command([
+                Path(config["tools"]) / "aip-corroborate", *common,
+                "--external", out / "auditd.log", "--source", "auditd",
+                "--from-ms", start, "--to-ms", end, "--json"])))
+            if comparison_ok:
+                attempt("save corroboration", lambda: save(out / "corroboration.json", comparison))
+        if not primary_failed and anchor_ok:
+            attempt("lineage", lambda: (out / "lineage.txt").write_text(command([
+                Path(config["tools"]) / "aip-lineage", *common])))
+            attempt("sentinel feed", lambda: (out / "sentinel-feed-report.txt").write_text(command([
+                Path(config["tools"]) / "aip-sentinel-feed", *common, "--out", out / "effects.jsonl"])))
+            tamper_ok, tamper_report = attempt("tamper checks", lambda: tamper(
+                archive, config["tools"], config["anchor"], cp))
+            if tamper_ok:
+                attempt("save tamper checks", lambda: save(out / "tamper.json", tamper_report))
+
+    if summary is not None and comparison is not None:
+        observation_failures = acceptance(summary, comparison, status.get("workload_exit"))
+        status["failures"].extend(observation_failures)
+    else:
+        observation_failures = ["final observation or independent corroboration unavailable"]
+        status["failures"].extend(observation_failures)
+    status["observation_failures"] = observation_failures
+    status["observation_validation"] = "PASSED" if not status["failures"] else "FAILED"
+    status["live_evidence"] = "FINAL_FROZEN_ARCHIVE_VERIFIED" if verified else "FINAL_EVIDENCE_NOT_VERIFIED"
+    status["task_acceptance"] = ("FAILED_WORKLOAD" if primary_failed or status.get("workload_exit") != 0
+                                 else "PENDING_INDEPENDENT_REVIEW")
+    status["status"] = "FAILED" if status["failures"] else "REVIEW_REQUIRED"
+    attempt("save finalization report", lambda: save(out / "finalization.json", result))
+    if status["failures"]:
+        status.update(status="FAILED", observation_validation="FAILED")
+
+
 def run(config, out, checkpoint_path):
     out = Path(out).resolve()
     checkpoint_path = Path(checkpoint_path).resolve()
@@ -211,7 +380,8 @@ def run(config, out, checkpoint_path):
     save(out / "status.json", status)
     probe = None
     audit = AuditCrosscheck()
-    collector_started = container_created = False
+    resources = {"collector": False, "container": False}
+    released = False
     token = "sd-" + uuid.uuid4().hex
     logs = []
     code = 1
@@ -234,13 +404,45 @@ def run(config, out, checkpoint_path):
             directory.mkdir()
         os.chown(workspace, 10001, 10001)
         save(control / "request.json", {"framework": config["framework"], "model": config["model"],
-             "timeout_s": config["timeout_s"], "prompt": task, "run_id": token})
+             "timeout_s": config["timeout_s"], "prompt": task, "run_id": token,
+             "framework_source_commit": pin["commit"]})
         probe_env = read_env(config["probe_env"])
-        # Fanotify must watch the real bind-mounted work filesystem.
-        probe_env.update(AIP_PROBE_FANOTIFY_PATH=str(workspace),
+        # The reviewed launcher waits on /input/start before loading the
+        # framework/model task. Start only that waiting launcher so its actual
+        # bind mount exists before marking it; capture begins before release.
+        create = ["docker", "create", "--name", token, "--user", "10001:10001",
+                  "--cap-drop=ALL", "--security-opt=no-new-privileges", "--read-only",
+                  "--pids-limit", str(config["pids_limit"]), "--memory", f'{config["memory_mb"]}m',
+                  "--cpus", str(config["cpus"]), "--network", config["network"],
+                  "--env-file", config["model_env"], "--tmpfs", "/tmp:rw,nosuid,size=1g,mode=1777",
+                  "--tmpfs", "/opt/framework/usr:rw,nosuid,size=1g,uid=10001,gid=10001",
+                  "--mount", f"type=bind,src={control},dst=/input,readonly",
+                  "--mount", f"type=bind,src={workspace},dst=/work",
+                  "--mount", f'type=bind,src={config["model_config"]},dst=/model-config,readonly',
+                  config["image"]]
+        command(create)
+        resources["container"] = True
+        command(["docker", "start", token])
+        pid = int(command(["docker", "inspect", "--format", "{{.State.Pid}}", token]))
+        launch = proc_identity(pid)
+        launch["probe_id"] = probe_env["AIP_PROBE_ID"]
+        save(out / "launch.json", launch)
+        watch_path = Path(f"/proc/{pid}/root/work")
+        host_work, container_work = workspace.stat(), watch_path.stat()
+        if (host_work.st_dev, host_work.st_ino) != (container_work.st_dev, container_work.st_ino):
+            raise Refused("container work mount does not resolve to the provisioned workspace")
+        save(out / "fanotify-watch.json", {
+            "source_authority": "root_controller_container_mount_resolution",
+            "path": str(watch_path), "scope": "FAN_MARK_MOUNT on actual container /work mount",
+            "workspace_device": host_work.st_dev, "workspace_inode": host_work.st_ino,
+            "launcher_started_before_capture": True,
+            "configured_before_task_gate_release": True})
+        # A host-side mount mark does not see accesses via another bind mount.
+        # Retain the existing mount-only scope rather than watch all filesystems.
+        probe_env.update(AIP_PROBE_FANOTIFY_PATH=str(watch_path),
                          AIP_PROBE_SENSORS="sched,cgroup,connector,fanotify,sockstate,socksend",
                          AIP_PROBE_BATCH_INTERVAL_MS="1000")
-        collector_started = True
+        resources["collector"] = True
         remote(config, "start", token)
         def log(name):
             stream = (out / name).open("w")
@@ -269,32 +471,19 @@ def run(config, out, checkpoint_path):
                 break
         if not ready:
             raise Refused("no fresh verified Active health with required sensors")
+        if proc_identity(pid) != {key:value for key,value in launch.items() if key != "probe_id"}:
+            raise Refused("waiting launcher process instance changed before task release")
+        status["workload_network"] = measure_workload_network(token, config["network"])
         audit.start()
-        create = ["docker", "create", "--name", token, "--user", "10001:10001",
-                  "--cap-drop=ALL", "--security-opt=no-new-privileges", "--read-only",
-                  "--pids-limit", str(config["pids_limit"]), "--memory", f'{config["memory_mb"]}m',
-                  "--cpus", str(config["cpus"]), "--network", config["network"],
-                  "--env-file", config["model_env"], "--tmpfs", "/tmp:rw,nosuid,size=1g,mode=1777",
-                  "--tmpfs", "/opt/framework/usr:rw,nosuid,size=1g,uid=10001,gid=10001",
-                  "--mount", f"type=bind,src={control},dst=/input,readonly",
-                  "--mount", f"type=bind,src={workspace},dst=/work",
-                  "--mount", f'type=bind,src={config["model_config"]},dst=/model-config,readonly',
-                  config["image"]]
-        command(create)
-        container_created = True
         start = now()
         # Prospective guard for coarse audit timestamps; this entire interval
         # still requires signed coverage. Never widen it after seeing events.
         time.sleep(1)
-        command(["docker", "start", token])
-        pid = int(command(["docker", "inspect", "--format", "{{.State.Pid}}", token]))
-        launch = proc_identity(pid)
-        launch["probe_id"] = probe_env["AIP_PROBE_ID"]
-        save(out / "launch.json", launch)
         status.update(status="RUNNING", launch=launch, workload_from_ms=start,
                       live_evidence="PENDING_OFFLINE_VERIFICATION")
         save(out / "status.json", status)
         (control / "start").touch()
+        released = True
         started = time.monotonic()
         last_refresh = 0.0
         samples = []
@@ -327,73 +516,47 @@ def run(config, out, checkpoint_path):
         save(out / "performance.json", {"elapsed_seconds": time.monotonic() - started,
              "samples": samples, "observer_overhead_percent": None, "collector_latency_ms": None,
              "task_impact_percent": None, "reason": "no matched unobserved baseline or collector timing sample"})
-        # Wait for a signed health epoch enclosing the end, while both writers
-        # continue. Recovery never stretches across an interrupted interval.
-        for _ in range(15):
-            time.sleep(3)
-            cp = snapshot(config, archive, token)
-            verify(archive, config["tools"], config["anchor"], cp)
-            if covered(records(archive / ARCHIVES[1]), start, end,
-                       ["SchedTracepoint", "Fanotify", "SockSendTracepoint"]):
-                break
-        save(out / "audit-status.json", audit.export(out / "auditd.log"))
-        audit.close()
-        terminate(probe)
-        cp = snapshot(config, archive, token, stop=True)
-        collector_started = False
-        save(checkpoint_path, cp)
-        report = verify(archive, config["tools"], config["anchor"], cp)
-        save(out / "verification.json", report)
-        summary = summarize(records(archive / ARCHIVES[0]), records(archive / ARCHIVES[1]), launch, start, end)
-        # These older CLIs accept --pubkey-file only. Write the independently
-        # provisioned anchor, never a key selected by the incoming archive.
-        (out / "observer.pub").write_text(config["anchor"]["public_key"] + "\n")
-        common = ["--observer-id", config["anchor"]["observer_id"], "--key-version",
-                  str(config["anchor"]["key_version"]), "--pubkey-file", out / "observer.pub",
-                  "--batches", archive / ARCHIVES[0]]
-        (out / "lineage.txt").write_text(command([Path(config["tools"]) / "aip-lineage", *common]))
-        # Existing bridge verifies signed AIP evidence before OT conversion.
-        (out / "sentinel-feed-report.txt").write_text(command([
-            Path(config["tools"]) / "aip-sentinel-feed", *common, "--out", out / "effects.jsonl"]))
-        comparison = json.loads(command([Path(config["tools"]) / "aip-corroborate", *common,
-            "--external", out / "auditd.log", "--source", "auditd",
-            "--from-ms", start, "--to-ms", end, "--json"]))
-        save(out / "corroboration.json", comparison)
-        save(out / "tamper.json", tamper(archive, config["tools"], config["anchor"], cp))
-        failures = acceptance(summary, comparison, exit_code)
-        # A returned LLM response is not independent task acceptance. Until an
-        # evaluator inspects output, do not grant overall integration success.
-        status.update(summary=summary, failures=failures,
-                      observation_validation="PASSED" if not failures else "FAILED",
-                      task_acceptance="PENDING_INDEPENDENT_REVIEW", status="REVIEW_REQUIRED")
-        code = 1  # task acceptance and logical delegation remain open
     except (Refused, OSError, ValueError, KeyError, subprocess.SubprocessError) as exc:
         status["status"] = "BLOCKED" if status["status"] == "PREFLIGHT" else "FAILED"
         status["failures"].append(str(exc))
         code = 2 if status["status"] == "BLOCKED" else 1
     finally:
-        if container_created:
+        # An unexpected finalizer fault must not skip any remaining cleanup.
+        if released:
             try:
-                command(["docker", "rm", "--force", token])
-            except (Refused, subprocess.SubprocessError) as exc:
+                finalize_released_workload(config, out, checkpoint_path, token, probe, audit,
+                                           status, launch, resources)
+            except Exception as exc:
+                status["failures"].append(f"final evidence collection: {exc}")
+                status.update(status="FAILED", observation_validation="NOT_ESTABLISHED")
+        if resources["container"]:
+            try:
+                command(["docker", "rm", "--force", token], timeout=15)
+            except Exception as exc:
                 status["failures"].append(f"container cleanup: {exc}")
                 code = 1
         try:
             audit.close()
-        except (Refused, subprocess.SubprocessError) as exc:
+        except Exception as exc:
             status["failures"].append(f"audit rule cleanup: {exc}")
             code = 1
-        terminate(probe)
-        if collector_started:
+        try:
+            terminate(probe)
+        except Exception as exc:
+            status["failures"].append(f"observer cleanup: {exc}")
+            code = 1
+        if resources["collector"]:
             try:
                 cp = snapshot(config, out / "evidence", token, stop=True)
                 if not checkpoint_path.exists():
                     save(checkpoint_path, cp)
-            except (Refused, OSError, KeyError, subprocess.SubprocessError) as exc:
+            except Exception as exc:
                 status["failures"].append(f"collector cleanup/export: {exc}")
                 code = 1
         for stream in logs:
             stream.close()
+        if status["failures"] and status["status"] != "BLOCKED":
+            status["status"] = "FAILED"
         status["finished_ms"] = now()
         save(out / "status.json", status)
     return code

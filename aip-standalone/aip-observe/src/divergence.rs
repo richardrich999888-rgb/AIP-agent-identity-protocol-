@@ -262,6 +262,7 @@ mod tests {
 
     fn batch(active: &[SourceMechanism], events: Vec<KernelLifecycleEvent>) -> ObservationBatch {
         ObservationBatch {
+            filter_report: None,
             version: OBSERVE_PROTOCOL_VERSION,
             probe_id: "probe-1".into(),
             batch_id: [1u8; 16],

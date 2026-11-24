@@ -1,6 +1,6 @@
 # Gitleaks configuration — extends the default ruleset.
 #
-# The only allowlisted path is the documented example key file used by the
+# The only globally allowlisted path is the documented example key file used by the
 # Docker deployment guide. It contains SHA-256 *hashes* of sample API keys
 # (the service stores only hashes; see aip-service/src/auth.rs), not secrets.
 # Real key files are gitignored (deploy/docker/keys.json).
@@ -12,4 +12,725 @@ useDefault = true
 description = "Documented example/sample files containing no real secrets"
 paths = [
   '''deploy/docker/keys\.example\.json$''',
+]
+
+# Only the generic heuristic is refined; provider-specific rules remain active.
+# Exact historical nonsecret matches require BOTH the exact file and exact
+# field/value. Other credentials on the same line and all future values are scanned.
+# Historical bytes are unchanged. Positive detection controls run in Security CI.
+[[rules]]
+id = "generic-api-key"
+
+[[rules.allowlists]]
+description = "Verified nonsecret byte_verified_public_sha256; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qexamples/local-evidence-agent/results/linux-observation/41507100812/public/source-hashes.json\E$''',
+]
+regexes = [
+    '''^\Qapi_runtime.py": "2cbae701ac39983a86af0d088799378fbbdedc0b3f87cf47777ae166e6216219"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret byte_verified_public_sha256; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qexamples/local-evidence-agent/results/linux-observation/41507100812/trust/controller-trust.json\E$''',
+]
+regexes = [
+    '''^\Qhistorical-api-inputs.json": "189e81bbc4d2514e56af1767e808fa5eb71f8fe1cd68bdecda6725793b494481"\E$''',
+    '''^\Qruntime-access.json": "59b57b95e7005122055e538f3ca9a82da20b2c5512f36c1079cb80eaee6083e0"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret byte_verified_public_sha256; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qexamples/local-evidence-agent/results/linux-observation/41508547378/public/source-hashes.json\E$''',
+]
+regexes = [
+    '''^\Qapi_runtime.py": "2cbae701ac39983a86af0d088799378fbbdedc0b3f87cf47777ae166e6216219"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret byte_verified_public_sha256; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qexamples/local-evidence-agent/results/linux-observation/41508547378/trust/controller-trust.json\E$''',
+]
+regexes = [
+    '''^\Qhistorical-api-inputs.json": "f8955ecb931f7d84558ab29632ac3b6b3443157fc93504357693107ede49bfef"\E$''',
+    '''^\Qruntime-access.json": "59b57b95e7005122055e538f3ca9a82da20b2c5512f36c1079cb80eaee6083e0"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/AGENT_ZERO_40848104456/original/agent-zero-genuine/public/audit-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sdea17ff6b539b4b249df3"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/AGENT_ZERO_40848104456/original/agent-zero-genuine/public/auditd.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sdea17ff6b539b4b249df3"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret official_python_public_gpg_fingerprint; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/AGENT_ZERO_40848104456/original/agent-zero-image.json\E$''',
+]
+regexes = [
+    '''^\QGPG_KEY=7169605F62C751356D054A26A821E680E5FA6305"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret official_python_public_gpg_fingerprint; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/AGENT_ZERO_40854020439/original/agent-zero-image.json\E$''',
+]
+regexes = [
+    '''^\QGPG_KEY=7169605F62C751356D054A26A821E680E5FA6305"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret official_python_public_gpg_fingerprint; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/AGENT_ZERO_40857993677/original/agent-zero-image.json\E$''',
+]
+regexes = [
+    '''^\QGPG_KEY=7169605F62C751356D054A26A821E680E5FA6305"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40752840365/same-run/public/audit-0-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd9457b7df08fd4837812e"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40752840365/same-run/public/audit-0.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd9457b7df08fd4837812e"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40752840365/same-run/public/audit-1-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd108a585b48254691a0be"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40752840365/same-run/public/audit-1.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd108a585b48254691a0be"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret local_binary_sha256; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40755309307/independent-client-replay/provenance.json\E$''',
+]
+regexes = [
+    '''^\Qlocal_api_binary_sha256": "f3aecda2b3342b4fbf7a0fd4caa071fbbc4bdaebe0e328646933cc11ed677b11"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40755309307/same-run/public/audit-0-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd5efb3cbb1752468eabed"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40755309307/same-run/public/audit-0.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd5efb3cbb1752468eabed"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40755309307/same-run/public/audit-1-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd0f472ee5d013456c86b0"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40755309307/same-run/public/audit-1.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd0f472ee5d013456c86b0"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40847427090/same-run-interruption/public/audit-0-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd8e09769121b54a3695e6"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40847427090/same-run-interruption/public/audit-0.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd8e09769121b54a3695e6"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40847427090/same-run-interruption/public/audit-1-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd64a55208ee164a9ab1b1"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40847427090/same-run-interruption/public/audit-1.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd64a55208ee164a9ab1b1"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40847427090/same-run/public/audit-1-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd9e70694dc02243558e23"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40847427090/same-run/public/audit-1.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd9e70694dc02243558e23"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40854007527/same-run-interruption/public/audit-1-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd079ef77c23a44d1a96b7"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40854007527/same-run-interruption/public/audit-1.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd079ef77c23a44d1a96b7"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40854007527/same-run-recovery/public/audit-0-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sdaa7052758fd448e198af"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40854007527/same-run-recovery/public/audit-0.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sdaa7052758fd448e198af"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40854007527/same-run/public/audit-1-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sdfa6c3892a1464ab3b813"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40854007527/same-run/public/audit-1.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sdfa6c3892a1464ab3b813"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40857979540/same-run-interruption/public/audit-0-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd847afb2b81eb4c598718"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40857979540/same-run-interruption/public/audit-0.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd847afb2b81eb4c598718"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40857979540/same-run/public/audit-1-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd42f0218cbf3a4a199b9b"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40857979540/same-run/public/audit-1.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd42f0218cbf3a4a199b9b"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40875323001/same-run-recovery/public/audit-0-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sdb8215797843f459aa0fc"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40875323001/same-run-recovery/public/audit-0.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sdb8215797843f459aa0fc"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40875323001/same-run/public/audit-0-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd121d6f423fa94073ac89"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40875323001/same-run/public/audit-0.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd121d6f423fa94073ac89"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40875323001/same-run/public/audit-1-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sde37e3bdb02564a39a270"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40875323001/same-run/public/audit-1.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sde37e3bdb02564a39a270"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40908849601/same-run-recovery/public/audit-0-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd69c63e629e0745a38df9"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40908849601/same-run-recovery/public/audit-0.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd69c63e629e0745a38df9"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40908849601/same-run-recovery/public/audit-1-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sdcee7c2e8e8fa4c6ab581"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40908849601/same-run-recovery/public/audit-1.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sdcee7c2e8e8fa4c6ab581"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40908849601/same-run/public/audit-0-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sdf0a20482b975450fa334"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40908849601/same-run/public/audit-0.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sdf0a20482b975450fa334"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40908849601/same-run/public/audit-1-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sded250fabe3d74ad6b935"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/E2E_40908849601/same-run/public/audit-1.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sded250fabe3d74ad6b935"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/OBSERVER_40857979569_SUCCESS/public/audit-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd8435e21dbf804736b6e2"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/OBSERVER_40857979569_SUCCESS/public/auditd.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd8435e21dbf804736b6e2"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/OBSERVER_40875322915_SUCCESS/public/audit-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sd264138e9a752474388fd"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/OBSERVER_40875322915_SUCCESS/public/auditd.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sd264138e9a752474388fd"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/OPEN_SOURCE_AGENTS_20261101/ranges/13076202776/original/framework-observation/public/audit-status.json\E$''',
+]
+regexes = [
+    '''^\Qkey": "sde21d0843736b4c9e9cba"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Verified nonsecret audit_rule_label; exact retained evidence only"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/OPEN_SOURCE_AGENTS_20261101/ranges/13076202776/original/framework-observation/public/auditd.log\E$''',
+]
+regexes = [
+    '''^\Qkey="sde21d0843736b4c9e9cba"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Published profile HMAC output from IdentityRegistry.sign; not the signing key"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qorbitaltrust-accountability/rust/ot-verifier/tests/fixtures/multisig-mission-dossier.json\E$''',
+]
+regexes = [
+    '''^\QcredentialSignature": "1f9de603e3d39a9c199c542ee49d9da3c9324f8b6b68e2f33f93916665ba3152"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Published profile HMAC output from IdentityRegistry.sign; not the signing key"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qorbitaltrust-accountability/rust/ot-verifier/tests/fixtures/post-revocation-execution.json\E$''',
+]
+regexes = [
+    '''^\QcredentialSignature": "e087b293fd5b2bb29dad74e738323922a454bf0c55f96312983d72c6b104113f"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Published profile HMAC output from IdentityRegistry.sign; not the signing key"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qorbitaltrust-accountability/rust/ot-verifier/tests/fixtures/valid-mission-dossier.json\E$''',
+]
+regexes = [
+    '''^\QcredentialSignature": "a8c66540e6d9abd4389ca69ef6bcdadc00ac75fc5bc18e947a4164dcb6b1a632"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Byte-verified public source inventory digest; exact field/value/file"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/20261028T101450Z/report.json\E$''',
+]
+regexes = [
+    '''^\Qenterprise_api.rs": "27b971fc1f00a54b0f81e18896c7a1fe91b410d403a897361686b871cc2c59c5"\E$''',
+    '''^\QADR-KEY-CUSTODY.md": "011020d3339305d86d945972620c5ed40264ca6e52b2d9932dafebad799bd501"\E$''',
+    '''^\Qaccess.rs": "2674d23a012101202eaf817524c3945b0f846ac99fbbc2383a4df6cc5e5f3175"\E$''',
+    '''^\Qaccess_ledger.rs": "49e3547144ca76bff54dedeed880849ecfccbfa0481726bc66b07eada6656204"\E$''',
+    '''^\Qattestation-keys.md": "1d2c6f4b75862b098a2c0c83f11fcfc0b7e73594b67ae578da0b449e943e6c29"\E$''',
+    '''^\Qauth.rs": "45274e0c27fa3d9c65d5575dc0e4579684506b8b8def9e2ad1ce4612d2be8547"\E$''',
+    '''^\Qauth.rs": "8b10355f6cdaac31eb74eab6144d50d3d97b01bd94f6352cc3c19647cc48d161"\E$''',
+    '''^\Qcollector-key-provisioning.md": "8ad06bb8f0fb11f879685ad460dda00b01362e9cd5b048b7a231758b27f9a32e"\E$''',
+    '''^\Qcollector.key.wrapped": "49df151535ad70a9a2235ce447cf6d3016433ee4d4521ba18ee8c7a699f0e722"\E$''',
+    '''^\Qkey_custody.rs": "684128597bb28fcde1dde45b46b2dbe9278728168bf4ede05fcbfbd9a3ddea2e"\E$''',
+    '''^\Qkeys.example.json": "ad3d47bb5a8d35a062c23a5d7f10930fb9f81c9bae82800e0f76f877c7ca3054"\E$''',
+    '''^\Qkeys.rs": "9845c7300eb51f38670ed1fe53031c39da289c5d863f927986c603c1efddbb25"\E$''',
+    '''^\Qmetrics_api.rs": "ec65b38e965aaa7b68a856817e8dc04c464232acf066a15bcd73997cbbe16c95"\E$''',
+    '''^\Qnoise.key.json": "bf72a5b8f5dc586cdab54ab31d8962e5b995474d309b1ab5d171cd5475518b2f"\E$''',
+    '''^\Qnoise_key.rs": "11b1f9a450a7c67396ca104061017ab74002f255e614270ce30f45814d4cbc73"\E$''',
+    '''^\Qopenapi.yaml": "0727534f9e69d55d055785a4a69b8454becf5386714820fbe6420dec22e17e22"\E$''',
+    '''^\Qprobe.key.json": "14751591f8d7385bd2a8163a713eaae2aa8f7c032d0f39f65525b0bb7e1ece45"\E$''',
+    '''^\Qprobe.keygen.log": "c63cd2fd047a9f2044a0795de744cee61da4a58f01a67a4b8c1d640a42a8676a"\E$''',
+    '''^\Qtokens.rs": "7f0098dcd757c12daabd645284747cb377364cc8aa2c1c5fa241cfffeafc1d85"\E$''',
+    '''^\Qverdict_api.rs": "6ac79cb0496240b543d378674d98009141e9c5e1f71273ec4840ec6d621e830f"\E$''',
+]
+
+[[rules.allowlists]]
+description = "Byte-verified public source inventory digest; exact field/value/file"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/enterprise/results/20261028T102430Z/report.json\E$''',
+]
+regexes = [
+    '''^\QADR-KEY-CUSTODY.md": "011020d3339305d86d945972620c5ed40264ca6e52b2d9932dafebad799bd501"\E$''',
+    '''^\Qaccess.rs": "2674d23a012101202eaf817524c3945b0f846ac99fbbc2383a4df6cc5e5f3175"\E$''',
+    '''^\Qaccess_ledger.rs": "49e3547144ca76bff54dedeed880849ecfccbfa0481726bc66b07eada6656204"\E$''',
+    '''^\Qattestation-keys.md": "1d2c6f4b75862b098a2c0c83f11fcfc0b7e73594b67ae578da0b449e943e6c29"\E$''',
+    '''^\Qauth.rs": "45274e0c27fa3d9c65d5575dc0e4579684506b8b8def9e2ad1ce4612d2be8547"\E$''',
+    '''^\Qauth.rs": "8b10355f6cdaac31eb74eab6144d50d3d97b01bd94f6352cc3c19647cc48d161"\E$''',
+    '''^\Qcollector-key-provisioning.md": "8ad06bb8f0fb11f879685ad460dda00b01362e9cd5b048b7a231758b27f9a32e"\E$''',
+    '''^\Qcollector.key.wrapped": "49df151535ad70a9a2235ce447cf6d3016433ee4d4521ba18ee8c7a699f0e722"\E$''',
+    '''^\Qenterprise_api.rs": "c092f4f3a7e1ee5afa5b3f9c876d677d685f41bd1993fb1277ce6ac9ed156d95"\E$''',
+    '''^\Qkey_custody.rs": "684128597bb28fcde1dde45b46b2dbe9278728168bf4ede05fcbfbd9a3ddea2e"\E$''',
+    '''^\Qkeys.example.json": "ad3d47bb5a8d35a062c23a5d7f10930fb9f81c9bae82800e0f76f877c7ca3054"\E$''',
+    '''^\Qkeys.rs": "9845c7300eb51f38670ed1fe53031c39da289c5d863f927986c603c1efddbb25"\E$''',
+    '''^\Qmetrics_api.rs": "ec65b38e965aaa7b68a856817e8dc04c464232acf066a15bcd73997cbbe16c95"\E$''',
+    '''^\Qnoise.key.json": "bf72a5b8f5dc586cdab54ab31d8962e5b995474d309b1ab5d171cd5475518b2f"\E$''',
+    '''^\Qnoise_key.rs": "11b1f9a450a7c67396ca104061017ab74002f255e614270ce30f45814d4cbc73"\E$''',
+    '''^\Qopenapi.yaml": "0727534f9e69d55d055785a4a69b8454becf5386714820fbe6420dec22e17e22"\E$''',
+    '''^\Qopenapi_contract.py": "03d2d13d747a7e52a3b677e38ae37a74d4aae66d6e0406ccebbddaf6522b9c07"\E$''',
+    '''^\Qprobe.key.json": "14751591f8d7385bd2a8163a713eaae2aa8f7c032d0f39f65525b0bb7e1ece45"\E$''',
+    '''^\Qprobe.keygen.log": "c63cd2fd047a9f2044a0795de744cee61da4a58f01a67a4b8c1d640a42a8676a"\E$''',
+    '''^\Qtokens.rs": "7f0098dcd757c12daabd645284747cb377364cc8aa2c1c5fa241cfffeafc1d85"\E$''',
+    '''^\Qverdict_api.rs": "6ac79cb0496240b543d378674d98009141e9c5e1f71273ec4840ec6d621e830f"\E$''',
+]
+
+[[rules.allowlists]]
+description = "SPIRE request correlation UUID, distinct from the recorded join-token identifier"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qvalidation/external/spiffe/results/sealed/server.log\E$''',
+]
+regexes = [
+    '''^\Qjoin_token request_id=e5a74963-4364-4b21-8071-0e735b87277c \E$''',
+]
+
+# Exact recovered source bytes and provenance: validation/security/recovered-inventory-sources.json
+[[rules.allowlists]]
+description = "Recovered and byte-verified historical source digest; exact field/value/file"
+condition = "AND"
+regexTarget = "match"
+paths = [
+    '''^\Qexamples/local-evidence-agent/results/20261102/source-hashes.json\E$''',
+]
+regexes = [
+    '''^\Qtests_api_runtime.py": "ea607ee380500ab1a3fb647984713589969b7775e087734b401aaff6410f1259"\E$''',
+    '''^\Qapi_runtime.py": "0ffa40fe1add09caa19d16c84c0410e03ffd4d8710f411e999da6db32fd1c863"\E$''',
 ]

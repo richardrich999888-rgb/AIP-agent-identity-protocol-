@@ -1,0 +1,144 @@
+{
+  "classification": "SOURCE_AND_ORIGINAL_SIGNED_RECORD_DIAGNOSTICS",
+  "coverage": {
+    "bad_signed_batch_sequence": 291,
+    "mechanism_integrity": [
+      {
+        "mechanism": "SockStateTracepoint",
+        "integrity": "Verified"
+      },
+      {
+        "mechanism": "SchedTracepoint",
+        "integrity": "Unverifiable"
+      },
+      {
+        "mechanism": "SockSendTracepoint",
+        "integrity": "Verified"
+      },
+      {
+        "mechanism": "CgroupTracepoint",
+        "integrity": "Verified"
+      }
+    ],
+    "epoch_reset_at_ms": 1793266376745,
+    "cross_batch_pairs": [
+      {
+        "pid": 8043,
+        "original_signed_events": [
+          {
+            "sequence": 290,
+            "mechanism": "SchedTracepoint",
+            "kind": {
+              "ProcessExec": {
+                "pid": 8043,
+                "old_pid": 8043,
+                "filename": "/usr/bin/docker"
+              }
+            },
+            "kernel_timestamp_ns": 999311822536
+          },
+          {
+            "sequence": 291,
+            "mechanism": "ProcConnector",
+            "kind": {
+              "Exec": {
+                "pid": 8043,
+                "tgid": 8043
+              }
+            },
+            "kernel_timestamp_ns": 999311837975
+          }
+        ]
+      },
+      {
+        "pid": 8051,
+        "original_signed_events": [
+          {
+            "sequence": 290,
+            "mechanism": "SchedTracepoint",
+            "kind": {
+              "ProcessExec": {
+                "pid": 8051,
+                "old_pid": 8051,
+                "filename": "/usr/bin/docker"
+              }
+            },
+            "kernel_timestamp_ns": 999338587834
+          },
+          {
+            "sequence": 291,
+            "mechanism": "ProcConnector",
+            "kind": {
+              "Exec": {
+                "pid": 8051,
+                "tgid": 8051
+              }
+            },
+            "kernel_timestamp_ns": 999338600628
+          }
+        ]
+      }
+    ],
+    "conclusion": "The original full-workload coverage gate remains failed; matching events in adjacent batches do not retroactively repair signed coverage."
+  },
+  "audit_clock": {
+    "original_python_expected_refs": [
+      {
+        "pid": 5289,
+        "wall_ms": 1793265764207,
+        "batch_sequence": 24
+      },
+      {
+        "pid": 5289,
+        "wall_ms": 1793265764211,
+        "batch_sequence": 24
+      }
+    ],
+    "original_rust_agreements_for_launch_pid": [
+      {
+        "aip": {
+          "pid": 5289,
+          "wall_ms": 1793265764208,
+          "image": "/bin/sh",
+          "batch_sequence": 24
+        },
+        "external_wall_ms": 1793265764205,
+        "external_image": "/usr/bin/dash",
+        "skew_ms": -3
+      },
+      {
+        "aip": {
+          "pid": 5289,
+          "wall_ms": 1793265764212,
+          "image": "/opt/framework/.venv/bin/python",
+          "batch_sequence": 24
+        },
+        "external_wall_ms": 1793265764210,
+        "external_image": "/usr/local/bin/python3.12",
+        "skew_ms": -2
+      }
+    ],
+    "implementation_discrepancy": "Original Python summary reused the first exec batch anchor; Rust uses each signed batch anchor.",
+    "derived_reevaluation": "derived-diagnostic-evaluation.json; original result unchanged"
+  },
+  "file_observation": {
+    "all_original_archive_file_events_by_binding_scope": {
+      "other_namespaces": 336
+    },
+    "observed_paths": {
+      "/home/runner/work/_temp/agent-zero-genuine/runs/agent-zero/evidence/attested.archive.jsonl": 75,
+      "/home/runner/work/_temp/agent-zero-genuine/runs/agent-zero/evidence/health.archive.jsonl": 75,
+      "/home/runner/work/_temp/agent-zero-genuine/runs/agent-zero/launch.json": 1,
+      "/home/runner/work/_temp/agent-zero-genuine/runs/agent-zero/status.json": 183,
+      "/home/runner/work/_temp/agent-zero-genuine/runs/agent-zero/input/start": 1,
+      "/home/runner/work/_temp/agent-zero-genuine/runs/agent-zero/performance.json": 1
+    },
+    "configured_watch": "Host workspace mount, before Docker created its separate /work bind mount.",
+    "existing_sensor_api": "FanotifyWatch::open uses FAN_MARK_MOUNT.",
+    "documented_scope": "Mount marks report accesses through the marked mount, not a different bind mount.",
+    "primary_source": "https://man7.org/linux/man-pages/man7/fanotify.7.html",
+    "live_mount_fix_validation": "NOT_ESTABLISHED_BY_THIS_ARCHIVE"
+  },
+  "why_no_patch": "UNKNOWN: the actual Agent Zero response and framework log were not exported in this run.",
+  "task_success": "NOT_ESTABLISHED"
+}
