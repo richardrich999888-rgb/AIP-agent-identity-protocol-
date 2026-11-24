@@ -416,6 +416,19 @@ class Packaging(unittest.TestCase):
             PACKAGE.install(args)
         self.assertEqual(list(Path(args.root).iterdir()), [])
 
+    def test_apparmor_hardlinks_cannot_widen_state_access_to_external_targets(self):
+        # Static policy boundary regression; actual Linux enforces this in the
+        # outside-hardlink negative control and normal durable spool workload.
+        policy = (ROOT / "deploy/enterprise/linux/aip-probe.full-sensor.apparmor.review").read_text()
+        rules = [line.strip() for line in policy.splitlines() if line.strip() and not line.lstrip().startswith("#")]
+        links = [line for line in rules if " link " in " " + line]
+        self.assertEqual(links, ["owner link subset /var/lib/aip-probe/** -> /var/lib/aip-probe/**,"])
+        for line in rules:
+            if line.endswith(",") and " link " not in " " + line:
+                permissions = line.rsplit(" ", 1)[-1].rstrip(",")
+                if set(permissions) <= set("rwakmlx"):
+                    self.assertNotIn("l", permissions, "bare link permission permits unbounded targets")
+
     def test_apparmor_support_is_required_and_loaded_profile_must_enforce(self):
         enabled, profiles = self.work / "enabled", self.work / "profiles"
         enabled.write_text("Y\n"); profiles.write_text("")

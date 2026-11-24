@@ -765,6 +765,11 @@ class Runner:
                 raise Refused('negative privilege canary already exists')
             path.write_bytes(b'DISPOSABLE NONSECRET CANARY\n')
             path.chmod(mode)
+        # Make the outside link target service-owned so the policy's owner
+        # qualifier cannot hide a broken source/target path restriction.
+        os.chown(outside, self.probe_user.pw_uid, self.probe_user.pw_gid)
+        if outside.stat().st_dev != PROBE_STATE.stat().st_dev:
+            raise Refused('outside hardlink canary must share the host state filesystem')
         target = PROBE_STATE / 'negative-mount'
         self.owned_dir(target, self.probe_user)
         state_link = PROBE_STATE / 'outside-link'

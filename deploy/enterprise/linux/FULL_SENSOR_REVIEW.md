@@ -31,10 +31,12 @@ profile is a refusal, never a successful qualification.
 
 The policy permits measurement reads, the existing sensor capabilities and
 socket types, and fixed inherited execution. Only service-owned paths under
-`/var/lib/aip-probe` receive write permission. It grants no unconfined execution
+`/var/lib/aip-probe` receive write permission. Atomic spool publication has an
+`owner link subset` rule with both the new link and existing target constrained
+to that same hierarchy; outside-target hardlinks remain forbidden. It grants no unconfined execution
 or profile changes and uses no disconnected-path aliasing flag. Direct writes,
 host-root and other-process-root aliases, and a symlink from writable state to
-an outside canary must all fail while normal spool operations and all seven
+an outside canary, and an outside-file hardlink into state must all fail while normal spool operations and all seven
 sensors continue to work. Profile bytes and their digest are retained with the
 installation receipt and public qualification evidence. Uninstall stops the
 service, unloads only its owned policy, removes software, and preserves state.

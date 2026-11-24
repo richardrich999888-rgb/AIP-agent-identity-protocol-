@@ -27,6 +27,20 @@ def operation(name, args):
             with open(path, 'ab', buffering=0) as stream: stream.write(b'UNEXPECTED-PROBE-WRITE\n')
             return {'allowed': True}
         except OSError as error: return {'allowed': False, 'errno': error.errno}
+    if name == 'outside_hardlink':
+        # Both aliases use the host mount view; a private read-only bind mount
+        # must not turn this into an unrelated EXDEV refusal.
+        source = '/proc/1/root' + args.outside_writable
+        target = '/proc/1/root' + str(Path(args.output).parent / 'outside-hardlink')
+        try:
+            os.link(source, target, follow_symlinks=False)
+        except OSError as error: return {'allowed': False, 'errno': error.errno}
+        try:
+            os.unlink(target)
+            cleanup_failed = False
+        except OSError:
+            cleanup_failed = True
+        return {'allowed': True, 'cleanup_failed': cleanup_failed}
     if name == 'private_read':
         try:
             with open(args.outside_private, 'rb') as stream: size = len(stream.read(128))
@@ -96,8 +110,8 @@ def main():
     for line in Path('/proc/self/status').read_text().splitlines():
         key, _, value = line.partition(':')
         if key in ('Uid', 'Gid', 'CapEff', 'CapBnd', 'CapAmb', 'NoNewPrivs', 'Seccomp'): status[key] = value.strip()
-    operations = {name: isolated(name, args) for name in ('outside_write', 'host_root_write', 'other_root_write', 'state_symlink_write', 'mount', 'unshare', 'ptrace', 'process_vm_writev', 'private_read')}
-    forbidden = ('outside_write', 'host_root_write', 'other_root_write', 'state_symlink_write', 'mount', 'unshare', 'ptrace', 'process_vm_writev')
+    operations = {name: isolated(name, args) for name in ('outside_write', 'host_root_write', 'other_root_write', 'state_symlink_write', 'outside_hardlink', 'mount', 'unshare', 'ptrace', 'process_vm_writev', 'private_read')}
+    forbidden = ('outside_write', 'host_root_write', 'other_root_write', 'state_symlink_write', 'outside_hardlink', 'mount', 'unshare', 'ptrace', 'process_vm_writev')
     failures = [name for name in forbidden if operations[name].get('allowed') is not False or operations[name].get('errno') not in (errno.EPERM, errno.EACCES, errno.EROFS)]
     label = Path('/proc/self/attr/current').read_text().strip()
     result = {'status': 'FAIL' if failures else 'PASS', 'process_status': status, 'lsm_label': label, 'operations': operations, 'failed_negative_controls': failures,

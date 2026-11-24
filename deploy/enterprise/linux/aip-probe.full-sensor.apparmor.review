@@ -34,5 +34,7 @@ profile aip-probe-full-sensor flags=(mediate_deleted) {
   # Only this dedicated service-owned state hierarchy can be mutated.
   owner /var/lib/aip-probe/ rw,
   owner /var/lib/aip-probe/** rwk,
+  # Atomic spool publication: both the new link and original stay in state.
+  owner link subset /var/lib/aip-probe/** -> /var/lib/aip-probe/**,
   deny mount,
 }
