@@ -3,16 +3,31 @@
 ## Compatibility status
 
 The source supports Linux perf tracepoints, proc connector, fanotify and
-AF_PACKET. Historical development evidence names Linux 6.18.44; it does not
-qualify a distribution, Kubernetes runtime, or production workload. This new
-installer has **not** been installed on a clean Linux host in this run.
+AF_PACKET. Source `c683134c59b50950e4eab176d37292683c61930d` passed actual
+full-sensor installation and service qualification in
+[run 45433545896](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45433545896)
+on one disposable x86_64 Linux runner, kernel `7.0.0-1014-aws`, systemd 255.
+All seven sensors produced controlled positive events and all nine forbidden
+operations were denied. Filtering, delivery outage/replay, service restart and
+state-preserving uninstall/reinstall passed. The archive contains 59 signed
+batches, five health records and 721 kernel events, verified by a separate job
+with networking disabled. See the
+[exact evidence manifest](../../../validation/customer_pilot/evidence/c683134/manifest.json).
+
+This was a controlled OS workload with a separate collector account under the
+same host administration. Genuine AI-agent runs are recorded separately in the
+[pilot report](../../../validation/customer_pilot/REPORT.md); they do not qualify
+AI operation under this exact full-sensor profile. Customer readiness and
+independent custody remain unproven. Historical Linux 6.18.44 development
+evidence does not qualify a distribution, Kubernetes runtime or production workload.
 
 Hosted enterprise CI built an actual x86_64 Linux archive from PR review tree
 `076b22c` on 28 October 2026. Its downloaded digest, manifest, payload modes and
 ELF architecture passed verification; see `docs/enterprise/VALIDATION_REPORT.md`
 and `validation/enterprise/results/CI_20261028T103950Z/` for exact provenance.
-This is an evaluation build, not an institution-approved signed release or an
-executed package-installation test.
+That historical archive verification was an evaluation build, not an
+institution-approved signed release or installation test. The later disposable
+installation above has its own exact source and evidence.
 
 The package builder accepts x86_64 and aarch64 Linux GNU targets and validates
 each input's ELF architecture. This is a packaging target check, not a
@@ -48,8 +63,9 @@ after installation and check actual service-user readability before startup.
 The full-sensor profile and its qualification procedure are in
 [FULL_SENSOR_REVIEW.md](FULL_SENSOR_REVIEW.md). The user approved disposable
 GitHub Actions testing on 24 November 2026. `review-probe-unit` writes the exact
-unit/configuration digests without installing or starting anything. Installation
-requires both digests and `--disposable-runner-validation`; it installs the exact
+unit, configuration and AppArmor policy digests without installing or starting
+anything. Installation requires all three approved digests, the trusted archive
+digest and `--disposable-runner-validation`; it installs the exact
 reviewed bytes and leaves service startup to the acceptance harness. The
 validation receipt explicitly makes no independent-custody claim. Customer
 approval and actual host qualification remain separate gates. The default
@@ -179,4 +195,9 @@ The full-sensor approval gate also requires `--approved-probe-apparmor-sha256`.
 AppArmor must be enabled with its parser available and the exact policy loaded
 in enforce mode. The v2 package binds policy bytes to the archive and receipt;
 legacy v1 packages cannot activate this profile. See [the full-sensor review](FULL_SENSOR_REVIEW.md)
-for the retained host-root write finding and the required fresh qualification.
+for the retained failures, passing disposable qualification and remaining
+customer gates: independent collector custody, scoped AI execution under the
+final profile, live queue-limit/storage-failure/corrupt-spool tests, sustained
+capacity/loss measurements and persistent-host recovery. Security-owner review
+must address broad host read access: the private-read canary succeeded.
+Filtering is a retention boundary, not read isolation.

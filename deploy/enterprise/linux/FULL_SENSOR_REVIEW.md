@@ -1,11 +1,27 @@
 # Full-sensor service profile: review and qualification
 
-Status: **the first live full-sensor run observed all seven sensors and verified
-signed evidence, but failed the host-root write negative control. The enforcing
-AppArmor candidate below requires a fresh Linux qualification before acceptance.** The user
-approved testing this profile on a disposable GitHub Actions Linux runner on
-24 November 2026. This authorization does not approve customer deployment or
-establish separately administered collector custody.
+Status: **PASS for the exact disposable controlled OS qualification;
+customer acceptance remains incomplete.** Source
+`c683134c59b50950e4eab176d37292683c61930d` passed
+[run 45433545896](https://github.com/richardrich999888-rgb/AIP-agent-identity-protocol-/actions/runs/45433545896)
+on x86_64 Linux, kernel `7.0.0-1014-aws`, systemd 255. The user approved this
+disposable testing on 24 November 2026, not customer deployment or independent
+collector custody. Earlier failures remain retained without rewriting results.
+
+All seven sensors produced controlled positive events; all nine forbidden
+operations were denied. Scoped retention, delivery outage/lost authenticated
+acknowledgement, probe/collector restart and state-preserving uninstall/reinstall
+passed. The final archive has 59 batches, five health records, 721 kernel events
+and 32 scoped batches. Its 27-batch baseline is a prefix, not an additional total.
+Both archives passed the separate network-disabled verifier job. The
+[exact manifest and receipts](../../../validation/customer_pilot/evidence/c683134/manifest.json)
+retain hashes and results.
+
+This run exercised controlled OS actions, not an AI agent. Genuine-agent runs
+are reported separately in the [pilot report](../../../validation/customer_pilot/REPORT.md)
+and do not qualify the exact full-sensor profile with a scoped AI workload.
+The collector used another account on the same host and administration.
+Scoped aggregate coverage and logical-agent identity remain `CannotProve`.
 
 `review-probe-unit` remains inert. `package.py install` still refuses fanotify by
 default. Its new activation path requires the reviewed unit digest, the exact
@@ -62,13 +78,15 @@ prerequisite. Parser or kernel loading failure remains fatal, and the actual enf
 forbidden operations, durable spool lifecycle, and seven positive sensors must
 pass on the live runner. Static policy checks alone do not qualify this change.
 
-This is a candidate until the original exploit and legitimate controls pass
-on Linux. Read access remains broad; filesystem write confinement does not
-establish independent collector custody or isolation of customer secrets.
+The original host-root write and other forbidden operations were denied in
+run 45433545896 while legitimate sensor and spool operations passed. This
+qualifies that exact disposable setup only. The private-read canary succeeded,
+confirming broad read access; filesystem write confinement does not establish
+independent collector custody or isolation of customer secrets.
 Legacy v1 packages still verify and support their default profiles; they cannot
 activate the full-sensor profile without the v2 confinement artifact.
 
-## Concrete candidate
+## Reviewed installation profile
 
 Inspect [the complete unit](aip-probe.full-sensor.service.review),
 [the enforcing policy](aip-probe.full-sensor.apparmor.review), and
@@ -147,14 +165,17 @@ interface they observe. The installer requires an explicit interface rather
 than silently watching all interfaces.
 [Linux packet documentation](https://man7.org/linux/man-pages/man7/packet.7.html).
 
-## Host mount access is an unqualified design assumption
+## Host mount access qualified on the disposable runner
 
 The candidate passes `/proc/1/root` followed by the approved workload path to
 fanotify. `/proc/PID/root` exposes that process's filesystem view, including
 mounts, subject to a ptrace read-access check. This motivates resolving the
 host's mount through PID 1 while the service retains its private mount view.
-The conclusion that this produces the required fanotify observations is an
-**inference that must be tested**, not an executed result.
+Run 45433545896 observed six controlled fanotify baseline events on that host
+mount and verified exclusion of the alternate mount. Scoped file events also
+passed process-instance binding. This is executed evidence for that exact
+runner, mount setup and enforcing profile. Other kernels, distributions, mount
+layouts and customer hosts require fresh qualification.
 [Linux proc_pid_root documentation](https://man7.org/linux/man-pages/man5/proc_pid_root.5.html).
 
 `ProtectSystem`, `ProtectHome` and `PrivateTmp` create filesystem namespace
@@ -180,8 +201,17 @@ host-wide coverage or prove that unobserved actions did not happen.
 
 ## Required Linux lifecycle qualification
 
-This procedure is an acceptance specification. Use the explicit reviewed
-activation path above; manually copying the unit bypasses its digest checks.
+The disposable run completed the controlled service, filtering, mount,
+outage/replay, restart, negative-operation and offline checks above. It did not
+exercise the deployed service at its queue limit, inject a storage-write failure
+or corrupt its spool (step 7). Component tests do not close that live-service
+gate. Independent administration and trust/checkpoint custody, a scoped AI
+workload under this profile, persistent storage/host reboot/power-loss behavior,
+and sustained customer capacity, loss and overhead also remain acceptance gates.
+
+This procedure is an acceptance specification for approved target hosts. Use
+the explicit reviewed activation path above; manually copying the unit bypasses
+its digest checks.
 Preserve each failed attempt and its original evidence. Do not edit archives,
 rewrite queued records, remove continuity files or relax clock checks to make
 a step pass.

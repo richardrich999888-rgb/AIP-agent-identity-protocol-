@@ -1,143 +1,285 @@
 {
+  "schema": "aip.customer-pilot.acceptance.v2",
   "status": "NOT_READY",
-  "local_platform": "macOS",
-  "focused_rust": {
-    "passed": 350,
-    "failed": 0,
-    "ignored": 1
-  },
-  "python_agent_harness": {
-    "passed": 138
-  },
-  "packaging": {
-    "passed": 24
-  },
-  "harness_build": {
-    "passed": 3
-  },
-  "collector_release": {
-    "passed": 25
-  },
-  "spool_checkpoint": {
-    "passed": 26
-  },
-  "strict_clippy_on_changed_packages": "PASS; complete Linux workspace --all-targets --all-features -D warnings also passed",
-  "legacy_archives": {
-    "batches": 93,
-    "health": 6,
-    "verified": true
-  },
-  "linux_ci": "COMPLETE_WITH_SECURITY_FAILURES",
-  "full_sensor_service": "BLOCKED_APPROVAL",
-  "separate_administration": "BLOCKED_INFRASTRUCTURE",
-  "fresh_customer_pilot_workload": "NOT_RUN",
-  "limitations": [
-    "Mac sensor-dependent cases return unavailable and are not Linux runtime validation.",
-    "Full workspace Mac check fails on Linux-only APIs; complete Linux debug/release/coverage suites subsequently passed.",
-    "Spool and collector release counts overlap the focused Rust suite; do not sum these totals."
-  ],
-  "implementation_source": "32619a16b102d14d9cca667699a3b64394ca644f",
-  "g14_04_release_repetitions": {
-    "passed": 20,
-    "failed": 0,
-    "assertions_unchanged": true
+  "pull_request": 8,
+  "required_pr_state": "DRAFT",
+  "implementation_source": "c683134c59b50950e4eab176d37292683c61930d",
+  "historical_acceptance": "historical/32619a1/acceptance.json",
+  "full_sensor_service": {
+    "status": "PASS_DISPOSABLE_CONTROLLED_OS_WORKLOAD",
+    "workflow_run_id": 45433545896,
+    "workload": "CONTROLLED_OS_ACTIONS_NOT_AN_AI_AGENT",
+    "deployment": "DISPOSABLE_GITHUB_HOSTED_VALIDATION_ONLY",
+    "platform": {
+      "kernel_release": "7.0.0-1014-aws",
+      "machine": "x86_64",
+      "systemd_version": "systemd 255",
+      "boot_id": "840cf78e-4528-42c5-8904-c0b35c0e17f9",
+      "controller_clock_synchronized": true,
+      "clock_check_is_independent_collector_proof": false
+    },
+    "positive_mechanisms": {
+      "SchedTracepoint": 6,
+      "CgroupTracepoint": 12,
+      "SockStateTracepoint": 30,
+      "SockSendTracepoint": 6,
+      "WireTapAfPacket": 60,
+      "Fanotify": 6,
+      "ProcConnector": 6
+    },
+    "final_batches": 59,
+    "final_health_records": 5,
+    "kernel_events": 721,
+    "scoped_batches": 32,
+    "verifier_findings": [],
+    "negative_privilege_controls": {
+      "passed": 9,
+      "failed": 0
+    },
+    "buffering_and_lifecycle": {
+      "per_agent_retention": {
+        "status": "PASS",
+        "selected_event_counts": {
+          "ProcessSpawn": 14,
+          "CgroupCreated": 14,
+          "CgroupRemoved": 14,
+          "SocketState": 14,
+          "SocketSend": 14,
+          "FileEvent": 14
+        },
+        "excluded_records": 648,
+        "unassigned_records": 538,
+        "aggregate_coverage": "CANNOT_PROVE",
+        "logical_agent_identity": "CANNOT_PROVE"
+      },
+      "lost_authenticated_ack": {
+        "status": "PASS",
+        "responses_discarded": 1,
+        "accepted_still_queued_batch_count": 1,
+        "reply_fabrication": false
+      },
+      "lifecycle_preservation": {
+        "status": "PASS",
+        "uninstall_reinstall_preserved_stopped_spool_and_credentials": true,
+        "collector_restart_preserved_archive_prefix_and_signing_anchor": true,
+        "collector_continuity_mode": "strict"
+      },
+      "original_batch_replay": {
+        "status": "PASS",
+        "original_private_byte_snapshots": 14,
+        "duplicate_batch_identities": 0,
+        "signed_filtered_probe_runs": 2,
+        "collector_integrity_enriched_batches": 0,
+        "comparison": "Exact original queued SHA256 bytes retained privately; every signed JSON batch field equals original except mechanism_integrity, which the existing collector enriches. Rust verifier checks signed canonical bytes, signatures and continuity without exceptions."
+      }
+    },
+    "offline_verification": "PASS_SEPARATE_LINUX_JOB_DOCKER_NETWORK_NONE",
+    "tamper_controls": {
+      "checkpoint_rejected": 7,
+      "signature_chain_alone_does_not_reject_prefix_or_suffix": true
+    },
+    "independent_administration": false,
+    "broad_read_privilege_remains": true,
+    "manifest": "evidence/c683134/manifest.json",
+    "offline_receipt": "evidence/c683134/full-sensor-offline-verification.json",
+    "earlier_failed_attempts_preserved": [
+      "3622b85",
+      "ae79431",
+      "b6252bb",
+      "6d6ef35"
+    ]
   },
   "fresh_hosted_genuine_workload": {
     "status": "PASS",
-    "workflow_run_id": 44916522554,
-    "source": "32619a16b102d14d9cca667699a3b64394ca644f",
-    "artifact_id": 14711609978,
-    "public_artifact": "evidence/32619a1/genuine-agent-public.zip",
-    "local_offline_receipt": "evidence/32619a1/genuine-agent-offline-local.json",
-    "network_disabled": true,
-    "separate_administration": false,
-    "normal": {
-      "batches": 47,
-      "health": 4,
-      "controller_model_calls": 2,
-      "verifier_findings": 0
-    },
-    "interruption": {
-      "batches": 18,
-      "health": 3,
-      "controller_model_calls": 2,
-      "coverage": "UNAVAILABLE_OBSERVER_INTERRUPTED",
-      "verifier_findings": 0
-    },
-    "recovery": {
-      "batches": 46,
-      "health": 4,
-      "controller_model_calls": 2,
-      "verifier_findings": 0
-    },
-    "middle_record_deletion_rejected_in_all_profiles": true
+    "workflow_run_id": 45433546227,
+    "artifact_id": 14940662060,
+    "artifact_sha256": "5ce80aab09e3a65ede3514377128668fd054c216e781cf7bf53f22f443e9759a",
+    "manifest": "evidence/c683134/genuine-agent-manifest.json",
+    "profiles": [
+      {
+        "phase": "normal",
+        "artifact_directory": "same-run",
+        "status": "PASS",
+        "run_id": "same-run-3d06e6666eb242b084c8d2d9",
+        "validation_profile": "OBSERVED_EXECUTION",
+        "autonomous_workload_executed": true,
+        "model_calls": 2,
+        "signed_batches": 44,
+        "signed_health_records": 3,
+        "signed_receipts": 2,
+        "observation_coverage": "SIGNED_ACTIVE_FOR_WINDOW",
+        "reconciliation_result": "CannotProve",
+        "reconciliation_reason": "ActionEvidenceUnavailable",
+        "identity": {
+          "Match": {
+            "observations": 4
+          }
+        },
+        "workflow_reported_archive_verified": true,
+        "workflow_reported_checkpoint_verified": true,
+        "workflow_reported_signed_reconciliation_verified": true,
+        "workflow_offline_batch_records": 44,
+        "workflow_offline_kernel_events": 993,
+        "workflow_offline_health_records": 3,
+        "workflow_offline_findings": [],
+        "separate_administrative_custody": "INCOMPLETE"
+      },
+      {
+        "phase": "observer_interruption",
+        "artifact_directory": "same-run-interruption",
+        "status": "PASS",
+        "run_id": "same-run-97a37dc6bd40c8f483bd243e",
+        "validation_profile": "OBSERVER_INTERRUPTION",
+        "autonomous_workload_executed": true,
+        "model_calls": 2,
+        "signed_batches": 18,
+        "signed_health_records": 4,
+        "signed_receipts": 2,
+        "observation_coverage": "UNAVAILABLE_OBSERVER_INTERRUPTED",
+        "reconciliation_result": "CannotProve",
+        "reconciliation_reason": "WindowNotCovered",
+        "identity": "NoReference",
+        "workflow_reported_archive_verified": true,
+        "workflow_reported_checkpoint_verified": true,
+        "workflow_reported_signed_reconciliation_verified": true,
+        "workflow_offline_batch_records": 18,
+        "workflow_offline_kernel_events": 307,
+        "workflow_offline_health_records": 4,
+        "workflow_offline_findings": [],
+        "separate_administrative_custody": "INCOMPLETE"
+      },
+      {
+        "phase": "recovery",
+        "artifact_directory": "same-run-recovery",
+        "status": "PASS",
+        "run_id": "same-run-0d852476a327d3b7b45b7935",
+        "validation_profile": "OBSERVED_EXECUTION",
+        "autonomous_workload_executed": true,
+        "model_calls": 2,
+        "signed_batches": 46,
+        "signed_health_records": 4,
+        "signed_receipts": 2,
+        "observation_coverage": "SIGNED_ACTIVE_FOR_WINDOW",
+        "reconciliation_result": "CannotProve",
+        "reconciliation_reason": "ActionEvidenceUnavailable",
+        "identity": {
+          "Match": {
+            "observations": 4
+          }
+        },
+        "workflow_reported_archive_verified": true,
+        "workflow_reported_checkpoint_verified": true,
+        "workflow_reported_signed_reconciliation_verified": true,
+        "workflow_offline_batch_records": 46,
+        "workflow_offline_kernel_events": 930,
+        "workflow_offline_health_records": 4,
+        "workflow_offline_findings": [],
+        "separate_administrative_custody": "INCOMPLETE"
+      }
+    ],
+    "same_full_sensor_service_workload": false,
+    "independent_administration": false,
+    "separate_local_network_disabled_replay": "PASS",
+    "local_offline_receipt": "evidence/c683134/genuine-agent-offline-local.json"
   },
-  "fresh_linux_interference_rehearsal": {
-    "status": "PASS",
-    "workflow_run_id": 44916522539,
-    "artifact_id": 14711873252,
-    "batches": 85,
-    "kernel_events": 3696,
-    "health": 4,
-    "local_offline_receipt": "evidence/32619a1/rbi-offline-local.json"
-  },
-  "ci_security": "FAIL_NO_NEW_WAIVERS",
-  "functional_linux_ci": "PASS",
-  "linux_coverage": {
-    "status": "PASS",
-    "passed": 3322,
-    "failed": 0,
-    "ignored": 7,
-    "artifact_id": 14712177239
-  },
-  "linux_workspace_debug": {
-    "tests": {
-      "passed": 3322,
+  "linux_ci": {
+    "status": "COMPLETE_PASS_FOR_TESTED_RUNTIME",
+    "functional_summary": "ci/c683134-results.json",
+    "security_summary": "ci/c683134-security.json",
+    "workflows": 8,
+    "jobs": {
+      "success": 22,
+      "failure": 0,
+      "skipped": 3
+    },
+    "ordinary_pr_checkout": "d550820723cc3af85bae2fb0556e425f4208e7c1",
+    "debug": {
+      "passed": 3329,
       "failed": 0,
       "ignored": 7
     },
-    "doctests": {
-      "passed": 2,
-      "failed": 0,
-      "ignored": 2
-    },
-    "result_lines": 335
-  },
-  "linux_workspace_release": {
-    "tests": {
-      "passed": 3324,
+    "release": {
+      "passed": 3331,
       "failed": 0,
       "ignored": 5
     },
-    "doctests": {
+    "doctests_each_profile": {
       "passed": 2,
       "failed": 0,
       "ignored": 2
     },
-    "result_lines": 335
+    "coverage": {
+      "passed": 3329,
+      "failed": 0,
+      "ignored": 7,
+      "line_percent": 82.9259
+    },
+    "fatal_sensor_regressions": "BOTH_PASS_DEBUG_RELEASE_COVERAGE",
+    "g14_04_release_repetitions": {
+      "passed": 20,
+      "failed": 0,
+      "assertions_unchanged": true
+    }
   },
-  "linux_ci_job_totals": {
-    "success": 16,
-    "failure": 3,
-    "skipped": 3
+  "ci_security": {
+    "status": "PASS_PR_SCOPE",
+    "jobs_passed": 4,
+    "credential_controls_passed": 10,
+    "full_pr_ancestry_commits": 48,
+    "history_findings": 0,
+    "tree_findings": 0,
+    "trivy_high_critical": 0,
+    "cargo_audit_dependencies": 312,
+    "existing_advisory_ignore": [
+      "RUSTSEC-2026-0097"
+    ],
+    "new_advisory_waivers": false,
+    "scheduled_entire_head_ancestry": {
+      "classification": "REMAINING_HISTORICAL_FINDING",
+      "head": "c683134c59b50950e4eab176d37292683c61930d",
+      "ancestry_commits": 423,
+      "log_opts": "c683134c59b50950e4eab176d37292683c61930d",
+      "config_sha256": "5e093771471683daa7d2348c13413f0bbf82f52009b54887baa46a561404f655",
+      "exit_code": 1,
+      "findings": 1,
+      "rules": {
+        "github-pat": 1
+      },
+      "location": {
+        "path": "aip-standalone/aip-aibom/tests/discovery.rs",
+        "line": 12,
+        "commit": "9f1b5e407b88b6a3a6d925746052e49f722678ff"
+      },
+      "finding_fingerprint_sha256": "3543c50b0cb9cea8e55eb1f529b79f043cb250d485fde7b66cabbb5183add7da",
+      "assessment": "Historical parser/redaction test literal; current source replaced with an unmistakable noncredential fixture. Original creation and all eight tested offline checksum combinations support synthetic intent, but the retrieved primary provider specification omits exact alphabet/input conventions and issuance provenance was not recovered. The historical provider finding remains visible.",
+      "provider_exception_added": false,
+      "credential_network_validation_performed": false,
+      "history_rewritten": false,
+      "scope_note": "Local validation of the scheduled-mode entire HEAD ancestry, not a GitHub scheduled run and not an all-refs scan."
+    }
   },
-  "linux_ci_summary": "ci/32619a1-FINAL-OUTCOMES.md",
-  "security_findings": {
-    "gitleaks": 217,
-    "trivy_high": 4,
-    "cargo_deny": "RUSTSEC-2026-0543 chrono unmaintained",
-    "audit_additional_warning": "RUSTSEC-2026-0486 rustix unsound",
-    "new_waivers": false
-  },
-  "red_ledger": {
-    "runnable_reproduced": 43,
-    "blocked": 10,
-    "notes": 2
-  },
-  "blocked_pilot_requirements": [
-    "Approve and actually qualify the inactive full-sensor service profile on disposable Linux.",
-    "Configure a separately administered Linux collector with independent signing-key, state and checkpoint control.",
-    "Execute selected/unselected agents, collector outage/replay, probe/collector restart and offline acceptance against those approved hosts.",
-    "Qualify capacity and persistent customer-host behavior; resolve CI security gates."
+  "separate_administration": "BLOCKED_INFRASTRUCTURE",
+  "fresh_scoped_full_sensor_customer_pilot_workload": "NOT_RUN",
+  "pilot_host_persistent_storage_and_capacity": "NOT_RUN",
+  "remaining_requirements": [
+    "Separately administered reachable Linux collector: connection/runner configuration name and approved secret names, independently controlled signing/Noise keys, passphrase, continuity storage and public checkpoints.",
+    "Selected/unselected genuine customer workload under the final full-sensor scoped service across approved hosts, with outage/replay/restart and independent trust/checkpoint offline verification.",
+    "Installed-service queue-full, storage-write failure and corrupt-spool checks, persistent host reboot/power-loss recovery, sustained loss/overhead/capacity and receipt retention.",
+    "Customer security-owner acceptance of broad read/capability access and manual reenrollment, one-million-receipt and archive/key-rotation limits.",
+    "Conclusive provenance or revocation confirmation for the remaining historical provider-shaped fixture; no new provider exception or history rewrite."
+  ],
+  "not_validated": [
+    "Agent Zero genuine task",
+    "DeerFlow genuine task",
+    "OpenHands genuine task",
+    "customer production deployment",
+    "independent custody"
+  ],
+  "limits": [
+    "Controlled full-sensor qualification and genuine AI execution are separate workloads and archives; their results cannot be combined into a full-sensor AI customer-pilot claim.",
+    "The baseline is a prefix of the final full-sensor archive; do not sum its records.",
+    "Scoped health provides neither aggregate coverage nor logical agent identity; genuine normal/recovery retain CannotProve(ActionEvidenceUnavailable), interruption retains CannotProve(WindowNotCovered).",
+    "PR CI is green only in its documented scope; one older provider finding remains in the local 423-ancestor scan.",
+    "Report publication is separate from the immutable runtime source bound by these evidence records."
   ]
 }

@@ -1,0 +1,192 @@
+{
+  "source_head": "c683134c59b50950e4eab176d37292683c61930d",
+  "artifact_id": 14940662060,
+  "workflow_run_id": 45433546227,
+  "platform": "Darwin",
+  "verified_at_utc": "2026-11-24T16:24:23.594714+00:00",
+  "network_policy": "(version 1) (allow default) (deny network*)",
+  "network_denial_errno": 1,
+  "network_denial_check": "IPv4 loopback bind refused with EPERM before each verifier child; child inherits deny network* policy",
+  "verifier_sha256": "c74cdfacaa76e66d94528ae8e9c393cfe691db9481bcb5d5e1589b29ed8e510b",
+  "verifier_build": {
+    "command": "cargo build --offline --locked -p aip-observe-verify --bin aip-observe-verify",
+    "cache": "managed dependency-fixes/target",
+    "source_commit": "c683134c59b50950e4eab176d37292683c61930d",
+    "source_tree": "c90820c494f56f0835063f26ee45d81aabf33f10",
+    "tracked_build_inputs_unchanged": true,
+    "root_manifest_sha256": "92570aa1dafa633bc1376d126ddf835b58fa479e52045caba1b984307554708d",
+    "lockfile_sha256": "4c08c334608ac86b7ce2025658eb68af96418f74f1eaebbdc8dadbeb9991a160",
+    "workspace_sources_tree": "07078967a522d86eb17a4284a59c78b9e4156b71",
+    "verifier_package_tree": "401bde4d4af2c951a28ab5ee8fc1e5f611437adc",
+    "cargo_incremental": "0",
+    "cargo_profile_dev_debug": "0",
+    "cargo_profile_test_debug": "0",
+    "rustc": "rustc 1.91.1 (ed61e7d7e 2025-11-07)"
+  },
+  "original_zip_sha256": "5ce80aab09e3a65ede3514377128668fd054c216e781cf7bf53f22f443e9759a",
+  "original_zip_bytes": 1126674,
+  "profiles": {
+    "same-run": {
+      "original_evidence": {
+        "exit_code": 0,
+        "batches": 44,
+        "health": 3,
+        "findings": 0,
+        "kernel_events": 993,
+        "network_denial_errno": 1
+      },
+      "deleted_middle_record": {
+        "exit_code": 1,
+        "findings": 2,
+        "deleted_zero_based_index": 22,
+        "original_records": 44,
+        "remaining_records": 43,
+        "checkpoint_mismatch": true,
+        "network_denial_errno": 1
+      },
+      "archive_sha256": {
+        "attested.archive.jsonl": "31fd2c98054076c0f156f548172df43b28c71f6329385c93141f360856c009bb",
+        "health.archive.jsonl": "8ac16714eed79130d5ded2958ea32970f209f8ecae96b22f0f37d779a58af765"
+      },
+      "trust_files_sha256": {
+        "observer-anchor.json": "3efb6f3e4fdbb4eeee09b6c2c42ce35d803391368dc10e06aadfc64cebbe4812",
+        "checkpoint.json": "d02e7d9d040b0cb0a50efa3fdfbd01ba78ee99b6e52c468d6ff3ce261590ef84"
+      },
+      "controller_manifest_sha256": "656374c872b8811114b111327f3382aa05ddc7af9d300d2f8c6dbf8b7a87dfdf",
+      "observer_id": "collector.same-run",
+      "key_version": 1,
+      "original_files_unchanged": true,
+      "controller_report": {
+        "status": "PASS",
+        "source_commit": "c683134c59b50950e4eab176d37292683c61930d",
+        "run_id": "same-run-3d06e6666eb242b084c8d2d9",
+        "model_id": "ollama:llama3.2:1b@sha256:baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+        "model_calls": 2,
+        "autonomous_workload_executed": true,
+        "validation_profile": "OBSERVED_EXECUTION",
+        "observation_coverage": "SIGNED_ACTIVE_FOR_WINDOW",
+        "separate_administrative_custody": "INCOMPLETE"
+      },
+      "controller_reconciliation": {
+        "result": "CannotProve",
+        "reason": "ActionEvidenceUnavailable",
+        "action": "Unobservable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        }
+      }
+    },
+    "same-run-interruption": {
+      "original_evidence": {
+        "exit_code": 0,
+        "batches": 18,
+        "health": 4,
+        "findings": 0,
+        "kernel_events": 307,
+        "network_denial_errno": 1
+      },
+      "deleted_middle_record": {
+        "exit_code": 1,
+        "findings": 2,
+        "deleted_zero_based_index": 9,
+        "original_records": 18,
+        "remaining_records": 17,
+        "checkpoint_mismatch": true,
+        "network_denial_errno": 1
+      },
+      "archive_sha256": {
+        "attested.archive.jsonl": "a489f58d9e2f4660dbe0ef9373b0740924c1d0664a9ae66e007e0e457c57f69b",
+        "health.archive.jsonl": "daf91bd511d48f497039604a266500bde9e9c3216d7e1b3b497b09c0a6589115"
+      },
+      "trust_files_sha256": {
+        "observer-anchor.json": "606575a9f4460e35176ca96e89e22e9f2ef794e3331db37fa202d54a93b69f04",
+        "checkpoint.json": "be5063624bf16976fb591d8388f7e2c5f24544828a965e97640dcdf796b1f907"
+      },
+      "controller_manifest_sha256": "1d564d61d2706b69b677a533edf737b980ddaf758298e18478838eaa8a56f656",
+      "observer_id": "collector.same-run",
+      "key_version": 1,
+      "original_files_unchanged": true,
+      "controller_report": {
+        "status": "PASS",
+        "source_commit": "c683134c59b50950e4eab176d37292683c61930d",
+        "run_id": "same-run-97a37dc6bd40c8f483bd243e",
+        "model_id": "ollama:llama3.2:1b@sha256:baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+        "model_calls": 2,
+        "autonomous_workload_executed": true,
+        "validation_profile": "OBSERVER_INTERRUPTION",
+        "observation_coverage": "UNAVAILABLE_OBSERVER_INTERRUPTED",
+        "separate_administrative_custody": "INCOMPLETE"
+      },
+      "controller_reconciliation": {
+        "result": "CannotProve",
+        "reason": "WindowNotCovered",
+        "action": "Unobservable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        }
+      }
+    },
+    "same-run-recovery": {
+      "original_evidence": {
+        "exit_code": 0,
+        "batches": 46,
+        "health": 4,
+        "findings": 0,
+        "kernel_events": 930,
+        "network_denial_errno": 1
+      },
+      "deleted_middle_record": {
+        "exit_code": 1,
+        "findings": 2,
+        "deleted_zero_based_index": 23,
+        "original_records": 46,
+        "remaining_records": 45,
+        "checkpoint_mismatch": true,
+        "network_denial_errno": 1
+      },
+      "archive_sha256": {
+        "attested.archive.jsonl": "fe48d9646ba8241c8533f07655f5672d028e10b4e3c64ca8df6faceb78c119b4",
+        "health.archive.jsonl": "ef9a2a0ba12d1a1112aa80c74e014e966513525450ea586b78dc985eefff4fdb"
+      },
+      "trust_files_sha256": {
+        "observer-anchor.json": "4e41af4027a6d7de3cad8440b95fe84e0e9ee8172d43e520197ce283cb75c1c2",
+        "checkpoint.json": "6011e4efffbe11cc6f69775cfb129c6a148aaf51aa3d70180b24af93ce611757"
+      },
+      "controller_manifest_sha256": "4f763ccbe8e92b78db1fcf9cc620ca0bc3fe1284656a003b9dcd3d1e3dbd9b47",
+      "observer_id": "collector.same-run",
+      "key_version": 1,
+      "original_files_unchanged": true,
+      "controller_report": {
+        "status": "PASS",
+        "source_commit": "c683134c59b50950e4eab176d37292683c61930d",
+        "run_id": "same-run-0d852476a327d3b7b45b7935",
+        "model_id": "ollama:llama3.2:1b@sha256:baf6a787fdffd633537aa2eb51cfd54cb93ff08e28040095462bb63daf552878",
+        "model_calls": 2,
+        "autonomous_workload_executed": true,
+        "validation_profile": "OBSERVED_EXECUTION",
+        "observation_coverage": "SIGNED_ACTIVE_FOR_WINDOW",
+        "separate_administrative_custody": "INCOMPLETE"
+      },
+      "controller_reconciliation": {
+        "result": "CannotProve",
+        "reason": "ActionEvidenceUnavailable",
+        "action": "Unobservable",
+        "availability": {
+          "Unavailable": {
+            "reason": "WindowNotCovered"
+          }
+        }
+      }
+    }
+  },
+  "separate_collector_administration": false,
+  "trust_boundary": "Public anchors and controller checkpoints were retained from the same hosted administration. This is independent verifier execution, not independent collector custody.",
+  "verification_scope": "Signatures, archive chain integrity and exact controller checkpoint hashes. Controller workload/model claims remain attributed to their original reports; no model or network is used during replay.",
+  "network_denial_checks_passed": 6,
+  "original_zip_unchanged": true,
+  "status": "PASS"
+}
